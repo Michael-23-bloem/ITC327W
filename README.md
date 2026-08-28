@@ -34,7 +34,7 @@ Customers currently have to message the owner directly (e.g. via WhatsApp) to se
 
 | Name | GitHub Username | Role |
 |------|------------------|------|
-| [Name] | [@username] | [e.g. Front-end Developer (Flutter)] |
+| Siyabonga | Siya-23 | [e.g. Front-end Developer (Flutter)] |
  
 
 ---
