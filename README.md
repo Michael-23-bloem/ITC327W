@@ -128,7 +128,7 @@ Customers currently have to message the owner directly (e.g. via WhatsApp) to se
 
 ## Documentation
 
-- [Software Requirements Specification](Documents/GROUP K SRS.pdf)
+- [Software Requirements Specification](Documents/GROUP-K-SRS.pdf)
   
 
 ---
