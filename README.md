@@ -34,7 +34,16 @@ Customers currently have to message the owner directly (e.g. via WhatsApp) to se
 
 | Name | GitHub Username | Role |
 |------|------------------|------|
-| Siyabonga | Michael-23-bloem |  |
+| Mchaisa M | Michael-23-bloem |  |
+ | Motlhakane M | ValiantAlias |  |
+ | Ramotete KJ | Kat-7-coder |  |
+ | Khiba SP | SonopoKhiba |  |
+ | Modisana MD | Robert-67 |  |
+ | Semela K | WANO-10 |  |
+ | Phahlane LG | Galalentsang_Phahlane |  |
+ | Khunyeli P | PabloSamurai |  |
+ | Gumede N | NomveloG |  |
+ | Makara K | Michael-23-bloem |  |
  
 
 ---
