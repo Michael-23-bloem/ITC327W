@@ -43,7 +43,7 @@ Customers currently have to message the owner directly (e.g. via WhatsApp) to se
  | Phahlane LG | Galalentsang_Phahlane |  |
  | Khunyeli P | PabloSamurai |  |
  | Gumede N | NomveloG |  |
- | Makara K | Michael-23-bloem |  |
+ | Makara K | MAKARA KARABO |  |
  
 
 ---
