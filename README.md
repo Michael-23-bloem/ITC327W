@@ -24,7 +24,7 @@ A cross-platform booking and portfolio management system for a décor/events bus
 
 **Course/Module:** [Work Integrated Learning]
 **Institution:** [Central University of Technology]
-**Submission Date:** [31 August 2026]
+**Submission Date:** [04 SEPTEMBER 2026]
 
 Customers currently have to message the owner directly (e.g. via WhatsApp) to see past work, get pricing, and book events. This platform replaces that with a self-service portfolio browser, an instant cost estimator, and a direct booking/inquiry flow — with a dedicated dashboard for the owner to manage everything in one place instead of scattered personal messages.
 
@@ -128,7 +128,7 @@ Customers currently have to message the owner directly (e.g. via WhatsApp) to se
 
 ## Documentation
 
-- [Software Requirements Specification](Documents/Group K SRS.pdf)
+- [Software Requirements Specification](Documents/GROUP K SRS.pdf)
   
 
 ---
