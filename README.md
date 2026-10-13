@@ -133,6 +133,14 @@ Customers currently have to message the owner directly (e.g. via WhatsApp) to se
 
 ---
 
+
+## Phase 2 Links
+
+| Name | Links | Documents |
+|------|-------|-----------|
+| System Architecture Design | [System Architecture Design](https://lucid.app/lucidchart/44240553-e1a3-49a9-8e37-b2206e969dba/edit?viewport_loc=-1322%2C-1177%2C2712%2C3659%2C0_0&invitationId=inv_c65493ad-0815-4808-a067-4fa283bc9b11 |
+
+
 ## License
 
 [ MIT License ]
