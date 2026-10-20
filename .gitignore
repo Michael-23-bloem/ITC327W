@@ -1,0 +1,11 @@
+# Visual Studio / ASP.NET
+.vs/
+*.vsidx
+bin/
+obj/
+
+# Flutter / Dart
+.dart_tool/
+build/
+.pub-cache/
+pubspec.lock
