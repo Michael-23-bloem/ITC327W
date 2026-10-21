@@ -19,10 +19,7 @@ namespace FirstWebApp.Controllers
             return View(products);
         }
 
-        public IActionResult Details
-        {
-           
-        }
+       
 
     }
 }
