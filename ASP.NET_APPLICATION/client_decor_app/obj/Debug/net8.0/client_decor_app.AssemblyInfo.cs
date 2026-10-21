@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("client_decor_app")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+06b3296dc26ecf8a0e0fcbfd252ce754a52f3fcf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f1af3b353784208424da7eb1c134012577b75ace")]
 [assembly: System.Reflection.AssemblyProductAttribute("client_decor_app")]
 [assembly: System.Reflection.AssemblyTitleAttribute("client_decor_app")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

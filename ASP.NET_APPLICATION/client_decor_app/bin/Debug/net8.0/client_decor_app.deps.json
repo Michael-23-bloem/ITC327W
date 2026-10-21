@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "client_decor_app/1.0.0": {
+        "runtime": {
+          "client_decor_app.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "client_decor_app/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
