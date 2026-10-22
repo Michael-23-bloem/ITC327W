@@ -1,0 +1,41 @@
+@model client_decor_app.Models.CatalogueViewModel
+@{
+    ViewData["Title"] = "Decor Catalogue";
+}
+
+<h1 class="page-title">Decor Catalogue</h1>
+
+@if (TempData["Added"] is string added)
+{
+    <div class="alert alert-dark py-2 small" role="status">@added</div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <partial name="_CatalogueTabs" model="Model" />
+
+        @if (!Model.Items.Any())
+        {
+            <p class="text-muted mt-4">
+                No @(Model.Tab == "Packages" ? "packages" : "products") match
+                “@Model.Search”. Try a different word or clear the search.
+            </p>
+        }
+        else
+        {
+            <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+                @foreach (var item in Model.Items)
+                {
+                    <div class="col">
+                        <partial name="_ItemCard" model="item" />
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="col-lg-4">
+        <partial name="_EstimateSidebar" />
+        <partial name="_AvailabilityModal" />
+    </div>
+</div>

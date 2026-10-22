@@ -1,0 +1,28 @@
+@model client_decor_app.Models.PortfolioItem
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<a asp-action="Index" class="small text-dark">‹ Back to portfolio</a>
+
+<div class="row g-4 mt-1">
+    <div class="col-md-7">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="@Model.Title" class="portfolio-hero" />
+        }
+        else
+        {
+            <div class="portfolio-hero item-image--placeholder">No image yet</div>
+        }
+    </div>
+
+    <div class="col-md-5">
+        <span class="badge text-bg-light border">@Model.Category</span>
+        <h1 class="page-title mt-2 mb-2">@Model.Title</h1>
+        <p>@Model.Description</p>
+        <p class="fw-semibold">Event cost: R @Model.EventCost.ToString("N0")</p>
+
+        <a asp-controller="Catalogue" asp-action="Products" class="btn btn-dark">Start your estimate</a>
+    </div>
+</div>

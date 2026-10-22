@@ -1,0 +1,35 @@
+@model client_decor_app.Models.CatalogueItem
+
+<div class="item-card">
+    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+    {
+        <img src="@Model.ImageUrl" alt="@Model.Name" class="item-image" />
+    }
+    else
+    {
+        <div class="item-image item-image--placeholder">No image yet</div>
+    }
+
+    <div class="item-body">
+        <div class="item-name">@Model.Name</div>
+        <div class="item-desc">@Model.Description</div>
+        <div class="item-price">R @Model.Price.ToString("N0") each</div>
+
+        <div class="item-actions">
+            <div class="qty-stepper">
+                <button type="button" data-step="-1" aria-label="Decrease quantity">−</button>
+                <input type="number" name="quantity" value="1" min="1" max="999"
+                       aria-label="Quantity for @Model.Name" />
+                <button type="button" data-step="1" aria-label="Increase quantity">+</button>
+            </div>
+
+            <button type="button" class="btn btn-dark btn-sm js-check-availability"
+                    data-item-id="@Model.Id"
+                    data-name="@Model.Name"
+                    data-price="@Model.Price.ToString("N0")"
+                    data-image="@Model.ImageUrl">
+                Add to estimate
+            </button>
+        </div>
+    </div>
+</div>

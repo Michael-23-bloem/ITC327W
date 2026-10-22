@@ -1,0 +1,22 @@
+@model client_decor_app.Models.PortfolioItem
+
+<div class="item-card">
+    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+    {
+        <img src="@Model.ImageUrl" alt="@Model.Title" class="item-image" />
+    }
+    else
+    {
+        <div class="item-image item-image--placeholder">No image yet</div>
+    }
+
+    <div class="item-body">
+        <div class="item-name">@Model.Title</div>
+        <div class="item-desc">@Model.Description</div>
+        <div class="item-price fw-semibold">Event cost: R @Model.EventCost.ToString("N0")</div>
+
+        <div class="item-actions justify-content-end">
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-dark btn-sm">View portfolio</a>
+        </div>
+    </div>
+</div>

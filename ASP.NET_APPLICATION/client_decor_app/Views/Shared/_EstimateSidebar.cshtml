@@ -1,0 +1,38 @@
+@inject client_decor_app.Services.EstimateService Estimate
+@{
+    var lines = Estimate.GetLines();
+}
+
+<aside class="estimate-box" aria-label="Your instant estimate">
+    <h2 class="estimate-title">Your instant estimate</h2>
+
+    @if (Estimate.EventDate is DateTime eventDate)
+    {
+        <p class="small text-muted mb-2">Event date: @eventDate.ToString("d MMM yyyy")</p>
+    }
+
+    @if (!lines.Any())
+    {
+        <p class="small text-muted mb-3">Add items from the catalogue to see a running total.</p>
+    }
+    else
+    {
+        <ul class="estimate-lines">
+            @foreach (var line in lines)
+            {
+                <li>
+                    <span>@line.Name x @line.Quantity @(line.NotAvailable ? "(not available)" : "")</span>
+                    <span>R @line.LineTotal.ToString("N0")</span>
+                </li>
+            }
+        </ul>
+    }
+
+    <div class="estimate-total">
+        <span>Estimated total</span>
+        <span>R @Estimate.Total.ToString("N0")</span>
+    </div>
+    <p class="estimate-note">Indicative only. Final price is in your quotation.</p>
+
+    <a asp-controller="Estimate" asp-action="Index" class="btn btn-dark w-100">View estimate</a>
+</aside>

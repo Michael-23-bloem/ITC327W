@@ -1,0 +1,63 @@
+@inject client_decor_app.Services.EstimateService Estimate
+@{
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+    var savedDate = Estimate.EventDate?.ToString("yyyy-MM-dd") ?? "";
+    var minDate = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
+}
+
+<div class="modal fade" id="availabilityModal" tabindex="-1" aria-labelledby="availabilityTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content availability-modal">
+            <form asp-controller="Estimate" asp-action="Add" method="post">
+                <input type="hidden" name="itemId" id="avItemId" />
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+                <div class="modal-header border-0 pb-0">
+                    <h2 class="page-title mb-0" id="availabilityTitle">Check availability</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div id="avImage" class="av-image item-image--placeholder">No image yet</div>
+                        <div>
+                            <div id="avName" class="fw-semibold"></div>
+                            <div id="avPrice" class="small"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 align-items-end">
+                        <div class="flex-grow-1">
+                            <label for="avDate" class="form-label small mb-1">Event date</label>
+                            <input type="date" id="avDate" name="eventDate" class="form-control"
+                                   min="@minDate" value="@savedDate" required />
+                        </div>
+                        <div>
+                            <label for="avQty" class="form-label small mb-1 d-block text-end">Quantity</label>
+                            <div class="qty-stepper">
+                                <button type="button" data-step="-1" aria-label="Decrease quantity">−</button>
+                                <input type="number" id="avQty" name="quantity" value="1" min="1" max="999" />
+                                <button type="button" data-step="1" aria-label="Increase quantity">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="form-text mb-3">Stock is checked for your event date. We'll reuse this date in your request.</p>
+
+                    <div id="avStatus" class="av-status" role="status" aria-live="polite"></div>
+
+                    <div id="avOptions" class="av-options" hidden>
+                        <div class="small fw-semibold">Options</div>
+                        <button type="submit" name="choice" value="available" id="avAddAvailable" class="btn btn-dark"></button>
+                        <button type="button" id="avTryDate" class="btn btn-outline-dark">Try a different event date</button>
+                        <a id="avAsk" class="btn btn-outline-dark" href="#">Ask about alternatives</a>
+                        <button type="submit" name="choice" value="requested" id="avAddRequested" class="btn btn-outline-dark mt-2"></button>
+                    </div>
+
+                    <button type="button" class="btn btn-link text-dark fw-semibold text-decoration-none w-100"
+                            data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,46 +1,106 @@
-﻿<!DOCTYPE html>
+@inject client_decor_app.Services.EstimateService Estimate
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    string Active(string name) => controller == name ? "active" : "";
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - client_decor_app</title>
+    <title>@ViewData["Title"] - AkeaEvents</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/client_decor_app.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">client_decor_app</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+        <nav class="navbar navbar-expand-lg site-nav">
+            <div class="container-fluid px-lg-4">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <span class="brand-logo" aria-hidden="true"></span>
+                    AkeaEvents
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#mainNav" aria-controls="mainNav"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                        <li class="nav-item"><a class="nav-link @Active("Home")" asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="nav-item"><a class="nav-link @Active("Portfolio")" asp-controller="Portfolio" asp-action="Index">Portfolio</a></li>
+                        <li class="nav-item"><a class="nav-link @Active("Catalogue")" asp-controller="Catalogue" asp-action="Index">Catalogue</a></li>
+                        <li class="nav-item"><a class="nav-link @Active("Quotes")" asp-controller="Quotes" asp-action="Index">My Quotes</a></li>
+                        <li class="nav-item"><a class="nav-link @Active("Enquiries")" asp-controller="Enquiries" asp-action="Index">Enquiries</a></li>
+                        <li class="nav-item"><a class="nav-link @Active("About")" asp-controller="About" asp-action="Index">About us</a></li>
                     </ul>
+
+                    <div class="d-flex align-items-center gap-3 ms-lg-4 mt-3 mt-lg-0">
+                        <a class="btn btn-dark btn-sm" asp-controller="Estimate" asp-action="Index">
+                            Estimate (@Estimate.Count)
+                        </a>
+                        @* Point this at your login page once you add Identity *@
+                        <a class="nav-link fw-semibold p-0" href="#">Log in</a>
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - client_decor_app - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main class="container-fluid px-lg-4 py-4">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container-fluid px-lg-4">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="footer-brand">AkeaEvents</div>
+                    <p class="footer-tagline">Every celebration, thoughtfully managed.</p>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h2 class="footer-heading">Explore</h2>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Catalogue" asp-action="Products">Catalogue</a></li>
+                        <li><a asp-controller="Catalogue" asp-action="Packages">Packages</a></li>
+                        <li><a asp-controller="Portfolio" asp-action="Index">Portfolio</a></li>
+                        <li><a asp-controller="About" asp-action="Index">About us</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h2 class="footer-heading">Help</h2>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Quotes" asp-action="Index">My Quotes</a></li>
+                        <li><a asp-controller="Enquiries" asp-action="Index">Contact us</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h2 class="footer-heading">Contact</h2>
+                    <ul class="footer-links">
+                        <li>WhatsApp 0XX XXX XXXX</li>
+                        <li>[Email address]</li>
+                        <li>[Service area]</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <span>&copy; @DateTime.Now.Year AkeaEvents</span>
+                <span>
+                    <a href="#">Terms</a> ·
+                    <a asp-controller="Home" asp-action="Privacy">Privacy Policy (POPIA)</a>
+                </span>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

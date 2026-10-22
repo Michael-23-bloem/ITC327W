@@ -1,0 +1,32 @@
+@model client_decor_app.Models.PortfolioViewModel
+@{
+    ViewData["Title"] = "Our Portfolio";
+}
+
+<h1 class="page-title mb-1">Our Portfolio</h1>
+<p class="text-muted small">Previous décor work by AkeaEvents. No account needed to browse.</p>
+
+<nav class="filter-pills" aria-label="Filter by event type">
+    <a asp-action="Index" class="@(Model.Category == null ? "active" : "")">All</a>
+    @foreach (var cat in Model.Categories)
+    {
+        <a asp-action="Index" asp-route-category="@cat"
+           class="@(Model.Category == cat ? "active" : "")">@cat</a>
+    }
+</nav>
+
+@if (!Model.Items.Any())
+{
+    <p class="text-muted mt-4">No @Model.Category events yet. Check back soon or view all events.</p>
+}
+else
+{
+    <div class="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-3">
+        @foreach (var item in Model.Items)
+        {
+            <div class="col">
+                <partial name="_PortfolioCard" model="item" />
+            </div>
+        }
+    </div>
+}

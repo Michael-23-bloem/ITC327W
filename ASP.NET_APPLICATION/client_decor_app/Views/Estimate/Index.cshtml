@@ -1,0 +1,55 @@
+@model List<client_decor_app.Models.EstimateLine>
+@{
+    ViewData["Title"] = "Your estimate";
+    var total = Model.Sum(l => l.LineTotal);
+}
+
+<h1 class="page-title">Your estimate</h1>
+
+@if (!Model.Any())
+{
+    <p>Your estimate is empty.</p>
+    <a asp-controller="Catalogue" asp-action="Products" class="btn btn-dark">Browse the catalogue</a>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-end">Qty</th>
+                    <th class="text-end">Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var line in Model)
+                {
+                    <tr>
+                        <td>@line.Name @(line.NotAvailable ? "(not available)" : "")</td>
+                        <td class="text-end">R @line.Price.ToString("N0")</td>
+                        <td class="text-end">@line.Quantity</td>
+                        <td class="text-end">R @line.LineTotal.ToString("N0")</td>
+                        <td class="text-end">
+                            <form asp-action="Remove" method="post">
+                                <input type="hidden" name="itemId" value="@line.ItemId" />
+                                <button type="submit" class="btn btn-link btn-sm text-danger">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="fw-bold">
+                    <td colspan="3">Estimated total</td>
+                    <td class="text-end">R @total.ToString("N0")</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <p class="estimate-note">Indicative only. Final price is in your quotation.</p>
+    <a asp-controller="Catalogue" asp-action="Products" class="btn btn-outline-dark">Keep browsing</a>
+}
