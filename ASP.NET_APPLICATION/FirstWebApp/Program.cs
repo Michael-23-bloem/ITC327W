@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Supabase.Extensions.DependencyInjection;
 
 namespace FirstWebApp
 {
@@ -12,25 +13,12 @@ namespace FirstWebApp
             builder.Services.AddControllersWithViews();
 
             // Supabase client: scoped, so one user's session is never shared with another
-            builder.Services.AddScoped(_ =>
-            {
-                var url = builder.Configuration["Supabase:Url"]!;
-                var key = builder.Configuration["Supabase:AnonKey"]!;
-                return new Supabase.Client(url, key, new Supabase.SupabaseOptions
-                {
-                    AutoRefreshToken = true,
-                    AutoConnectRealtime = true
-                });
-            });
+            builder.Services.AddSupabase(
+                 builder.Configuration["Supabase:Url"]!,
+                 builder.Configuration["Supabase:Key"]!
+            );
 
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.LoginPath = "/Account/Login";
-                    options.AccessDeniedPath = "/Account/Login";
-                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
-                    options.SlidingExpiration = true;
-                });
+
 
 
             var app = builder.Build();

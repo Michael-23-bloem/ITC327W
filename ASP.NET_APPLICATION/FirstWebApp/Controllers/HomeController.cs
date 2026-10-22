@@ -9,14 +9,24 @@ namespace FirstWebApp.Controllers
 {
     public class HomeController : Controller
     {
-        
-        public HomeController()
+        private readonly Supabase.Client _supabase;
+        public HomeController(Supabase.Client supabase)
         {
-           
+            _supabase = supabase;
         }
 
         public async Task<IActionResult> Index()
         {
+            try
+            {
+                await _supabase.InitializeAsync();
+                
+                ViewData["Status"] = "Connected to Supabase ✔";
+            }
+            catch (Exception ex)
+            {
+                ViewData["Status"] = $"Connection failed: {ex.Message}";
+            }
             return View();
         }
 
