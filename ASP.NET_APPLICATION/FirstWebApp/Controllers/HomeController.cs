@@ -21,22 +21,7 @@ namespace FirstWebApp.Controllers
         }
 
         public IActionResult Privacy() => View();
-        [HttpGet]
-        public IActionResult RsvpForm()
-        {
-            return View();
-        }
-        [HttpPost]
-        public IActionResult RsvpForm(GuestResponse response)
-        {
-            
-            if (response.WillAttend == true) 
-            { return View(response); }
-
-
-            response.Name = "Motheo";
-            return View("Thanks",response);
-        }
+        
         public IActionResult Error()
         {
             return View();

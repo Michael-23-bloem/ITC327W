@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 namespace FirstWebApp
 {
     public class Program
@@ -8,6 +10,28 @@ namespace FirstWebApp
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            // Supabase client: scoped, so one user's session is never shared with another
+            builder.Services.AddScoped(_ =>
+            {
+                var url = builder.Configuration["Supabase:Url"]!;
+                var key = builder.Configuration["Supabase:AnonKey"]!;
+                return new Supabase.Client(url, key, new Supabase.SupabaseOptions
+                {
+                    AutoRefreshToken = true,
+                    AutoConnectRealtime = true
+                });
+            });
+
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Account/Login";
+                    options.AccessDeniedPath = "/Account/Login";
+                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                    options.SlidingExpiration = true;
+                });
+
 
             var app = builder.Build();
 
@@ -24,6 +48,7 @@ namespace FirstWebApp
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
