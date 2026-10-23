@@ -5,6 +5,7 @@ class Portfolio {
   final String? category;
   final String imageUrl;
   final String? eventId;
+  final double? price;
   final DateTime createdAt;
 
   Portfolio({
@@ -14,6 +15,7 @@ class Portfolio {
     this.category,
     required this.imageUrl,
     this.eventId,
+    this.price,
     required this.createdAt,
   });
 
@@ -25,6 +27,7 @@ class Portfolio {
       category: json['category'],
       imageUrl: json['image_url'],
       eventId: json['event_id'],
+      price: json['price'] == null ? null : (json['price'] as num).toDouble(),
       createdAt: DateTime.parse(json['created_at']),
     );
   }

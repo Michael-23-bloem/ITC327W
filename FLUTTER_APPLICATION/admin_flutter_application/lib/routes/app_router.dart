@@ -11,6 +11,7 @@ import '../views/booking_view.dart';
 import '../views/booking_detail_view.dart';
 import '../views/booking_progress_update_view.dart';
 import '../views/portfolio_upload_event_view.dart';
+import '../views/portfolio_list_view.dart';
 import '../views/accounts_list_views.dart';
 import '../views/accounts_details_view.dart';
 
@@ -32,7 +33,10 @@ final GoRouter appRouter = GoRouter(
         GoRoute(path: 'progress', builder: (c, s) => UpdateProgressView(orderId: s.pathParameters['orderId']!)),
       ]),
     ]),
-    GoRoute(path: '/portfolio/upload', builder: (c, s) => const PortfolioUploadEventView()),
+    GoRoute(path: '/portfolio', builder: (c, s) => const PortfolioListView(), routes: [
+  GoRoute(path: 'upload', builder: (c, s) => const PortfolioUploadEventView()),
+]),
+    //GoRoute(path: '/portfolio/', builder: (c, s) => const PortfolioUploadEventView()),
     GoRoute(path: '/accounts', builder: (c, s) => const AccountListView(), routes: [
       GoRoute(path: ':userId', builder: (c, s) => AccountDetailView(userId: s.pathParameters['userId']!)),
     ]),
