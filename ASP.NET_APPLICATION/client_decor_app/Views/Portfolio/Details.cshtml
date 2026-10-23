@@ -1,28 +1,189 @@
-@model client_decor_app.Models.PortfolioItem
+@model client_decor_app.Models.PortfolioDetailsViewModel
 @{
-    ViewData["Title"] = Model.Title;
+    var p = Model.Item;
+    ViewData["Title"] = p.Title;
+
+    // Cover photo first, then the extra gallery photos
+    var images = new List<string>();
+    if (!string.IsNullOrEmpty(p.ImageUrl)) images.Add(p.ImageUrl);
+    images.AddRange(p.Images.OrderBy(i => i.SortOrder).Select(i => i.Url));
+
+    var minDate = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
+    var savedDate = Model.EventDate?.ToString("yyyy-MM-dd") ?? "";
 }
 
 <a asp-action="Index" class="small text-dark">‹ Back to portfolio</a>
 
-<div class="row g-4 mt-1">
-    <div class="col-md-7">
-        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+<h1 class="page-title mt-2 mb-1">@p.Title</h1>
+<p class="portfolio-meta">@p.Category · @p.Venue · @p.EventDate.ToString("MMMM yyyy") · @p.GuestCount guests</p>
+
+@if (TempData["Added"] is string added)
+{
+    <div class="alert alert-dark py-2 small" role="status">@added</div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+
+        @* ---------- Photo gallery ---------- *@
+        @if (images.Any())
         {
-            <img src="@Model.ImageUrl" alt="@Model.Title" class="portfolio-hero" />
+            <img id="galleryMain" src="@images[0]" alt="@p.Title" class="portfolio-hero" />
+            if (images.Count > 1)
+            {
+                <div class="gallery-thumbs">
+                    @for (var i = 0; i < images.Count; i++)
+                    {
+                        <button type="button" class="gallery-thumb @(i == 0 ? "active" : "")"
+                                data-src="@images[i]" aria-label="Show photo @(i + 1) of @images.Count">
+                            <img src="@images[i]" alt="" />
+                        </button>
+                    }
+                </div>
+            }
         }
         else
         {
-            <div class="portfolio-hero item-image--placeholder">No image yet</div>
+            <div class="portfolio-hero item-image--placeholder">No photos yet</div>
+        }
+
+        @* ---------- Event details ---------- *@
+        <h2 class="section-title">About this event</h2>
+        <p>@p.Description</p>
+
+        <dl class="event-facts">
+            <div><dt>Event type</dt><dd>@p.Category</dd></div>
+            <div><dt>Date</dt><dd>@p.EventDate.ToString("d MMMM yyyy")</dd></div>
+            <div><dt>Venue</dt><dd>@p.Venue</dd></div>
+            <div><dt>Guests</dt><dd>@p.GuestCount</dd></div>
+            <div><dt>Colour theme</dt><dd>@p.ColourTheme</dd></div>
+        </dl>
+
+        @* ---------- Items used ---------- *@
+        <h2 class="section-title">Items used at this event</h2>
+
+        @if (!Model.Lines.Any())
+        {
+            <p class="text-muted small">The item list for this event hasn't been added yet.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle portfolio-items">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-end">Used</th>
+                            <th class="text-end">Cost at event</th>
+                            <th class="text-end">For @Model.Guests guests</th>
+                            <th class="text-end">Add to estimate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in Model.Lines)
+                        {
+                            var item = line.CatalogueItem;
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">@item.Name</div>
+                                    <div class="small text-muted">
+                                        R @line.PriceAtEvent.ToString("N0") each then · R @item.Price.ToString("N0") now
+                                        @(line.ScalesWithGuests ? " · scales with guests" : "")
+                                    </div>
+                                </td>
+                                <td class="text-end">@line.QuantityAtEvent</td>
+                                <td class="text-end">R @line.TotalAtEvent.ToString("N0")</td>
+                                <td class="text-end">
+                                    @line.YourQuantity
+                                    <div class="small text-muted">R @line.YourTotal.ToString("N0")</div>
+                                </td>
+                                <td>
+                                    <div class="item-actions justify-content-end">
+                                        <div class="qty-stepper">
+                                            <button type="button" data-step="-1" aria-label="Decrease quantity">−</button>
+                                            <input type="number" name="quantity" value="@line.YourQuantity" min="1" max="999"
+                                                   aria-label="Quantity for @item.Name" />
+                                            <button type="button" data-step="1" aria-label="Increase quantity">+</button>
+                                        </div>
+                                        <button type="button" class="btn btn-dark btn-sm js-check-availability"
+                                                data-item-id="@item.Id"
+                                                data-name="@item.Name"
+                                                data-price="@item.Price.ToString("N0")"
+                                                data-image="@item.ImageUrl">
+                                            Add
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-semibold">
+                            <td colspan="2">Décor items</td>
+                            <td class="text-end">R @Model.ItemsSubtotal.ToString("N0")</td>
+                            <td class="text-end">R @Model.YourItemsTotal.ToString("N0")</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         }
     </div>
 
-    <div class="col-md-5">
-        <span class="badge text-bg-light border">@Model.Category</span>
-        <h1 class="page-title mt-2 mb-2">@Model.Title</h1>
-        <p>@Model.Description</p>
-        <p class="fw-semibold">Event cost: R @Model.EventCost.ToString("N0")</p>
+    @* ---------- Side panels ---------- *@
+    <div class="col-lg-4">
+        <div class="portfolio-sidebar">
 
-        <a asp-controller="Catalogue" asp-action="Products" class="btn btn-dark">Start your estimate</a>
+            <section class="side-panel" aria-labelledby="costTitle">
+                <h2 class="estimate-title" id="costTitle">Cost of this event</h2>
+                <div class="cost-row"><span>Décor items</span><span>R @Model.ItemsSubtotal.ToString("N0")</span></div>
+                <div class="cost-row"><span>Setup, transport &amp; other</span><span>R @Model.OtherCosts.ToString("N0")</span></div>
+                <div class="estimate-total"><span>Total event cost</span><span>R @p.EventCost.ToString("N0")</span></div>
+                <p class="estimate-note mb-0">
+                    What this client paid in @p.EventDate.ToString("MMMM yyyy"). Prices change, especially fresh flowers,
+                    so your estimate uses today's prices.
+                </p>
+            </section>
+
+            <section class="side-panel" aria-labelledby="planTitle">
+                <h2 class="estimate-title" id="planTitle">Plan your own version</h2>
+
+                <form method="get" asp-action="Details" asp-route-id="@p.Id" class="mb-3">
+                    <label for="guests" class="form-label small mb-1">How many guests are you planning for?</label>
+                    <div class="d-flex gap-2">
+                        <input type="number" id="guests" name="guests" value="@Model.Guests"
+                               min="1" max="1000" class="form-control form-control-sm" required />
+                        <button type="submit" class="btn btn-outline-dark btn-sm">Update</button>
+                    </div>
+                    <p class="form-text mb-0">Chairs, linen, centrepieces and other per-guest items adjust to your guest count.</p>
+                </form>
+
+                <div class="estimate-total">
+                    <span>Items for @Model.Guests guests</span>
+                    <span>R @Model.YourItemsTotal.ToString("N0")</span>
+                </div>
+                <p class="estimate-note">Items only, at today's prices. Setup and transport are added in your quotation.</p>
+
+                @if (Model.Lines.Any())
+                {
+                    <form asp-controller="Estimate" asp-action="AddPortfolio" method="post">
+                        <input type="hidden" name="portfolioId" value="@p.Id" />
+                        <input type="hidden" name="guests" value="@Model.Guests" />
+
+                        <label for="planDate" class="form-label small mb-1">Your event date</label>
+                        <input type="date" id="planDate" name="eventDate" class="form-control form-control-sm mb-2"
+                               min="@minDate" value="@savedDate" required />
+
+                        <button type="submit" class="btn btn-dark w-100">Add all items to my estimate</button>
+                    </form>
+                }
+
+                <a asp-controller="Catalogue" asp-action="Packages" class="btn btn-outline-dark w-100 mt-2">See our packages</a>
+            </section>
+
+        </div>
     </div>
 </div>
+
+@* Reuses the catalogue's "Check availability" dialog for the single-item Add buttons *@
+<partial name="~/Views/Catalogue/_AvailabilityModal.cshtml" />

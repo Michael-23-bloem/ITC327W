@@ -1,6 +1,7 @@
 using client_decor_app.Data;
 using client_decor_app.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace client_decor_app.Controllers
 {
@@ -75,6 +76,50 @@ namespace client_decor_app.Controllers
             TempData["Added"] = notAvailable
                 ? $"{quantity} x {item.Name} added. Not all are free on {eventDate:d MMM yyyy}, so we'll confirm in your quote."
                 : $"{quantity} x {item.Name} added to your estimate.";
+
+            return LocalRedirect(back);
+        }
+
+        // "Add all items to my estimate" on the portfolio details page
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddPortfolio(int portfolioId, int guests, DateTime eventDate)
+        {
+            guests = Math.Clamp(guests, 1, 1000);
+            var back = Url.Action("Details", "Portfolio", new { id = portfolioId, guests })!;
+
+            var portfolio = await _db.PortfolioItems
+                .Include(p => p.ItemsUsed).ThenInclude(u => u.CatalogueItem)
+                .FirstOrDefaultAsync(p => p.Id == portfolioId);
+
+            if (portfolio == null) return NotFound();
+
+            if (eventDate.Date <= DateTime.Today)
+            {
+                TempData["Added"] = "Choose an event date after today.";
+                return LocalRedirect(back);
+            }
+
+            var added = 0;
+            var notFullyAvailable = 0;
+
+            foreach (var used in portfolio.ItemsUsed.Where(u => u.CatalogueItem != null))
+            {
+                var quantity = used.QuantityFor(guests, portfolio.GuestCount);
+                var available = await _availability.GetAvailableAsync(used.CatalogueItemId, eventDate);
+                var notAvailable = quantity > available;
+
+                _estimate.Add(used.CatalogueItem!, quantity, notAvailable);
+
+                added++;
+                if (notAvailable) notFullyAvailable++;
+            }
+
+            _estimate.EventDate = eventDate.Date;
+
+            TempData["Added"] = notFullyAvailable == 0
+                ? $"{added} items from “{portfolio.Title}” added to your estimate for {guests} guests."
+                : $"{added} items added for {guests} guests. {notFullyAvailable} aren't fully free on {eventDate:d MMM yyyy}, so we'll confirm them in your quote.";
 
             return LocalRedirect(back);
         }

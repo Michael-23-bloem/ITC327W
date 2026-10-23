@@ -133,3 +133,16 @@ document.addEventListener("click", function (e) {
         }
     }
 })();
+
+// Portfolio gallery: clicking a thumbnail shows it as the main photo
+document.addEventListener("click", function (e) {
+    const thumb = e.target.closest(".gallery-thumb");
+    if (!thumb) return;
+
+    const main = document.getElementById("galleryMain");
+    if (!main) return;
+
+    main.src = thumb.dataset.src;
+    document.querySelectorAll(".gallery-thumb")
+        .forEach(t => t.classList.toggle("active", t === thumb));
+});

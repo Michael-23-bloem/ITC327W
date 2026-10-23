@@ -291,6 +291,93 @@ input:focus-visible {
     margin: 0 auto .5rem;
 }
 
+/* ---------- Portfolio details ---------- */
+.portfolio-hero { aspect-ratio: 16 / 9; }
+
+.portfolio-meta {
+    color: #555;
+    font-size: .85rem;
+    margin-bottom: 1.25rem;
+}
+
+.gallery-thumbs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: .5rem;
+    margin-top: .5rem;
+}
+
+.gallery-thumb {
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    background: none;
+    overflow: hidden;
+}
+
+.gallery-thumb img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+.gallery-thumb.active { border-color: #000; }
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 2rem 0 .75rem;
+}
+
+.event-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: .75rem 1.5rem;
+    font-size: .85rem;
+}
+
+.event-facts dt {
+    font-weight: 400;
+    font-size: .75rem;
+    color: #666;
+}
+
+.event-facts dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+.portfolio-items { font-size: .85rem; }
+
+.portfolio-items .item-actions {
+    margin-top: 0;
+    padding-top: 0;
+    flex-wrap: nowrap;
+}
+
+.portfolio-sidebar {
+    position: sticky;
+    top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.side-panel {
+    border: 1px solid #999;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    font-size: .85rem;
+}
+
+.cost-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .15rem 0;
+}
+
 /* ---------- Footer ---------- */
 .site-footer {
     background: #efefef;
