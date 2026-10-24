@@ -18,9 +18,19 @@ namespace FirstWebApp
                  builder.Configuration["Supabase:Key"]!
             );
 
+            builder.Services
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                 .AddCookie(o =>
+                 {
+                     o.LoginPath = "/Account/Login";
+                     o.AccessDeniedPath = "/Account/Login";
+                     o.ExpireTimeSpan = TimeSpan.FromHours(8);
+                     o.SlidingExpiration = true;
+                     o.Cookie.HttpOnly = true;
+                     o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                 });
 
-
-
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
