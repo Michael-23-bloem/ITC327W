@@ -83,7 +83,7 @@ class _BookingsViewState extends State<BookingsView> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(ctx); // close the popup
-                        context.go('/bookings/${order.id}'); // view more -> full detail screen
+                        context.push('/bookings/${order.id}');
                       },
                       child: const Text('View more'),
                     ),

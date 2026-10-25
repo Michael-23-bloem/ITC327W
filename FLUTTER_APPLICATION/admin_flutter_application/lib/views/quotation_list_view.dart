@@ -45,7 +45,7 @@ class _QuotationListViewState extends State<QuotationListView> {
                     title: Text('${o.customerEmail ?? 'Customer'} - ${o.status}'),
                     subtitle: Text('${o.eventType ?? 'Event'} • ${o.eventDate.day}/${o.eventDate.month} • ${o.venue ?? ''}'),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.go('/quotations/${o.id}'),
+                    onTap: () => context.push('/quotations/${o.id}'),
                   ),
                 );
               },

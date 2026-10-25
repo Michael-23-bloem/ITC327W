@@ -1,58 +1,106 @@
 import 'supabase_client.dart';
 
+class MonthlyDealCount {
+  final String label;
+  final int count;
+  const MonthlyDealCount({required this.label, required this.count});
+}
+
+class EventTypeCount {
+  final String type;
+  final int count;
+  const EventTypeCount({required this.type, required this.count});
+}
+
+class AnalyticsSnapshot {
+  final int ongoingDeals;
+  final int pastDeals;
+  final int uniqueClients;
+  final double confirmedRevenue;
+  final List<MonthlyDealCount> monthlyDealCounts;
+  final List<EventTypeCount> eventTypeCounts;
+
+  const AnalyticsSnapshot({
+    required this.ongoingDeals,
+    required this.pastDeals,
+    required this.uniqueClients,
+    required this.confirmedRevenue,
+    required this.monthlyDealCounts,
+    required this.eventTypeCounts,
+  });
+}
+
 class AnalyticsService {
   final supabase = SupabaseClientManager.client;
 
-  /// Deals still in progress: not yet completed, declined, or cancelled.
-  Future<int> getOngoingDealsCount() async {
-    final data = await supabase
-        .from('orders')
-        .select('id')
-        .inFilter('status', ['pending', 'awaiting_deposit', 'in_preparation', 'setup']);
-    return (data as List).length;
-  }
+  static const _ongoing = ['pending', 'awaiting_deposit', 'in_preparation', 'setup'];
+  static const _past = ['completed', 'declined', 'cancelled'];
+  static const _monthLabels = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
 
-  /// Deals that are finished one way or another.
-  Future<int> getPastDealsCount() async {
-    final data = await supabase
+  Future<AnalyticsSnapshot> loadSnapshot({int months = 10}) async {
+    final allOrders = await supabase
         .from('orders')
-        .select('id')
-        .inFilter('status', ['completed', 'declined', 'cancelled']);
-    return (data as List).length;
-  }
+        .select('id, status, event_type, customer_id, created_at');
 
-  /// Deal counts per month for the last [months] months, oldest first —
-  /// used to draw the bar chart.
-  Future<List<int>> getMonthlyDealCounts({int months = 10}) async {
-    final since = DateTime.now().subtract(Duration(days: months * 31));
-    final data = await supabase
-        .from('orders')
-        .select('created_at')
-        .gte('created_at', since.toIso8601String());
+    final quotations = await supabase
+        .from('quotations')
+        .select('final_total, estimated_total, status')
+        .eq('status', 'confirmed');
+
+    int ongoing = 0;
+    int past = 0;
+    final clients = <String>{};
+    final typeCounts = <String, int>{};
+
+    for (final row in allOrders as List) {
+      final status = (row['status'] as String?) ?? 'pending';
+      if (_ongoing.contains(status)) ongoing++;
+      if (_past.contains(status)) past++;
+      final customerId = row['customer_id'] as String?;
+      if (customerId != null) clients.add(customerId);
+      final type = (row['event_type'] as String?)?.trim();
+      if (type != null && type.isNotEmpty) {
+        typeCounts[type] = (typeCounts[type] ?? 0) + 1;
+      }
+    }
+
+    double revenue = 0;
+    for (final row in quotations as List) {
+      final value = row['final_total'] ?? row['estimated_total'] ?? 0;
+      revenue += value is num ? value.toDouble() : double.tryParse('$value') ?? 0;
+    }
 
     final counts = List<int>.filled(months, 0);
     final now = DateTime.now();
-    for (final row in (data as List)) {
-      final createdAt = DateTime.parse(row['created_at'] as String);
+    for (final row in allOrders as List) {
+      final createdRaw = row['created_at'] as String?;
+      if (createdRaw == null) continue;
+      final createdAt = DateTime.parse(createdRaw);
       final diffMonths = (now.year - createdAt.year) * 12 + (now.month - createdAt.month);
       final index = months - 1 - diffMonths;
       if (index >= 0 && index < months) counts[index]++;
     }
-    return counts;
-  }
 
-  /// Confirmed revenue — summed from quotations.final_total where the
-  /// quotation itself has been confirmed (final_total is only set once
-  /// confirmed, per your schema).
-  Future<double> getTotalRevenue() async {
-    final data = await supabase
-        .from('quotations')
-        .select('final_total')
-        .eq('status', 'confirmed');
-    double sum = 0;
-    for (final row in data as List) {
-      sum += (row['final_total'] ?? 0).toDouble();
-    }
-    return sum;
+    final monthly = List<MonthlyDealCount>.generate(months, (i) {
+      final date = DateTime(now.year, now.month - (months - 1 - i));
+      return MonthlyDealCount(label: _monthLabels[date.month - 1], count: counts[i]);
+    });
+
+    final eventTypes = typeCounts.entries
+        .map((e) => EventTypeCount(type: e.key, count: e.value))
+        .toList()
+      ..sort((a, b) => b.count.compareTo(a.count));
+
+    return AnalyticsSnapshot(
+      ongoingDeals: ongoing,
+      pastDeals: past,
+      uniqueClients: clients.length,
+      confirmedRevenue: revenue,
+      monthlyDealCounts: monthly,
+      eventTypeCounts: eventTypes.take(6).toList(),
+    );
   }
 }

@@ -43,11 +43,11 @@ class _BookingDetailViewState extends State<BookingDetailView> {
             Text('Status: ${o.status}'),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => context.go('/bookings/${o.id}/requests'),
+              onPressed: () => context.push('/quotations/${o.id}'),
               child: const Text('Ongoing requests'),
             ),
             ElevatedButton(
-              onPressed: () => context.go('/bookings/${o.id}/progress'),
+              onPressed: () => context.push('/bookings/${o.id}/progress'),
               child: const Text('Update progress'),
             ),
           ],

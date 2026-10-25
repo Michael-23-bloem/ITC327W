@@ -50,12 +50,12 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
             Row(
               children: [
                 ElevatedButton(
-                  onPressed: () => context.go('/quotations/${o.id}/edit'),
+                  onPressed: () => context.push('/quotations/${o.id}/edit'),
                   child: const Text('Edit Quotation'),
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton(
-                  onPressed: () => context.go('/quotations/${o.id}/validate'),
+                  onPressed: () => context.push('/quotations/${o.id}/validate'),
                   child: const Text('Validate Payment'),
                 ),
               ],

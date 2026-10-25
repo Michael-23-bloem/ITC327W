@@ -25,7 +25,7 @@ class _PortfolioListViewState extends State<PortfolioListView> {
     return Scaffold(
       appBar: AppBar(title: const Text('Portfolio')),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.go('/portfolio/upload'),
+        onPressed: () => context.push('/portfolio/upload'),
         child: const Icon(Icons.add),
       ),
       body: vm.loading

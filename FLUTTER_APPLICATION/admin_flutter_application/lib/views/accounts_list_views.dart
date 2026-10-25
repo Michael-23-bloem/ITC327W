@@ -72,7 +72,7 @@ class _AccountListViewState extends State<AccountListView> {
                               ),
                             ),
                           ),
-                          onTap: () => context.go('/accounts/${u.id}'),
+                          onTap: () => context.push('/accounts/${u.id}'),
                         ),
                       );
                     },
