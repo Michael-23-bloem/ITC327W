@@ -45,6 +45,7 @@ class _ClientAnalyticsViewState extends State<ClientAnalyticsView> {
                         return RefreshIndicator(
                           onRefresh: vm.load,
                           child: ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
                             padding: EdgeInsets.fromLTRB(wide ? 32 : 20, 20, wide ? 32 : 20, 24),
                             children: [
                               Row(
