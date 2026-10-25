@@ -1,0 +1,40 @@
+@model CatalogueItemViewModel
+@{
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+    var priceLabel = Model.ItemType == CatalogueItemTypes.Package ? "per package" : "each";
+}
+
+<div class="item-card">
+    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+    {
+        <img src="@Model.ImageUrl" alt="@Model.Name" class="item-image" />
+    }
+    else
+    {
+        <div class="item-image item-image--placeholder">No image yet</div>
+    }
+
+    <div class="item-body">
+        <div class="item-name">@Model.Name</div>
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <div class="item-desc">@Model.Description</div>
+        }
+        <div class="item-price">R @Model.Price.ToString("N2") @priceLabel</div>
+
+        <form asp-controller="Estimate" asp-action="Add" method="post" class="item-actions">
+            <input type="hidden" name="itemId" value="@Model.Id" />
+            <input type="hidden" name="itemType" value="@Model.ItemType" />
+            <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+            <div class="qty-stepper">
+                <button type="button" data-step="-1" aria-label="Decrease quantity">−</button>
+                <input type="number" name="quantity" value="1" min="1" max="999"
+                       aria-label="Quantity for @Model.Name" />
+                <button type="button" data-step="1" aria-label="Increase quantity">+</button>
+            </div>
+
+            <button type="submit" class="btn btn-dark btn-sm">Add to estimate</button>
+        </form>
+    </div>
+</div>

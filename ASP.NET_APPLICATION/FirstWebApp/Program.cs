@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Supabase.Extensions.DependencyInjection;
+using FirstWebApp.Services;
 
 namespace FirstWebApp
 {
@@ -30,6 +31,16 @@ namespace FirstWebApp
                      o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                  });
 
+            // Session: remembers each visitors estimate between pages
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromHours(2);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<EstimateService>();
             
             var app = builder.Build();
 
@@ -45,6 +56,7 @@ namespace FirstWebApp
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseSession();
 
             app.UseAuthentication();
             app.UseAuthorization();

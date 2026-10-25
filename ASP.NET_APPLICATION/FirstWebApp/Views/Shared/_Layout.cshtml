@@ -1,4 +1,13 @@
-﻿<!DOCTYPE html>
+﻿@inject FirstWebApp.Services.EstimateService Estimate
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    // True when the page being shown belongs to this navbar link
+    bool IsCurrent(string controller, string? action = null) =>
+        currentController == controller && (action == null || currentAction == action);
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -20,12 +29,18 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark @(IsCurrent("Home", "Index") ? "active" : "")" aria-current="@(IsCurrent("Home", "Index") ? "page" : null)" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark @(IsCurrent("Catalogue") ? "active" : "")" aria-current="@(IsCurrent("Catalogue") ? "page" : null)" asp-area="" asp-controller="Catalogue" asp-action="Index">Catalogue</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark @(IsCurrent("Home", "Privacy") ? "active" : "")" aria-current="@(IsCurrent("Home", "Privacy") ? "page" : null)" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    <a class="btn btn-dark btn-sm me-sm-3 my-2 my-sm-0" asp-controller="Estimate" asp-action="Index">
+                        Estimate (@Estimate.Count)
+                    </a>
                     <partial name="_LoginPartial" />
                 </div>
             </div>

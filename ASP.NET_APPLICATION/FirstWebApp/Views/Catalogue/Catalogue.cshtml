@@ -1,0 +1,65 @@
+@model CatalogueViewModel
+@{
+    ViewData["Title"] = "Decor Catalogue";
+    var isProducts = Model.Tab == "Products";
+}
+
+<h1 class="page-title">Decor Catalogue</h1>
+
+@if (TempData["Added"] is string added)
+{
+    <div class="alert alert-dark py-2 small" role="status">@added</div>
+}
+
+@if (Model.Error != null)
+{
+    <div class="alert alert-warning py-2 small" role="alert">@Model.Error</div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <partial name="_CatalogueTabs" model="Model" />
+
+        @if (isProducts && Model.Categories.Any())
+        {
+            <nav class="filter-pills" aria-label="Filter by category">
+                <a asp-action="Products" asp-route-search="@Model.Search"
+                   class="@(Model.Category == null ? "active" : "")">All</a>
+                @foreach (var cat in Model.Categories)
+                {
+                    <a asp-action="Products" asp-route-category="@cat" asp-route-search="@Model.Search"
+                       class="@(string.Equals(Model.Category, cat, StringComparison.OrdinalIgnoreCase) ? "active" : "")">@cat</a>
+                }
+            </nav>
+        }
+
+        @if (Model.Error == null && !Model.Items.Any())
+        {
+            <p class="text-muted mt-4">
+                @if (!string.IsNullOrWhiteSpace(Model.Search))
+                {
+                    <text>Nothing matches “@Model.Search”. Try a different word or clear the search.</text>
+                }
+                else
+                {
+                    <text>No @(isProducts ? "products" : "packages") to show yet. Check back soon.</text>
+                }
+            </p>
+        }
+        else
+        {
+            <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+                @foreach (var item in Model.Items)
+                {
+                    <div class="col">
+                        <partial name="_ItemCard" model="item" />
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="col-lg-4">
+        <partial name="_EstimateSidebar" />
+    </div>
+</div>

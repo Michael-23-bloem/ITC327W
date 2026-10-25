@@ -20,3 +20,194 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* ---------- AkeaEvents catalogue ---------- */
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.catalogue-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 1.25rem;
+}
+
+.catalogue-tabs { display: flex; gap: 1.5rem; }
+
+.catalogue-tabs a {
+    color: #000;
+    text-decoration: none;
+    font-size: 1.05rem;
+    padding: .5rem 0;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+}
+
+.catalogue-tabs a.active {
+    font-weight: 600;
+    border-bottom-color: #000;
+}
+
+.catalogue-search {
+    flex: 0 1 50%;
+    min-width: 200px;
+    padding-bottom: .5rem;
+}
+
+.filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin: 0 0 1.25rem;
+}
+
+.filter-pills a {
+    font-size: .75rem;
+    padding: .2rem .7rem;
+    border-radius: 999px;
+    background: #e4e4e4;
+    color: #000;
+    text-decoration: none;
+}
+
+.filter-pills a:hover { background: #d4d4d4; }
+.filter-pills a.active { background: #000; color: #fff; }
+
+.item-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #999;
+    border-radius: 4px;
+    padding: 3px;
+    background: #fff;
+}
+
+.item-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 2px;
+}
+
+.item-image--placeholder {
+    display: grid;
+    place-items: center;
+    background: #d9d9d9;
+    color: #666;
+    font-size: .75rem;
+}
+
+.item-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: .5rem .25rem .25rem;
+    font-size: .8rem;
+}
+
+.item-name { font-weight: 600; }
+.item-desc { color: #444; }
+.item-price { margin-top: .6rem; }
+
+.item-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .4rem;
+    margin-top: auto;
+    padding-top: .25rem;
+}
+
+.item-actions .btn {
+    font-size: .72rem;
+    padding: .25rem .5rem;
+}
+
+.qty-stepper {
+    display: inline-flex;
+    border: 1px solid #999;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.qty-stepper button {
+    border: 0;
+    background: #fff;
+    width: 22px;
+    font-size: .8rem;
+    line-height: 1;
+}
+
+.qty-stepper button:hover { background: #eee; }
+
+.qty-stepper input {
+    width: 32px;
+    border: 0;
+    border-left: 1px solid #999;
+    border-right: 1px solid #999;
+    text-align: center;
+    font-size: .75rem;
+    -moz-appearance: textfield;
+}
+
+.qty-stepper input::-webkit-outer-spin-button,
+.qty-stepper input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.estimate-box {
+    position: sticky;
+    top: 1rem;
+    border: 1px solid #999;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    font-size: .85rem;
+}
+
+.estimate-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: .9rem;
+}
+
+.estimate-lines {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 .75rem;
+}
+
+.estimate-lines li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .15rem 0;
+}
+
+.estimate-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    border-top: 1px solid #ccc;
+    padding-top: .6rem;
+}
+
+.estimate-note {
+    font-size: .7rem;
+    color: #666;
+    margin: .15rem 0 1rem;
+}
+
+/* Current page in the main navbar */
+.navbar .nav-link.active {
+    font-weight: 600;
+    border-bottom: 2px solid #000;
+}

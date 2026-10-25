@@ -1,0 +1,20 @@
+@model CatalogueViewModel
+
+<div class="catalogue-bar">
+    <nav class="catalogue-tabs" aria-label="Catalogue sections">
+        <a asp-action="Products" class="@(Model.Tab == "Products" ? "active" : "")"
+           aria-current="@(Model.Tab == "Products" ? "page" : null)">Decor products</a>
+        <a asp-action="Packages" class="@(Model.Tab == "Packages" ? "active" : "")"
+           aria-current="@(Model.Tab == "Packages" ? "page" : null)">Packages</a>
+    </nav>
+
+    <form method="get" asp-action="@Model.Tab" class="catalogue-search" role="search">
+        @if (Model.Tab == "Products" && !string.IsNullOrEmpty(Model.Category))
+        {
+            <input type="hidden" name="category" value="@Model.Category" />
+        }
+        <label for="search" class="visually-hidden">Search @Model.Tab.ToLower()</label>
+        <input id="search" name="search" type="search" value="@Model.Search"
+               class="form-control form-control-sm rounded-pill" placeholder="Search..." />
+    </form>
+</div>
