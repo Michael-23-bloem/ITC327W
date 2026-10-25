@@ -26,6 +26,8 @@ namespace FirstWebApp.Controllers
                 // Extra fields travel as user metadata; the DB trigger copies them into profiles
                 var options = new SignUpOptions
                 {
+                    // Where the confirmation email link sends the customer afterwards
+                    RedirectTo = Url.Action("Login", "Account", null, Request.Scheme),
                     Data = new Dictionary<string, object>
                     {
                         ["first_name"] = model.FirstName,
