@@ -76,25 +76,6 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        onTap: (i) {
-          switch (i) {
-            case 0: context.go('/dashboard'); break;
-            case 1: context.go('/quotations'); break;
-            case 2: context.go('/analytics'); break;
-            case 3: context.go('/accounts'); break;
-          }
-        },
-        selectedItemColor: Colors.deepPurple,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Requests'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Analytics'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Account'),
-        ],
-      ),
     );
   }
 
