@@ -132,6 +132,7 @@ class AdminShell extends StatelessWidget {
         body: Row(
           children: [
             NavigationRail(
+              scrollable: true,
               selectedIndex: index,
               backgroundColor: Colors.white,
               indicatorColor: kAdminAccent.withValues(alpha: 0.12),
