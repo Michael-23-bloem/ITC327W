@@ -8,15 +8,28 @@ class PortfolioViewModel extends ChangeNotifier {
   final _service = PortfolioService();
   List<Portfolio> events = [];
   bool loading = false;
+  String? error;
 
   List<Map<String, dynamic>> availableProducts = [];
 
   Future<void> load() async {
     loading = true;
+<<<<<<< HEAD
     notifyListeners();
     try {
       final data = await _service.getPortfolio();
       events = data.map((e) => Portfolio.fromJson(e as Map<String, dynamic>)).toList();
+=======
+    error = null;
+    notifyListeners();
+    try {
+      final data = await _service.getPortfolio();
+      events = data.map(Portfolio.fromJson).toList();
+    } catch (e) {
+      debugPrint('Portfolio load failed: $e');
+      error = 'Could not load portfolio.';
+      events = [];
+>>>>>>> a0c017d4b93d3185ef6d57be63911b5d6a4cec49
     } finally {
       loading = false;
       notifyListeners();
@@ -210,6 +223,7 @@ Future<void> updatePortfolio({
   loading = true;
   notifyListeners();
 
+<<<<<<< HEAD
   try {
     await _service.updatePortfolio(id, {
       'name': name,
@@ -224,6 +238,29 @@ Future<void> updatePortfolio({
   } finally {
     loading = false;
     notifyListeners();
+=======
+  Future<void> uploadEvent({
+    required String productId,
+    required String name,
+    required String category,
+    required String description,
+    required String imageUrl,
+  }) async {
+    loading = true;
+    notifyListeners();
+    try {
+      await _service.uploadEventImage({
+        'Name': name,
+        'Category': category,
+        'Description': description,
+        'Image_url': imageUrl,
+      });
+      await load();
+    } finally {
+      loading = false;
+      notifyListeners();
+    }
+>>>>>>> a0c017d4b93d3185ef6d57be63911b5d6a4cec49
   }
 }*/
 

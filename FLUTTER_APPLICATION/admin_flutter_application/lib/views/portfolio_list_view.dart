@@ -32,6 +32,7 @@ class _PortfolioListViewState extends State<PortfolioListView> {
       ),
       body: vm.loading
           ? const Center(child: CircularProgressIndicator())
+<<<<<<< HEAD
           : GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
               itemCount: vm.events.length,
@@ -52,6 +53,58 @@ class _PortfolioListViewState extends State<PortfolioListView> {
                 ),
               ),
             ),
+=======
+          : vm.error != null
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(vm.error!),
+                      const SizedBox(height: 12),
+                      TextButton(onPressed: vm.load, child: const Text('Retry')),
+                    ],
+                  ),
+                )
+              : vm.events.isEmpty
+                  ? const Center(child: Text('No portfolio events yet'))
+                  : GridView.builder(
+                      padding: const EdgeInsets.all(12),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                      ),
+                      itemCount: vm.events.length,
+                      itemBuilder: (_, i) {
+                        final event = vm.events[i];
+                        return Card(
+                          clipBehavior: Clip.antiAlias,
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: event.imageUrl.isEmpty
+                                    ? const Center(child: Icon(Icons.image))
+                                    : Image.network(
+                                        event.imageUrl,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, _, _) => const Icon(Icons.image),
+                                      ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Text(
+                                  event.name?.isNotEmpty == true ? event.name! : 'Untitled',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+>>>>>>> a0c017d4b93d3185ef6d57be63911b5d6a4cec49
     );
   }
 
