@@ -8,12 +8,23 @@ class PortfolioViewModel extends ChangeNotifier {
   final _service = PortfolioService();
   List<Portfolio> events = [];
   bool loading = false;
+  String? error;
 
   Future<void> load() async {
-    loading = true; notifyListeners();
-    final data = await _service.getPortfolio();
-    events = data.map((e) => Portfolio.fromJson(e as Map<String, dynamic>)).toList();
-    loading = false; notifyListeners();
+    loading = true;
+    error = null;
+    notifyListeners();
+    try {
+      final data = await _service.getPortfolio();
+      events = data.map(Portfolio.fromJson).toList();
+    } catch (e) {
+      debugPrint('Portfolio load failed: $e');
+      error = 'Could not load portfolio.';
+      events = [];
+    } finally {
+      loading = false;
+      notifyListeners();
+    }
   }
 
   // Add these imports to the top of portfolio_viewmodel.dart if not already there:
@@ -83,15 +94,20 @@ Future<void> uploadEventWithImages({
     required String description,
     required String imageUrl,
   }) async {
-    loading = true; notifyListeners();
-    await _service.uploadEventImage({
-      'Product_id': productId,
-      'Name': name,
-      'Category': category,
-      'Description': description,
-      'Image_url': imageUrl,
-    });
-    await load();
+    loading = true;
+    notifyListeners();
+    try {
+      await _service.uploadEventImage({
+        'Name': name,
+        'Category': category,
+        'Description': description,
+        'Image_url': imageUrl,
+      });
+      await load();
+    } finally {
+      loading = false;
+      notifyListeners();
+    }
   }
 
   List<Portfolio> getByCategory(String category) {
