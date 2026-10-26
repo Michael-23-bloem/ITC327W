@@ -1,0 +1,317 @@
+/* ---------- Home page only ---------- */
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+/* Larger buttons on the home page */
+.home .btn:not(.btn-sm) {
+    min-width: 170px;
+    min-height: 42px;
+}
+
+/* ---------- Background slideshow ---------- */
+.hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin: 1rem;
+    border-radius: 10px;
+    min-height: clamp(340px, 52vh, 500px);
+    display: flex;
+    align-items: flex-end;
+    color: #fff;
+    background: var(--beige-deep);
+}
+
+.slides, .slide {
+    position: absolute;
+    inset: 0;
+}
+
+.slides {
+    z-index: 0;
+}
+
+.slide {
+    opacity: 0;
+    transition: opacity 1.1s ease;
+}
+
+    .slide.active {
+        opacity: 1;
+    }
+
+    .slide img, .slide video {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scale(1);
+        transition: transform 7s ease-out;
+    }
+
+    .slide.active img {
+        transform: scale(1.06);
+    }
+
+/* Placeholder tones shown until real photos are added */
+.tone-0 { background: linear-gradient(135deg, #cdb59f, #efe6da); }
+.tone-1 { background: linear-gradient(135deg, #bfae9c, #e6d8c7); }
+.tone-2 { background: linear-gradient(135deg, #d8b4a0, #f3ebe0); }
+
+.hero::after { /* darkens the bottom so the text is readable */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(22,20,18,.75), rgba(22,20,18,.2) 60%, transparent);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 560px;
+    padding: 2rem clamp(1.25rem, 4vw, 2.5rem) 2.75rem;
+}
+
+    .hero-content h1 {
+        margin: 0 0 .4rem;
+        font-size: clamp(1.6rem, 4vw, 2.2rem);
+        letter-spacing: -.02em;
+    }
+
+    .hero-content p {
+        margin: 0 0 1.25rem;
+        font-size: .9rem;
+        opacity: .92;
+    }
+
+.akea .hero .btn {
+    border-color: rgba(255,255,255,.6);
+}
+
+.akea .hero .btn-light {
+    border-color: #fff;
+}
+
+.dots {
+    position: absolute;
+    z-index: 2;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    display: flex;
+    gap: .5rem;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,.5);
+    cursor: pointer;
+}
+
+    .dot.active {
+        background: #fff;
+    }
+
+    .dot:focus-visible {
+        outline: 2px solid var(--nude);
+        outline-offset: 3px;
+    }
+
+/* ---------- Image / video box with a label until a real file loads ---------- */
+.media {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    background: #d9d4cc;
+}
+
+    .media::before {
+        content: attr(data-label);
+        padding: .5rem;
+        font-size: .7rem;
+        text-align: center;
+        color: var(--muted);
+    }
+
+    .media img, .media video {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+/* ---------- Tiles and grid ---------- */
+.grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.grid-5 { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+
+.tile {
+    display: block;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: transform .15s, box-shadow .15s;
+}
+
+a.tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(60,40,25,.12);
+}
+
+.tile-name {
+    display: block;
+    padding: .7rem .8rem;
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.tile-body {
+    display: grid;
+    gap: .35rem;
+    padding: .9rem 1rem 1rem;
+}
+
+    .tile-body h3 {
+        margin: 0;
+        font-size: .9rem;
+    }
+
+.tile-text {
+    margin: 0;
+    font-size: .75rem;
+    color: var(--muted);
+}
+
+.price {
+    margin: .25rem 0 .5rem;
+    font-size: .8rem;
+    font-weight: 700;
+}
+
+/* ---------- How it works ---------- */
+.steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 1.5rem;
+}
+
+.step-num {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    margin-bottom: .75rem;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 700;
+}
+
+.step h3 {
+    margin: 0 0 .35rem;
+    font-size: .85rem;
+}
+
+.step p {
+    margin: 0;
+    font-size: .75rem;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+/* ---------- About ---------- */
+.about {
+    padding: 3.5rem 0;
+    background: var(--ink);
+    color: #fff;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 2.5rem;
+    align-items: center;
+}
+
+@media (max-width: 760px) {
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.about .media {
+    aspect-ratio: 16 / 10;
+    border-radius: 6px;
+    background: #2f2c29;
+}
+
+    .about .media::before {
+        color: #9b9187;
+    }
+
+.about .eyebrow {
+    color: #a79c90;
+}
+
+.about h2 {
+    margin: 0 0 .75rem;
+    font-size: 1.4rem;
+    letter-spacing: -.01em;
+}
+
+.about p {
+    margin: 0 0 1.25rem;
+    font-size: .8rem;
+    line-height: 1.6;
+    color: #cfc6bb;
+}
+
+    .about p.eyebrow {
+        margin: 0 0 .35rem;
+    }
+
+/* ---------- Call to action ---------- */
+.cta-section {
+    padding: 2.5rem 0;
+}
+
+.cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    padding: 1.5rem 1.75rem;
+    background: #fff;
+    border: 1px solid var(--ink);
+    border-radius: 10px;
+}
+
+    .cta h2 {
+        margin: 0 0 .25rem;
+        font-size: 1.05rem;
+    }
+
+    .cta p {
+        margin: 0;
+        font-size: .75rem;
+        color: var(--muted);
+    }

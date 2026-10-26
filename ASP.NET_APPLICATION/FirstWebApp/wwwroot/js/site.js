@@ -16,3 +16,28 @@ document.addEventListener("click", function (e) {
 
     input.value = Math.min(max, Math.max(min, next));
 });
+
+// Package "View items" dialogs
+document.addEventListener("click", function (e) {
+    // Open the dialog named in data-open-dialog
+    const opener = e.target.closest("[data-open-dialog]");
+    if (opener) {
+        const dialog = document.getElementById(opener.dataset.openDialog);
+        if (dialog && typeof dialog.showModal === "function") {
+            dialog.showModal();
+        }
+        return;
+    }
+
+    // A click on the dark area around an open dialog closes it
+    if (e.target instanceof HTMLDialogElement && e.target.open) {
+        const box = e.target.getBoundingClientRect();
+        const clickedInside =
+            e.clientX >= box.left && e.clientX <= box.right &&
+            e.clientY >= box.top && e.clientY <= box.bottom;
+
+        if (!clickedInside) {
+            e.target.close();
+        }
+    }
+});

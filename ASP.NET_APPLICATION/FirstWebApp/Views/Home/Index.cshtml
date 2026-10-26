@@ -1,10 +1,190 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "Home";
+    ViewData["FullWidth"] = true;
+    ViewData["BodyClass"] = "page-home";
+
+    var steps = new[]
+    {
+        (Title: "Choose decor",          Text: "Pick products or a package. Check stock for your event date and see an instant estimate."),
+        (Title: "Request a quotation",   Text: "Add your event type, venue, guests and notes, then submit."),
+        (Title: "Get your quotation",    Text: "We may contact you with questions, then send your quotation within 24hrs."),
+        (Title: "Confirm and pay 50%",   Text: "Confirm the quotation and pay the deposit by EFT, with final payment made 7 days before the event."),
+        (Title: "We prepare and set up", Text: "Track progress in My Quotes. Setup is 1 to 2 days before.")
+    };
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p> @ViewData["Status"]</p>
-   
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
+
+<div class="home">
+    @* Background slideshow *@
+    <section class="hero" data-slideshow aria-roledescription="carousel" aria-label="Previous decor work">
+        <div class="slides">
+            @for (var i = 0; i < Model.HeroSlides.Count; i++)
+            {
+                <div class="slide tone-@(i % 3)@(i == 0 ? " active" : "")">
+                    <img src="@Url.Content("~/" + Model.HeroSlides[i])" alt="" onerror="this.remove()" />
+                </div>
+            }
+
+            @* OPTIONAL: a video slide. Put the file in wwwroot/videos/ and uncomment.
+               If you add one, also add a dot for it below.
+            <div class="slide tone-1">
+                <video src="~/videos/hero.mp4" autoplay muted loop playsinline preload="metadata"></video>
+            </div>
+            *@
+        </div>
+
+        <div class="hero-content">
+            <h1>Decor for every celebration</h1>
+            <p>Build your own instant estimate, then request a quotation.</p>
+            <div class="btn-row">
+                <a asp-controller="Catalogue" asp-action="Products" class="btn">Get an instant estimate</a>
+                <a href="#portfolio" class="btn btn-light">View our work</a>
+            </div>
+        </div>
+
+        <div class="dots" aria-label="Choose slide">
+            @for (var i = 0; i < Model.HeroSlides.Count; i++)
+            {
+                <button type="button" class="dot@(i == 0 ? " active" : "")" aria-label="Show slide @(i + 1)"></button>
+            }
+        </div>
+    </section>
+
+    @* Business mission / story *@
+    <section class="about">
+        <div class="wrap about-grid">
+            <div class="media" data-label="Team or studio photo">
+                <img src="@Url.Content("~/" + Model.AboutImage)" alt="The AkeaEvents team" loading="lazy" onerror="this.remove()" />
+                @* OPTIONAL: use a video instead of the photo
+                <video src="~/videos/about.mp4" controls playsinline preload="metadata" poster="~/images/about/team.jpg"></video>
+                *@
+            </div>
+            <div>
+                <p class="eyebrow">About AkeaEvents</p>
+                <h2>Every celebration, thoughtfully managed</h2>
+                <p>[Remember to ask the stakeholder for the mission story or refer to the SRS]</p>
+                @* TODO: link to the About page once it exists *@
+                <a href="#" class="btn btn-light btn-sm">Read our story</a>
+            </div>
+        </div>
+    </section>
+
+    @* Pick an occasion *@
+    <section class="section">
+        <div class="wrap">
+            <p class="eyebrow">What we decorate</p>
+            <div class="section-head">
+                <h2>Pick your occasion</h2>
+                <a asp-controller="Catalogue" asp-action="Products" class="more">Browse the catalogue &rarr;</a>
+            </div>
+            <div class="grid grid-5">
+                @foreach (var o in Model.Occasions)
+                {
+                    <a asp-controller="Catalogue" asp-action="Products" class="tile">
+                        <div class="media" data-label="@o.Name photo">
+                            <img src="@Url.Content("~/" + o.Image)" alt="@o.Name decor" loading="lazy" onerror="this.remove()" />
+                        </div>
+                        <span class="tile-name">@o.Name</span>
+                    </a>
+                }
+            </div>
+        </div>
+    </section>
+
+    @* How booking works *@
+    <section class="section section-white">
+        <div class="wrap">
+            <p class="eyebrow">How it works</p>
+            <div class="section-head"><h2>From estimate to setup in five steps</h2></div>
+            <div class="steps">
+                @for (var i = 0; i < steps.Length; i++)
+                {
+                    <div class="step">
+                        <div class="step-num">@(i + 1)</div>
+                        <h3>@steps[i].Title</h3>
+                        <p>@steps[i].Text</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    @* Popular packages *@
+    <section class="section">
+        <div class="wrap">
+            <p class="eyebrow">Packages</p>
+            <div class="section-head">
+                <h2>Popular packages</h2>
+                <a asp-controller="Catalogue" asp-action="Packages" class="more">See all packages &rarr;</a>
+            </div>
+            <div class="grid grid-3">
+                @foreach (var p in Model.Packages)
+                {
+                    <article class="tile">
+                        <div class="media" data-label="Package image">
+                            <img src="@Url.Content("~/" + p.Image)" alt="" loading="lazy" onerror="this.remove()" />
+                        </div>
+                        <div class="tile-body">
+                            <h3>@p.Name</h3>
+                            <p class="tile-text">@p.Description</p>
+                            <p class="price">From @p.FromPrice</p>
+                            <a asp-controller="Catalogue" asp-action="Packages" class="btn btn-block btn-sm">View package</a>
+                        </div>
+                    </article>
+                }
+            </div>
+        </div>
+    </section>
+
+    @* Previous work *@
+    <section class="section section-white" id="portfolio">
+        <div class="wrap">
+            <p class="eyebrow">Portfolio</p>
+            <div class="section-head">
+                <h2>Our previous work</h2>
+                @* TODO: link to the Portfolio page once it exists *@
+                <a href="#" class="more">View all &rarr;</a>
+            </div>
+            <div class="grid grid-3">
+                @foreach (var w in Model.Work)
+                {
+                    <article class="tile">
+                        <div class="media" data-label="Event photo">
+                            <img src="@Url.Content("~/" + w.Image)" alt="@w.Title" loading="lazy" onerror="this.remove()" />
+                        </div>
+                        <div class="tile-body">
+                            <h3>@w.Title</h3>
+                            <p class="tile-text">@w.Meta</p>
+                        </div>
+                    </article>
+                }
+            </div>
+        </div>
+    </section>
+
+    @* Call to action *@
+    <section class="section section-white cta-section">
+        <div class="wrap">
+            <div class="cta">
+                <div>
+                    <h2>Planning an event?</h2>
+                    <p>Start with an instant estimate. It takes a few minutes.</p>
+                </div>
+                <div class="btn-row">
+                    <a asp-controller="Catalogue" asp-action="Products" class="btn btn-sm">Get an instant estimate</a>
+                    <a href="https://wa.me/27833956705" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+                        WhatsApp 083 395 6705 &nearr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
+
+@section Scripts {
+    <script src="~/js/home.js" asp-append-version="true"></script>
+}

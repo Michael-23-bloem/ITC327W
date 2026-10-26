@@ -1,10 +1,15 @@
 @model CatalogueViewModel
 @{
     ViewData["Title"] = "Decor Catalogue";
+    ViewData["BodyClass"] = "page-catalogue";
     var isProducts = Model.Tab == "Products";
 }
 
-<h1 class="page-title">Decor Catalogue</h1>
+<header class="page-head">
+    <p class="eyebrow">Shop the look</p>
+    <h1>Decor catalogue</h1>
+    <p class="page-lead">Browse décor items and packages. Add what you like and your estimate builds as you go.</p>
+</header>
 
 @if (TempData["Added"] is string added)
 {
@@ -48,7 +53,7 @@
         }
         else
         {
-            <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
                 @foreach (var item in Model.Items)
                 {
                     <div class="col">

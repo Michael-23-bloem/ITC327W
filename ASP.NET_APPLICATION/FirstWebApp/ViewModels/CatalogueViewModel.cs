@@ -7,6 +7,15 @@ namespace FirstWebApp.ViewModels
         public const string Package = "Package";
     }
 
+        // One line in a package's "View items" dialog
+    public class PackageContentViewModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string? ImageUrl { get; set; }
+        public int Quantity { get; set; }
+    }
+
     // What one catalogue card needs, for products and packages alike
     public class CatalogueItemViewModel
     {
@@ -17,6 +26,9 @@ namespace FirstWebApp.ViewModels
         public decimal Price { get; set; }
         public string? ImageUrl { get; set; }
         public string? Category { get; set; }
+
+        // Only filled for packages: the products the package contains
+        public List<PackageContentViewModel> Contents { get; set; } = new();
     }
 
     public class CatalogueViewModel

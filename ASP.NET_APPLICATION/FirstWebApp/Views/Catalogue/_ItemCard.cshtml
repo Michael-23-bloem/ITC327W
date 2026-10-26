@@ -1,7 +1,8 @@
 @model CatalogueItemViewModel
 @{
     var returnUrl = Context.Request.Path + Context.Request.QueryString;
-    var priceLabel = Model.ItemType == CatalogueItemTypes.Package ? "per package" : "each";
+    var isPackage = Model.ItemType == CatalogueItemTypes.Package;
+    var dialogId = "pkg-" + Model.Id;
 }
 
 <div class="item-card">
@@ -11,7 +12,7 @@
     }
     else
     {
-        <div class="item-image item-image--placeholder">No image yet</div>
+        <div class="item-image item-image--placeholder">@(isPackage ? "Package image" : "No image yet")</div>
     }
 
     <div class="item-body">
@@ -20,21 +21,92 @@
         {
             <div class="item-desc">@Model.Description</div>
         }
-        <div class="item-price">R @Model.Price.ToString("N2") @priceLabel</div>
+
+        <div class="item-price">R @Model.Price.ToString("N2") @(isPackage ? "per package" : "each")</div>
+
+        @if (isPackage && Model.Contents.Any())
+        {
+            <button type="button" class="btn btn-outline-dark btn-sm view-items"
+                    data-open-dialog="@dialogId" aria-haspopup="dialog">
+                View items (@Model.Contents.Count)
+            </button>
+        }
 
         <form asp-controller="Estimate" asp-action="Add" method="post" class="item-actions">
             <input type="hidden" name="itemId" value="@Model.Id" />
             <input type="hidden" name="itemType" value="@Model.ItemType" />
             <input type="hidden" name="returnUrl" value="@returnUrl" />
 
-            <div class="qty-stepper">
-                <button type="button" data-step="-1" aria-label="Decrease quantity">−</button>
-                <input type="number" name="quantity" value="1" min="1" max="999"
-                       aria-label="Quantity for @Model.Name" />
-                <button type="button" data-step="1" aria-label="Increase quantity">+</button>
-            </div>
-
-            <button type="submit" class="btn btn-dark btn-sm">Add to estimate</button>
+            @if (isPackage)
+            {
+                <input type="hidden" name="quantity" value="1" />
+                <button type="submit" class="btn btn-dark btn-sm ms-auto">Add package to estimate</button>
+            }
+            else
+            {
+                <div class="qty-stepper">
+                    <button type="button" data-step="-1" aria-label="Decrease quantity">−</button>
+                    <input type="number" name="quantity" value="1" min="1" max="999"
+                           aria-label="Quantity for @Model.Name" />
+                    <button type="button" data-step="1" aria-label="Increase quantity">+</button>
+                </div>
+                <button type="submit" class="btn btn-dark btn-sm">Add to estimate</button>
+            }
         </form>
     </div>
 </div>
+
+@if (isPackage && Model.Contents.Any())
+{
+    <dialog class="package-dialog" id="@dialogId" aria-labelledby="@(dialogId)-title">
+        <div class="package-dialog-head">
+            <div>
+                <p class="eyebrow">Package contents</p>
+                <h2 id="@(dialogId)-title">@Model.Name</h2>
+                <p class="package-dialog-meta">
+                    @Model.Contents.Count items &middot; R @Model.Price.ToString("N2") per package
+                </p>
+            </div>
+            <form method="dialog">
+                <button type="submit" class="dialog-close" aria-label="Close">&times;</button>
+            </form>
+        </div>
+
+        <ul class="package-dialog-list">
+            @foreach (var content in Model.Contents)
+            {
+                <li>
+                    @if (!string.IsNullOrEmpty(content.ImageUrl))
+                    {
+                        <img src="@content.ImageUrl" alt="" class="pd-thumb" loading="lazy" />
+                    }
+                    else
+                    {
+                        <div class="pd-thumb pd-thumb--placeholder" aria-hidden="true">No image</div>
+                    }
+                    <div>
+                        <span class="pd-name">@content.Name</span>
+                        @if (!string.IsNullOrWhiteSpace(content.Description))
+                        {
+                            <span class="pd-desc">@content.Description</span>
+                        }
+                    </div>
+                    <span class="pd-qty">x @content.Quantity</span>
+                </li>
+            }
+        </ul>
+
+        <div class="package-dialog-foot">
+            <form method="dialog">
+                <button type="submit" class="btn btn-outline-dark btn-sm">Close</button>
+            </form>
+            <form asp-controller="Estimate" asp-action="Add" method="post">
+                <input type="hidden" name="itemId" value="@Model.Id" />
+                <input type="hidden" name="itemType" value="@Model.ItemType" />
+                <input type="hidden" name="quantity" value="1" />
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                <button type="submit" class="btn btn-dark btn-sm">Add package to estimate</button>
+            </form>
+        </div>
+    </dialog>
+}

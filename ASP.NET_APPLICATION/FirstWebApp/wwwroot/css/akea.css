@@ -1,0 +1,739 @@
+/* =========================================================
+   AkeaEvents design system — loaded on every page.
+   Same palette, type and components everywhere;
+   each page gets its own header treatment (see "Page themes").
+   ========================================================= */
+
+:root {
+    --beige: #efe6da;
+    --beige-deep: #e4d6c5;
+    --nude: #d8b4a0; /* button colour while pressed */
+    --nude-ink: #3b2a22;
+    --ink: #161412;
+    --muted: #6f655c;
+    --line: #cdbfae;
+    --error: #a3342b;
+    --radius: 6px;
+}
+
+/* ---------- Base ---------- */
+body.akea {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin-bottom: 0;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--beige);
+}
+
+.akea a {
+    color: inherit;
+    text-underline-offset: 3px;
+}
+
+.akea a:hover {
+    color: var(--nude-ink);
+}
+
+/* Background option: blurred photo (wwwroot/images/bg.jpg); plain beige until it exists */
+.bg-blur {
+    position: relative;
+    isolation: isolate;
+}
+
+    .bg-blur::before {
+        content: "";
+        position: fixed;
+        inset: -30px; /* hides blurred edges */
+        background: url("/images/bg.jpg") center / cover no-repeat;
+        filter: blur(14px) saturate(.9);
+        z-index: -2;
+    }
+
+    .bg-blur::after { /* warm beige veil for readability */
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(239, 230, 218, .55);
+        z-index: -1;
+    }
+
+/* ---------- Navbar ---------- */
+.site-nav {
+    padding-block: .55rem;
+    background: rgba(255, 255, 255, .7);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+}
+
+.site-nav .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.logo {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--beige-deep);
+    border: 1px solid var(--line);
+}
+
+.site-nav .navbar-nav .nav-link {
+    color: var(--ink);
+    font-size: .9rem;
+}
+
+.site-nav .navbar-nav .nav-link:hover {
+    color: var(--nude-ink);
+}
+
+.site-nav .navbar-nav .nav-link.active {
+    color: var(--ink);
+    font-weight: 600;
+    border-bottom: 2px solid var(--ink);
+}
+
+.site-nav .btn-link {
+    font-weight: 400;
+    text-decoration: none;
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+    margin-top: auto;
+    padding: 1.25rem 0;
+    font-size: .8rem;
+    color: var(--muted);
+    background: rgba(255, 255, 255, .5);
+    border-top: 1px solid var(--line);
+}
+
+/* ---------- Shared layout pieces ---------- */
+.wrap {
+    width: min(100% - 3rem, 1120px);
+    margin-inline: auto;
+}
+
+.section {
+    padding: 3.5rem 0;
+}
+
+.section-white {
+    background: rgba(255, 255, 255, .75);
+}
+
+.section h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+
+.section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+    margin: 0 0 .35rem;
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.more {
+    font-size: .75rem;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+}
+
+.center {
+    text-align: center;
+}
+
+/* ---------- Buttons ---------- */
+.akea .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    padding: .5rem 1.1rem;
+    font-family: inherit;
+    font-size: .85rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #fff;
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    border-radius: var(--radius);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color .12s, color .12s, border-color .12s, transform .08s;
+}
+
+    .akea .btn:hover {
+        color: #fff;
+        background: #2b2622;
+        border-color: #2b2622;
+    }
+
+    .akea .btn:active,
+    .akea .btn.active {
+        color: var(--nude-ink);
+        background: var(--nude);
+        border-color: var(--nude);
+        transform: translateY(1px);
+    }
+
+    .akea .btn:focus,
+    .akea .btn:active:focus {
+        box-shadow: none;
+    }
+
+    .akea .btn:focus-visible {
+        outline: 3px solid var(--nude);
+        outline-offset: 2px;
+    }
+
+.akea .btn-sm {
+    padding: .35rem .8rem;
+    font-size: .75rem;
+}
+
+.akea .btn-block {
+    width: 100%;
+}
+
+.akea .btn-light {
+    color: var(--ink);
+    background: #fff;
+    border-color: #fff;
+}
+
+    .akea .btn-light:hover {
+        color: var(--ink);
+        background: #f4eee6;
+        border-color: #f4eee6;
+    }
+
+.akea .btn-outline,
+.akea .btn-outline-dark {
+    color: var(--ink);
+    background: transparent;
+    border-color: var(--ink);
+}
+
+    .akea .btn-outline:hover,
+    .akea .btn-outline-dark:hover {
+        color: var(--ink);
+        background: rgba(22, 20, 18, .06);
+        border-color: var(--ink);
+    }
+
+/* Pressed state for the lighter buttons (after their hover rules so it wins) */
+.akea .btn-light:active,
+.akea .btn-outline:active,
+.akea .btn-outline-dark:active {
+    color: var(--nude-ink);
+    background: var(--nude);
+    border-color: var(--nude);
+}
+
+.akea .btn-link {
+    padding-inline: .25rem;
+    color: var(--ink);
+    background: transparent;
+    border-color: transparent;
+    text-decoration: underline;
+}
+
+    .akea .btn-link:hover,
+    .akea .btn-link:active {
+        color: var(--nude-ink);
+        background: transparent;
+        border-color: transparent;
+        transform: none;
+    }
+
+/* ---------- Forms ---------- */
+.akea .form-label {
+    margin-bottom: .35rem;
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.akea .form-control,
+.akea .form-select {
+    min-height: 42px;
+    font-size: .9rem;
+    color: var(--ink);
+    background-color: #fff;
+    border: 1px solid #8f8478;
+    border-radius: var(--radius);
+}
+
+.akea .form-control-sm {
+    min-height: 34px;
+    font-size: .8rem;
+}
+
+.akea .form-control::placeholder {
+    color: var(--muted);
+}
+
+.akea .form-control:focus,
+.akea .form-select:focus,
+.akea .form-check-input:focus {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(216, 180, 160, .55);
+}
+
+.akea .form-control.input-validation-error {
+    border-color: var(--error);
+}
+
+.akea .form-check-input:checked {
+    background-color: var(--ink);
+    border-color: var(--ink);
+}
+
+.akea .form-text {
+    color: var(--muted);
+}
+
+.akea .text-muted {
+    color: var(--muted) !important;
+}
+
+.akea .text-danger {
+    color: var(--error) !important;
+}
+
+/* ---------- Alerts and validation ---------- */
+.akea .alert {
+    border-radius: var(--radius);
+    font-size: .85rem;
+}
+
+.akea .alert-dark {
+    color: var(--ink);
+    background: #fff;
+    border-color: var(--line);
+}
+
+.akea .alert-danger,
+.akea .alert-warning {
+    color: var(--error);
+    background: rgba(163, 52, 43, .07);
+    border-color: rgba(163, 52, 43, .35);
+}
+
+/* Hide the error box when there are no errors */
+.validation-summary-valid {
+    display: none;
+}
+
+.validation-summary-errors ul {
+    margin: 0;
+    padding-left: 1rem;
+}
+
+/* Message shown after a form is submitted */
+.flash {
+    padding: .6rem 1rem;
+    font-size: .85rem;
+    text-align: center;
+    color: var(--nude-ink);
+    background: var(--nude);
+}
+
+/* ---------- Tables ---------- */
+.akea .table {
+    --bs-table-bg: transparent;
+    color: var(--ink);
+    border-color: var(--line);
+}
+
+/* =========================================================
+   Page themes: same parts, a different feel per page
+   ========================================================= */
+
+/* Shared page header shape */
+.page-head {
+    margin: 1.5rem 0 2rem;
+    padding: 2rem clamp(1.25rem, 4vw, 2.5rem);
+    border-radius: 10px;
+}
+
+    .page-head h1 {
+        margin: 0 0 .35rem;
+        font-size: clamp(1.6rem, 3.5vw, 2.1rem);
+        font-weight: 700;
+        letter-spacing: -.02em;
+    }
+
+.page-lead {
+    max-width: 60ch;
+    margin: 0;
+    font-size: .9rem;
+    color: var(--muted);
+}
+
+/* Catalogue: warm shop-window band with an ink accent */
+.page-catalogue .page-head {
+    background: var(--beige-deep);
+    border: 1px solid var(--line);
+    border-left: 6px solid var(--ink);
+}
+
+    .page-catalogue .page-head .eyebrow,
+    .page-catalogue .page-lead {
+        color: var(--nude-ink);
+    }
+
+/* Estimate: a paper "receipt" on a deeper beige */
+body.page-estimate {
+    background: var(--beige-deep);
+}
+
+.sheet {
+    max-width: 760px;
+    margin: 2rem auto;
+    padding: 2rem clamp(1.25rem, 4vw, 2.5rem);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(60, 40, 25, .12);
+}
+
+.page-estimate .page-head {
+    margin: 0 0 1.5rem;
+    padding: 0 0 1.25rem;
+    border-radius: 0;
+    border-bottom: 1px dashed var(--line);
+    text-align: center;
+}
+
+.page-estimate .page-lead {
+    margin-inline: auto;
+}
+
+.sheet .table > :not(caption) > * > * {
+    border-bottom-style: dashed;
+}
+
+/* Account pages: a frosted card over the blurred photo (or plain beige) */
+.auth {
+    display: grid;
+    place-items: center;
+    padding: 2.5rem 0 3.5rem;
+}
+
+.auth-card {
+    width: min(100%, 480px);
+    padding: 2.25rem clamp(1.25rem, 5vw, 2.5rem) 2rem;
+    background: rgba(255, 255, 255, .82);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(60, 40, 25, .12);
+}
+
+.auth-title {
+    margin: 0;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+
+.auth-sub {
+    margin: .25rem 0 1.5rem;
+    text-align: center;
+    font-size: .85rem;
+    color: var(--muted);
+}
+
+    .auth-sub a {
+        font-weight: 600;
+    }
+
+/* Info pages (Privacy, Help): dark band like the home page's About section */
+.page-info .page-head {
+    color: #fff;
+    background: var(--ink);
+}
+
+    .page-info .page-head .eyebrow {
+        color: #a79c90;
+    }
+
+.page-info .page-lead {
+    color: #cfc6bb;
+}
+
+.prose {
+    max-width: 68ch;
+    margin-bottom: 3rem;
+    font-size: .95rem;
+    line-height: 1.7;
+}
+
+/* =========================================================
+   Catalogue and estimate components in the palette
+   ========================================================= */
+.akea .catalogue-bar {
+    border-color: var(--line);
+}
+
+.akea .catalogue-tabs a.active {
+    border-bottom-color: var(--ink);
+}
+
+.akea .filter-pills a {
+    background: #fff;
+    border: 1px solid var(--line);
+}
+
+    .akea .filter-pills a:hover {
+        background: var(--beige-deep);
+        color: var(--ink);
+    }
+
+    .akea .filter-pills a.active {
+        color: #fff;
+        background: var(--ink);
+        border-color: var(--ink);
+    }
+
+.akea .item-card {
+    background: #fff;
+    border-color: var(--line);
+    border-radius: 8px;
+}
+
+.akea .item-image--placeholder {
+    color: var(--nude-ink);
+    background: #d9d4cc;
+}
+
+.akea .item-desc {
+    color: var(--muted);
+}
+
+.akea .item-actions .btn {
+    padding: .3rem .6rem;
+    font-size: .72rem;
+}
+
+.akea .qty-stepper {
+    border-color: var(--line);
+    border-radius: var(--radius);
+}
+
+    .akea .qty-stepper button {
+        color: var(--ink);
+        background: #fff;
+    }
+
+        .akea .qty-stepper button:hover {
+            background: var(--beige);
+        }
+
+        .akea .qty-stepper button:active {
+            color: var(--nude-ink);
+            background: var(--nude);
+        }
+
+    .akea .qty-stepper input {
+        border-color: var(--line);
+    }
+
+.akea .estimate-box {
+    background: #fff;
+    border-color: var(--line);
+    border-radius: 10px;
+}
+
+.akea .estimate-total {
+    border-color: var(--line);
+}
+
+/* ---------- Respect "reduce motion" ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .akea *,
+    .akea *::before,
+    .akea *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* ---------- Card: price, View items and Add button sit together at the bottom ---------- */
+.akea .item-price {
+    margin-top: auto;
+    padding-top: .6rem;
+}
+
+.akea .item-actions {
+    margin-top: .5rem;
+}
+
+.akea .view-items {
+    align-self: flex-end;
+    margin-top: .5rem;
+}
+
+/* ---------- Package contents dialog ---------- */
+.package-dialog {
+    width: min(92vw, 560px);
+    max-height: 85vh;
+    padding: 0;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 24px 60px rgba(22, 20, 18, .25);
+}
+
+    .package-dialog[open] {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .package-dialog::backdrop {
+        background: rgba(22, 20, 18, .45);
+        backdrop-filter: blur(2px);
+    }
+
+/* Stop the page behind scrolling while a dialog is open */
+body:has(dialog[open]) {
+    overflow: hidden;
+}
+
+.package-dialog-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--line);
+}
+
+    .package-dialog-head h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+
+.package-dialog-meta {
+    margin: .2rem 0 0;
+    font-size: .8rem;
+    color: var(--muted);
+}
+
+.package-dialog form {
+    margin: 0;
+}
+
+.dialog-close {
+    width: 36px;
+    height: 36px;
+    font-size: 1.3rem;
+    line-height: 1;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+    .dialog-close:hover {
+        background: var(--beige);
+    }
+
+    .dialog-close:focus-visible {
+        outline: 3px solid var(--nude);
+        outline-offset: 2px;
+    }
+
+.package-dialog-list {
+    margin: 0;
+    padding: .5rem 1.5rem;
+    list-style: none;
+    overflow-y: auto;
+}
+
+.package-dialog-list li {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    align-items: center;
+    gap: .9rem;
+    padding: .7rem 0;
+}
+
+.package-dialog-list li + li {
+    border-top: 1px dashed var(--line);
+}
+
+.pd-thumb {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    background: #d9d4cc;
+    border-radius: var(--radius);
+}
+
+.pd-thumb--placeholder {
+    display: grid;
+    place-items: center;
+    font-size: .6rem;
+    text-align: center;
+    color: var(--nude-ink);
+}
+
+.pd-name {
+    display: block;
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.pd-desc {
+    display: block;
+    font-size: .78rem;
+    color: var(--muted);
+}
+
+.pd-qty {
+    font-size: .9rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.package-dialog-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    padding: 1rem 1.5rem 1.25rem;
+    background: var(--beige);
+    border-top: 1px solid var(--line);
+    border-radius: 0 0 12px 12px;
+}
