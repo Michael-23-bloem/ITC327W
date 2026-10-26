@@ -1,3 +1,4 @@
+
 class Portfolio {
   final String id;
   final String? name;
@@ -5,8 +6,8 @@ class Portfolio {
   final String? category;
   final String imageUrl;
   final String? eventId;
-  final double? price;
   final DateTime createdAt;
+  final double? price;
 
   Portfolio({
     required this.id,
@@ -15,14 +16,26 @@ class Portfolio {
     this.category,
     required this.imageUrl,
     this.eventId,
-    this.price,
     required this.createdAt,
+    this.price,
   });
 
   factory Portfolio.fromJson(Map<String, dynamic> json) {
     final createdRaw = json['created_at'];
     final priceRaw = json['price'];
     return Portfolio(
+<<<<<<< HEAD
+      id: json['id'],
+      name: json['name'],
+      description: json['description'],
+      category: json['category'],
+      imageUrl: json['image_url'],
+      eventId: json['event_id'],
+      createdAt: DateTime.parse(json['created_at']),
+      price: json['price'] == null
+          ? null
+          : (json['price'] as num).toDouble(),
+=======
       id: json['id'].toString(),
       name: json['name'] as String?,
       description: json['description'] as String?,
@@ -37,6 +50,7 @@ class Portfolio {
       createdAt: createdRaw == null
           ? DateTime.now()
           : DateTime.parse(createdRaw.toString()),
+>>>>>>> a0c017d4b93d3185ef6d57be63911b5d6a4cec49
     );
   }
 }
