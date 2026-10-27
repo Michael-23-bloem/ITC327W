@@ -43,14 +43,14 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
                       Text('Every celebration, throughtfully managed', style: TextStyle(fontSize: 13, color: Colors.black54)),
                     ],
                   ),
-                  CircleAvatar(
+                 /* CircleAvatar(
                     radius: 24,
                     backgroundColor: Colors.white,
                     child: IconButton(
                       icon: const Icon(Icons.settings, color: Colors.deepPurple),
                       onPressed: () {},
                     ),
-                  ),
+                  ),*/
                 ],
               ),
               const SizedBox(height: 24),
@@ -62,7 +62,7 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
                 crossAxisSpacing: 16,
                 childAspectRatio: 1,
                 children: [
-                  _squareCard(context, title: 'Event Product', subtitle: 'Upload decor items', icon: Icons.restaurant, iconColor: Colors.deepOrange, route: '/decor/upload'),
+                  _squareCard(context, title: 'Event Product', subtitle: 'Upload decor items', icon: Icons.restaurant, iconColor: Colors.deepOrange, route: '/decor'),
                   _squareCard(context, title: 'Quotation Requests', subtitle: 'Review and respond', icon: Icons.description_outlined, iconColor: Colors.indigo, route: '/quotations', badgeCount: pendingCount),
                   _squareCard(context, title: 'Analytics', subtitle: 'Client Analytics', icon: Icons.bar_chart, iconColor: Colors.teal, route: '/analytics'),
                   _squareCard(context, title: 'Bookings', subtitle: 'Client Reports', icon: Icons.bookmark_border, iconColor: Colors.blueGrey, route: '/bookings'),

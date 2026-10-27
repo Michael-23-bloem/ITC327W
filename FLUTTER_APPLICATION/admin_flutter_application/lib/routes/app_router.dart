@@ -14,6 +14,7 @@ import '../views/portfolio_upload_event_view.dart';
 import '../views/portfolio_list_view.dart';
 import '../views/accounts_list_views.dart';
 import '../views/accounts_details_view.dart';
+import '../views/decor_list_view.dart';
 import '../widgets/admin_shell.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -26,7 +27,15 @@ final GoRouter appRouter = GoRouter(
       routes: [
         GoRoute(path: '/dashboard', builder: (c, s) => const OwnerDashboardView()),
         GoRoute(path: '/analytics', builder: (c, s) => const ClientAnalyticsView()),
-        GoRoute(path: '/decor/upload', builder: (c, s) => const DecorUploadItemView()),
+        GoRoute(
+  path: '/decor',
+  builder: (c, s) => const DecorListView(),
+),
+GoRoute(
+  path: '/decor/upload',
+  builder: (c, s) => const DecorUploadItemView(),
+),
+       // GoRoute(path: '/decor/upload', builder: (c, s) => const DecorUploadItemView()),
         GoRoute(
           path: '/quotations',
           builder: (c, s) => const QuotationListView(),
