@@ -1,0 +1,71 @@
+@model PortfolioDetailsViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["BodyClass"] = "page-portfolio";
+}
+
+<a asp-action="Index" class="back-link">&larr; Back to portfolio</a>
+<h1 class="details-title">@Model.Title</h1>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        @if (Model.Images.Any())
+        {
+            <img id="galleryMain" src="@Model.Images[0]" alt="@Model.Title" class="gallery-main" />
+
+            if (Model.Images.Count > 1)
+            {
+                <div class="gallery-thumbs">
+                    @for (var i = 0; i < Model.Images.Count; i++)
+                    {
+                        <button type="button" class="gallery-thumb @(i == 0 ? "active" : "")"
+                                data-src="@Model.Images[i]" aria-pressed="@(i == 0 ? "true" : "false")"
+                                aria-label="Show photo @(i + 1) of @Model.Images.Count">
+                            <img src="@Model.Images[i]" alt="" loading="lazy" />
+                        </button>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <div class="gallery-main gallery-main--placeholder">Portfolio images coming soon</div>
+        }
+    </div>
+
+    <div class="col-lg-4">
+        <aside class="event-panel" aria-labelledby="aboutTitle">
+            <h2 id="aboutTitle">About this event</h2>
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <p>@Model.Description</p>
+            }
+
+            <dl class="event-facts">
+                @if (!string.IsNullOrWhiteSpace(Model.Category))
+                {
+                    <dt>Event type</dt>
+                    <dd>@Model.Category</dd>
+                }
+                <dt>Event cost</dt>
+                <dd>@(Model.Price.HasValue ? "R " + Model.Price.Value.ToString("N0") : "On request")</dd>
+            </dl>
+
+            <a asp-controller="Catalogue" asp-action="Packages" class="btn btn-outline-dark">See our packages</a>
+            <a asp-controller="Catalogue" asp-action="Products" class="btn btn-dark">Get an instant estimate</a>
+        </aside>
+    </div>
+</div>
+
+@if (Model.Related.Any())
+{
+    <section class="related" aria-labelledby="relatedTitle">
+        <h2 id="relatedTitle" class="related-title">More @Model.Category</h2>
+        <div class="portfolio-grid">
+            @foreach (var item in Model.Related)
+            {
+                <partial name="_PortfolioCard" model="item" />
+            }
+        </div>
+    </section>
+}

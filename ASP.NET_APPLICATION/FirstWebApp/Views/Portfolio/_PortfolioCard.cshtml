@@ -1,0 +1,32 @@
+@model PortfolioCardViewModel
+
+<article class="portfolio-card">
+    <a asp-controller="Portfolio" asp-action="Details" asp-route-id="@Model.Id"
+       class="portfolio-thumb" tabindex="-1" aria-hidden="true">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="" loading="lazy" />
+        }
+        else
+        {
+            <span class="portfolio-thumb--placeholder">Portfolio image</span>
+        }
+    </a>
+
+    <div class="portfolio-body">
+        <h2 class="portfolio-title">@Model.Title</h2>
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <p class="portfolio-desc">@Model.Description</p>
+        }
+
+        <div class="portfolio-foot">
+            <span class="portfolio-cost">
+                <small>Event cost</small>
+                @(Model.Price.HasValue ? "R " + Model.Price.Value.ToString("N0") : "On request")
+            </span>
+            <a asp-controller="Portfolio" asp-action="Details" asp-route-id="@Model.Id"
+               class="btn btn-dark btn-sm">View portfolio</a>
+        </div>
+    </div>
+</article>

@@ -67,8 +67,7 @@
                 <p class="eyebrow">About AkeaEvents</p>
                 <h2>Every celebration, thoughtfully managed</h2>
                 <p>[Remember to ask the stakeholder for the mission story or refer to the SRS]</p>
-                @* TODO: link to the About page once it exists *@
-                <a href="#" class="btn btn-light btn-sm">Read our story</a>
+                <a asp-controller="Home" asp-action="About" class="btn btn-light btn-sm">Read our story</a>
             </div>
         </div>
     </section>
@@ -140,29 +139,44 @@
         </div>
     </section>
 
-    @* Previous work *@
+    @* Previous work: the latest events from the portfolio *@
     <section class="section section-white" id="portfolio">
         <div class="wrap">
             <p class="eyebrow">Portfolio</p>
             <div class="section-head">
                 <h2>Our previous work</h2>
-                @* TODO: link to the Portfolio page once it exists *@
-                <a href="#" class="more">View all &rarr;</a>
+                <a asp-controller="Portfolio" asp-action="Index" class="more">View all &rarr;</a>
             </div>
-            <div class="grid grid-3">
-                @foreach (var w in Model.Work)
-                {
-                    <article class="tile">
-                        <div class="media" data-label="Event photo">
-                            <img src="@Url.Content("~/" + w.Image)" alt="@w.Title" loading="lazy" onerror="this.remove()" />
-                        </div>
-                        <div class="tile-body">
-                            <h3>@w.Title</h3>
-                            <p class="tile-text">@w.Meta</p>
-                        </div>
-                    </article>
-                }
-            </div>
+
+            @if (!Model.Work.Any())
+            {
+                <p class="tile-text">Our latest work will appear here soon.</p>
+            }
+            else
+            {
+                <div class="grid grid-3">
+                    @foreach (var w in Model.Work)
+                    {
+                        <article class="tile">
+                            <div class="media" data-label="Event photo">
+                                @if (!string.IsNullOrEmpty(w.ImageUrl))
+                                {
+                                    <img src="@w.ImageUrl" alt="@w.Title" loading="lazy" onerror="this.remove()" />
+                                }
+                            </div>
+                            <div class="tile-body">
+                                <h3>@w.Title</h3>
+                                <p class="tile-text">
+                                    @(string.IsNullOrWhiteSpace(w.Category) ? "Event" : w.Category)
+                                    &middot; Event cost @(w.Price.HasValue ? "R " + w.Price.Value.ToString("N0") : "on request")
+                                </p>
+                                <a asp-controller="Portfolio" asp-action="Details" asp-route-id="@w.Id"
+                                   class="btn btn-block btn-sm">View portfolio</a>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
         </div>
     </section>
 

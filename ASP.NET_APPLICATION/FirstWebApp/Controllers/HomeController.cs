@@ -2,21 +2,25 @@ using System.Diagnostics;
 using FirstWebApp.Models;
 using FirstWebApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Supabase.Postgrest;
+using Supabase.Postgrest.Exceptions;
 
 namespace FirstWebApp.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly Supabase.Client _supabase;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(Supabase.Client supabase, ILogger<HomeController> logger)
         {
+            _supabase = supabase;
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            // Placeholder content: packages and work will come from Supabase later
+            // Placeholder content, except "Work", which comes from Supabase
             var model = new HomeViewModel
             {
                 HeroSlides = new()
@@ -45,14 +49,7 @@ namespace FirstWebApp.Controllers
                     new("[Package name]", "[Short package description]", "R0.000", "images/packages/package-3.jpg")
                 },
 
-                Work = new()
-                {
-                    new("[Event title]", "Wedding ~ [Venue] ~ [Date]",      "images/work/work-1.jpg"),
-                    new("[Event title]", "Birthday ~ [Venue] ~ [Date]",     "images/work/work-2.jpg"),
-                    new("[Event title]", "Corporate ~ [Venue] ~ [Date]",    "images/work/work-3.jpg"),
-                    new("[Event title]", "Kid's party ~ [Venue] ~ [Date]",  "images/work/work-4.jpg"),
-                    new("[Event title]", "Baby shower ~ [Venue] ~ [Date]",  "images/work/work-5.jpg")
-                }
+                Work = await LoadRecentWorkAsync()
             };
 
             return View(model);
@@ -60,8 +57,43 @@ namespace FirstWebApp.Controllers
 
         public IActionResult Privacy() => View();
 
+        public IActionResult About()
+        {
+            ViewData["Title"] = "About us";
+            ViewData["Lead"] = "The story behind AkeaEvents.";
+            return View("ComingSoon");
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error() =>
             View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+
+        // The six most recent events from the portfolio table
+        private async Task<List<PortfolioCardViewModel>> LoadRecentWorkAsync()
+        {
+            try
+            {
+                var entries = (await _supabase.From<PortfolioEntry>()
+                    .Order(p => p.CreatedAt, Constants.Ordering.Descending)
+                    .Limit(6)
+                    .Get()).Models;
+
+                return entries.Select(e => new PortfolioCardViewModel
+                {
+                    Id = e.Id,
+                    Title = e.Name ?? "Untitled event",
+                    Description = e.Description,
+                    Category = e.Category,
+                    Price = e.Price,
+                    ImageUrl = string.IsNullOrWhiteSpace(e.ImageUrl) ? null : e.ImageUrl
+                }).ToList();
+            }
+            catch (Exception ex) when (ex is PostgrestException or HttpRequestException)
+            {
+                // The home page should still load if Supabase is unavailable
+                _logger.LogWarning(ex, "Loading recent portfolio work for the home page failed");
+                return new();
+            }
+        }
     }
 }

@@ -1,0 +1,49 @@
+@model PortfolioListViewModel
+@{
+    ViewData["Title"] = "Our Portfolio";
+    ViewData["BodyClass"] = "page-portfolio";
+}
+
+<header class="page-head">
+    <p class="eyebrow">Previous work</p>
+    <h1>Our portfolio</h1>
+    <p class="page-lead">Previous décor work by AkeaEvents. No account needed to browse.</p>
+</header>
+
+@if (TempData["PortfolioError"] is string loadError)
+{
+    <div class="alert alert-warning py-2" role="alert">@loadError</div>
+}
+
+@if (Model.Error != null)
+{
+    <div class="alert alert-warning py-2" role="alert">@Model.Error</div>
+}
+
+@if (Model.Categories.Any())
+{
+    <nav class="filter-pills" aria-label="Filter by event type">
+        <a asp-action="Index" class="@(Model.Category == null ? "active" : "")"
+           aria-current="@(Model.Category == null ? "page" : null)">All</a>
+        @foreach (var cat in Model.Categories)
+        {
+            var isActive = string.Equals(Model.Category, cat, StringComparison.OrdinalIgnoreCase);
+            <a asp-action="Index" asp-route-category="@cat" class="@(isActive ? "active" : "")"
+               aria-current="@(isActive ? "page" : null)">@cat</a>
+        }
+    </nav>
+}
+
+@if (Model.Error == null && !Model.Items.Any())
+{
+    <p class="text-muted">No events to show yet. Check back soon.</p>
+}
+else
+{
+    <div class="portfolio-grid">
+        @foreach (var item in Model.Items)
+        {
+            <partial name="_PortfolioCard" model="item" />
+        }
+    </div>
+}
