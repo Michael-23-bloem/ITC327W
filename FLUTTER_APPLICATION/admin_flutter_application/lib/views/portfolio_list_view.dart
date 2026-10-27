@@ -32,28 +32,6 @@ class _PortfolioListViewState extends State<PortfolioListView> {
       ),
       body: vm.loading
           ? const Center(child: CircularProgressIndicator())
-<<<<<<< HEAD
-          : GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-              itemCount: vm.events.length,
-              itemBuilder: (_, i) => GestureDetector(
-                onTap: () => _showPortfolioSheet(context, vm.events[i]),
-                child: Card(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Image.network(
-                          vm.events[i].imageUrl,
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.image),
-                        ),
-                      ),
-                      Text(vm.events[i].name ?? 'Untitled'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-=======
           : vm.error != null
               ? Center(
                   child: Column(
@@ -77,34 +55,37 @@ class _PortfolioListViewState extends State<PortfolioListView> {
                       itemCount: vm.events.length,
                       itemBuilder: (_, i) {
                         final event = vm.events[i];
-                        return Card(
-                          clipBehavior: Clip.antiAlias,
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: event.imageUrl.isEmpty
-                                    ? const Center(child: Icon(Icons.image))
-                                    : Image.network(
-                                        event.imageUrl,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, _, _) => const Icon(Icons.image),
-                                      ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Text(
-                                  event.name?.isNotEmpty == true ? event.name! : 'Untitled',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                        return GestureDetector(
+                          onTap: () => _showPortfolioSheet(context, event),
+                          child: Card(
+                            clipBehavior: Clip.antiAlias,
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: event.imageUrl.isEmpty
+                                      ? const Center(child: Icon(Icons.image))
+                                      : Image.network(
+                                          event.imageUrl,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) =>
+                                              const Icon(Icons.image),
+                                        ),
                                 ),
-                              ),
-                            ],
+                                Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Text(
+                                    event.name?.isNotEmpty == true ? event.name! : 'Untitled',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },
                     ),
->>>>>>> a0c017d4b93d3185ef6d57be63911b5d6a4cec49
     );
   }
 

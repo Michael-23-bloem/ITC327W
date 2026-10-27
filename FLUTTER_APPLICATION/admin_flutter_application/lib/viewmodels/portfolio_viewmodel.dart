@@ -14,22 +14,15 @@ class PortfolioViewModel extends ChangeNotifier {
 
   Future<void> load() async {
     loading = true;
-<<<<<<< HEAD
-    notifyListeners();
-    try {
-      final data = await _service.getPortfolio();
-      events = data.map((e) => Portfolio.fromJson(e as Map<String, dynamic>)).toList();
-=======
     error = null;
     notifyListeners();
     try {
       final data = await _service.getPortfolio();
-      events = data.map(Portfolio.fromJson).toList();
+      events = data.map((e) => Portfolio.fromJson(e as Map<String, dynamic>)).toList();
     } catch (e) {
       debugPrint('Portfolio load failed: $e');
       error = 'Could not load portfolio.';
       events = [];
->>>>>>> a0c017d4b93d3185ef6d57be63911b5d6a4cec49
     } finally {
       loading = false;
       notifyListeners();
@@ -58,10 +51,10 @@ class PortfolioViewModel extends ChangeNotifier {
   }
 
   Future<Map<String, dynamic>> loadDetail(String portfolioId) async {
-  final images = await _service.getPortfolioImages(portfolioId);
-  final items = await _service.getPortfolioItemNames(portfolioId);
-  return {'images': images, 'items': items};
-}
+    final images = await _service.getPortfolioImages(portfolioId);
+    final items = await _service.getPortfolioItemNames(portfolioId);
+    return {'images': images, 'items': items};
+  }
 
   Future<void> uploadEventWithImages({
     required List<XFile> images, // images[0] is treated as the cover image
@@ -105,31 +98,23 @@ class PortfolioViewModel extends ChangeNotifier {
 
       final portfolioId = inserted['id'];
 
-     if (urls.length > 1) {
-  final extraRows = urls.skip(1).toList().asMap().entries.map((entry) {
-    return {
-      'portfolio_id': portfolioId,
-      'image_url': entry.value,
-      'sort_order': entry.key + 1,
-    };
-  }).toList();
+      if (urls.length > 1) {
+        final extraRows = urls.skip(1).toList().asMap().entries.map((entry) {
+          return {
+            'portfolio_id': portfolioId,
+            'image_url': entry.value,
+            'sort_order': entry.key + 1,
+          };
+        }).toList();
 
-  await client.from('portfolio_images').insert(extraRows);
-} 
-      /*if (urls.length > 1) {
-        final extraRows = urls
-            .skip(1)
-            .map((url) => {'portfolio_id': portfolioId, 'image_url': url})
-            .toList();
         await client.from('portfolio_images').insert(extraRows);
-      }*/
+      }
 
       if (productIds.isNotEmpty) {
         final itemRows = productIds
             .map((id) => {'portfolio_id': portfolioId, 'product_id': id})
             .toList();
-            await client.from('portfolio_product_links').insert(itemRows);
-        //await client.from('portfolio_items').insert(itemRows);
+        await client.from('portfolio_product_links').insert(itemRows);
       }
 
       await load();
@@ -140,133 +125,74 @@ class PortfolioViewModel extends ChangeNotifier {
   }
 
   Future<void> deletePortfolio(String id) async {
-  await _service.deletePortfolio(id);
-  events.removeWhere((e) => e.id == id);
-  notifyListeners();
-}
-
-Future<void> updatePortfolio({
-  required String id,
-  required String name,
-  required String category,
-  required String description,
-  double? price,
-  List<String> productIds = const [],
-  List<XFile?>? imageFiles,
-  List<String?>? existingImageUrls,
-}) async {
-  loading = true;
-  notifyListeners();
-
-  try {
-    final client = Supabase.instance.client;
-
-    // Update the event details.
-    await _service.updatePortfolio(id, {
-      'name': name,
-      'category': category,
-      'description': description,
-      'price': price,
-    });
-
-    // Update linked décor products.
-    await _service.replacePortfolioItems(id, productIds);
-
-    // Update images only when the edit screen supplies image data.
-    if (imageFiles != null && existingImageUrls != null) {
-      final storage = client.storage.from('portfolio-images');
-      final imageUrls = <String>[];
-
-      for (int i = 0; i < 4; i++) {
-        final newImage =
-            i < imageFiles.length ? imageFiles[i] : null;
-
-        final existingUrl =
-            i < existingImageUrls.length
-                ? existingImageUrls[i]
-                : null;
-
-        if (newImage != null) {
-          final bytes = await newImage.readAsBytes();
-          final fileName =
-              '${id}_${DateTime.now().microsecondsSinceEpoch}_${newImage.name}';
-
-          await storage.uploadBinary(fileName, bytes);
-
-          imageUrls.add(storage.getPublicUrl(fileName));
-        } else if (existingUrl != null) {
-          imageUrls.add(existingUrl);
-        }
-      }
-
-      if (imageUrls.isEmpty) {
-        throw Exception('At least one event picture is required.');
-      }
-
-      await _service.replacePortfolioImages(id, imageUrls);
-    }
-
-    await load();
-  } finally {
-    loading = false;
+    await _service.deletePortfolio(id);
+    events.removeWhere((e) => e.id == id);
     notifyListeners();
   }
-}
-/*Future<void> updatePortfolio({
-  required String id,
-  required String name,
-  required String category,
-  required String description,
-  double? price,
-  List<String> productIds = const [],
-}) async {
-  loading = true;
-  notifyListeners();
 
-<<<<<<< HEAD
-  try {
-    await _service.updatePortfolio(id, {
-      'name': name,
-      'category': category,
-      'description': description,
-      'price': price,
-    });
-
-    await _service.replacePortfolioItems(id, productIds);
-
-    await load();
-  } finally {
-    loading = false;
-    notifyListeners();
-=======
-  Future<void> uploadEvent({
-    required String productId,
+  Future<void> updatePortfolio({
+    required String id,
     required String name,
     required String category,
     required String description,
-    required String imageUrl,
+    double? price,
+    List<String> productIds = const [],
+    List<XFile?>? imageFiles,
+    List<String?>? existingImageUrls,
   }) async {
     loading = true;
     notifyListeners();
+
     try {
-      await _service.uploadEventImage({
-        'Name': name,
-        'Category': category,
-        'Description': description,
-        'Image_url': imageUrl,
+      final client = Supabase.instance.client;
+
+      // Update the event details.
+      await _service.updatePortfolio(id, {
+        'name': name,
+        'category': category,
+        'description': description,
+        'price': price,
       });
+
+      // Update linked décor products.
+      await _service.replacePortfolioItems(id, productIds);
+
+      // Update images only when the edit screen supplies image data.
+      if (imageFiles != null && existingImageUrls != null) {
+        final storage = client.storage.from('portfolio-images');
+        final imageUrls = <String>[];
+
+        for (int i = 0; i < 4; i++) {
+          final newImage = i < imageFiles.length ? imageFiles[i] : null;
+          final existingUrl = i < existingImageUrls.length ? existingImageUrls[i] : null;
+
+          if (newImage != null) {
+            final bytes = await newImage.readAsBytes();
+            final fileName = '${id}_${DateTime.now().microsecondsSinceEpoch}_${newImage.name}';
+            await storage.uploadBinary(fileName, bytes);
+            imageUrls.add(storage.getPublicUrl(fileName));
+          } else if (existingUrl != null) {
+            imageUrls.add(existingUrl);
+          }
+        }
+
+        if (imageUrls.isEmpty) {
+          throw Exception('At least one event picture is required.');
+        }
+
+        await _service.replacePortfolioImages(id, imageUrls);
+      }
+
       await load();
     } finally {
       loading = false;
       notifyListeners();
     }
->>>>>>> a0c017d4b93d3185ef6d57be63911b5d6a4cec49
   }
-}*/
 
-Future<List<String>> getProductIdsForPortfolio(String portfolioId) {
-  return _service.getProductIdsForPortfolio(portfolioId);
-}
+  Future<List<String>> getProductIdsForPortfolio(String portfolioId) {
+    return _service.getProductIdsForPortfolio(portfolioId);
+  }
 
   List<Portfolio> getByCategory(String category) {
     if (category == 'All') return events;
