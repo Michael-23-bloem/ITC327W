@@ -1,6 +1,4 @@
-
 import 'dart:typed_data';
-
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -28,9 +26,9 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
     'Plates',
     'Glasses',
     'Tents',
-    'Candles Holders'
-    'Plinths'
-    'Frames & other decors'
+    'Candles Holders',
+    'Plinths',
+    'Frames & other decors',
     'Cutlery & Underplates',
   ];
 
@@ -101,7 +99,30 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
     });
   }
 
-  void _showMessage(String message) {
+  Future<void> _showPopup({
+    required String title,
+    required String message,
+    required IconData icon,
+    required Color iconColor,
+  }) async {
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        icon: Icon(icon, color: iconColor, size: 48),
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
@@ -122,24 +143,59 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
       final description = item.description.text.trim();
 
       if (name.isEmpty) {
-        _showMessage('Enter a name for item ${i + 1}.');
+        await _showPopup(
+          title: 'Name required',
+          message: 'Enter a name for item ${i + 1}.',
+          icon: Icons.warning_amber_rounded,
+          iconColor: Colors.orange,
+        );
         return;
       }
 
+     
+     
       if (price == null || price < 0) {
+        await _showPopup(
+          title: 'Valid price required',
+          message: 'Enter a valid, non-negative price for $name.',
+          icon: Icons.warning_amber_rounded,
+          iconColor: Colors.orange,
+        );
+        return;
+      }
+     /* if (price == null || price < 0) {
         _showMessage('Enter a valid, non-negative price for $name.');
         return;
-      }
+      }*/
 
-      if (stock == null || stock < 0) {
+      
+       if (stock == null || stock < 0) {
+        await _showPopup(
+          title: 'Fill in quantity',
+          message: 'Enter a valid stock quantity for $name.',
+          icon: Icons.warning_amber_rounded,
+          iconColor: Colors.orange,
+        );
+        return;
+      }
+      /*if (stock == null || stock < 0) {
         _showMessage('Enter a valid stock quantity for $name.');
         return;
-      }
+      }*/
 
-      if (item.images.isEmpty) {
-        _showMessage('Add at least one photo for $name.');
+       if (item.images.isEmpty) {
+        await _showPopup(
+          title: 'ADD a photo',
+          message: 'Add at least one photo for $name.',
+          icon: Icons.warning_amber_rounded,
+          iconColor: Colors.orange,
+        );
         return;
       }
+     /* if (item.images.isEmpty) {
+        _showMessage('Add at least one photo for $name.');
+        return;
+      }*/
 
       drafts.add(
         DecorProductUploadDraft(
@@ -154,27 +210,66 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
 
     setState(() => _submitting = true);
 
-    try {
+    /*try {
       await context.read<DecorProductViewModel>().uploadMultipleDecorItems(
         category: category,
         items: drafts,
       );
 
-      if (!mounted) return;
+      /*  if (!mounted) return;
 
       _showMessage('Décor items uploaded successfully.');
-      context.go('/decor');
+      context.go('/decor');*/
     } catch (e) {
       if (!mounted) return;
 
-      _showMessage(
+      await _showPopup(
+        title: 'Upload failed',
+        message:
+            'Your décor items could not be uploaded.\n\n'
+            '${e.toString().replaceFirst('Exception: ', '')}',
+        icon: Icons.error_outline,
+        iconColor: Colors.red,
+      ); /*_showMessage(
         'Upload failed: ${e.toString().replaceFirst('Exception: ', '')}',
-      );
+      );*/
     } finally {
       if (mounted) {
         setState(() => _submitting = false);
       }
-    }
+    }*/
+    try {
+  await context.read<DecorProductViewModel>().uploadMultipleDecorItems(
+    category: category,
+    items: drafts,
+  );
+
+  if (!mounted) return;
+
+  await _showPopup(
+    title: 'Upload complete',
+    message: 'Successfully uploaded ${drafts.length} item${drafts.length == 1 ? '' : 's'}.',
+    icon: Icons.check_circle_outline,
+    iconColor: Colors.green,
+  );
+
+  if (!mounted) return;
+  context.go('/decor');
+} catch (e) {
+  if (!mounted) return;
+
+  await _showPopup(
+    title: 'Upload failed',
+    message: 'Your décor items could not be uploaded.\n\n'
+        '${e.toString().replaceFirst('Exception: ', '')}',
+    icon: Icons.error_outline,
+    iconColor: Colors.red,
+  );
+} finally {
+  if (mounted) {
+    setState(() => _submitting = false);
+  }
+}
   }
 
   @override
@@ -189,9 +284,7 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: _submitting
-                        ? null
-                        : () => context.go('/decor'),
+                    onPressed: _submitting ? null : () => context.go('/decor'),
                     icon: const Icon(Icons.arrow_back),
                   ),
                   const Expanded(
@@ -229,10 +322,7 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
                         value: category,
                         items: categories
                             .map(
-                              (c) => DropdownMenuItem(
-                                value: c,
-                                child: Text(c),
-                              ),
+                              (c) => DropdownMenuItem(value: c, child: Text(c)),
                             )
                             .toList(),
                         onChanged: _submitting
@@ -329,9 +419,7 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
               if (_items.length > 1)
                 IconButton(
                   tooltip: 'Remove item',
-                  onPressed: _submitting
-                      ? null
-                      : () => _removeItem(index),
+                  onPressed: _submitting ? null : () => _removeItem(index),
                   icon: const Icon(
                     Icons.delete_outline,
                     color: Colors.redAccent,
@@ -342,10 +430,7 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
 
           const SizedBox(height: 8),
 
-          const Text(
-            'Photos',
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
+          const Text('Photos', style: TextStyle(fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
 
           Wrap(
@@ -360,9 +445,7 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
                 ),
               ),
               InkWell(
-                onTap: _submitting
-                    ? null
-                    : () => _pickImages(item),
+                onTap: _submitting ? null : () => _pickImages(item),
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   width: 92,
@@ -377,18 +460,13 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
                     children: [
                       Icon(Icons.add_photo_alternate_outlined, size: 28),
                       SizedBox(height: 4),
-                      Text(
-                        'Add photos',
-                        style: TextStyle(fontSize: 11),
-                      ),
+                      Text('Add photos', style: TextStyle(fontSize: 11)),
                     ],
                   ),
                 ),
               ),
-              InkWell(
-                onTap: _submitting
-                    ? null
-                    : () => _pickOneImage(item),
+              /*InkWell(
+                onTap: _submitting ? null : () => _pickOneImage(item),
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   width: 92,
@@ -403,23 +481,17 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
                     children: [
                       Icon(Icons.image_outlined, size: 28),
                       SizedBox(height: 4),
-                      Text(
-                        'One photo',
-                        style: TextStyle(fontSize: 11),
-                      ),
+                      Text('One photo', style: TextStyle(fontSize: 11)),
                     ],
                   ),
                 ),
-              ),
+              ),*/
             ],
           ),
 
           const SizedBox(height: 18),
 
-          const Text(
-            'Name',
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
+          const Text('Name', style: TextStyle(fontWeight: FontWeight.w600)),
           const SizedBox(height: 6),
           _fieldContainer(
             child: TextField(
@@ -450,8 +522,7 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
                       child: TextField(
                         controller: item.price,
                         enabled: !_submitting,
-                        keyboardType:
-                            const TextInputType.numberWithOptions(
+                        keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
                         decoration: const InputDecoration(
@@ -531,9 +602,7 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
             future: image.readAsBytes(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return const Center(
-                  child: Icon(Icons.broken_image_outlined),
-                );
+                return const Center(child: Icon(Icons.broken_image_outlined));
               }
 
               if (!snapshot.hasData) {
@@ -562,11 +631,7 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
               onTap: _submitting ? null : onRemove,
               child: const Padding(
                 padding: EdgeInsets.all(4),
-                child: Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 16,
-                ),
+                child: Icon(Icons.close, color: Colors.white, size: 16),
               ),
             ),
           ),
@@ -575,10 +640,7 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
     );
   }
 
-  Widget _fieldContainer({
-    required Widget child,
-    double height = 48,
-  }) {
+  Widget _fieldContainer({required Widget child, double height = 48}) {
     return Container(
       height: height,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),

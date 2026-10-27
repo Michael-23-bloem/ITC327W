@@ -185,6 +185,62 @@ class _DecorListViewState extends State<DecorListView> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: () async {
+  Navigator.pop(sheetContext); // close the details sheet first, same as Edit does
+
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('Delete décor item?'),
+      content: Text(
+        'Delete "${product.name}" from the catalogue? '
+        'This action cannot be undone.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, true),
+          child: const Text('Delete', style: TextStyle(color: Colors.red)),
+        ),
+      ],
+    ),
+  );
+
+  if (confirm != true || !context.mounted) return;
+
+  try {
+    await context.read<DecorProductViewModel>().deleteDecor(product.id);
+
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Décor item deleted successfully!'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+        ),
+      );
+  } catch (e) {
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('Could not delete décor item: $e'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+  }
+},
+                      /*onPressed: () async {
                         final confirm = await showDialog<bool>(
                           context: sheetContext,
                           builder: (dialogContext) => AlertDialog(
@@ -253,7 +309,7 @@ class _DecorListViewState extends State<DecorListView> {
                               ),
                             );
                         }
-                      },
+                      },*/
                       icon: const Icon(Icons.delete_outline, color: Colors.red),
                       label: const Text(
                         'Delete Décor Item',

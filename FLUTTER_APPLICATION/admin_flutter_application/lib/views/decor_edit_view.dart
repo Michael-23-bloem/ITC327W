@@ -69,7 +69,7 @@ class _DecorEditViewState extends State<DecorEditView> {
     super.dispose();
   }
 
-  Future<void> _saveChanges() async {
+ /* Future<void> _saveChanges() async {
     if (_saving) return;
 
     if (!_formKey.currentState!.validate()) return;
@@ -92,7 +92,7 @@ class _DecorEditViewState extends State<DecorEditView> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('😊 Décor item updated successfully!'),
+          content: Text(' Décor item updated successfully!'),
         ),
       );
 
@@ -102,7 +102,7 @@ class _DecorEditViewState extends State<DecorEditView> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('😢 Could not update décor item: $e'),
+          content: Text(' Could not update décor item: $e'),
         ),
       );
     } finally {
@@ -110,7 +110,111 @@ class _DecorEditViewState extends State<DecorEditView> {
         setState(() => _saving = false);
       }
     }
+  }*/
+  Future<void> _saveChanges() async {
+  if (_saving) return;
+
+  if (!_formKey.currentState!.validate()) return;
+
+  setState(() => _saving = true);
+
+  try {
+    await context.read<DecorProductViewModel>().updateDecor(
+      widget.product.id,
+      {
+        'name': _nameController.text.trim(),
+        'price': double.parse(_priceController.text.trim()),
+        'stock_quantity': int.parse(_stockController.text.trim()),
+        'description': _descriptionController.text.trim(),
+        'category': _category,
+      },
+    );
+
+    if (!mounted) return;
+
+    await _showPopup(
+      title: 'Saved',
+      message: 'Décor item updated successfully.',
+      icon: Icons.check_circle_outline,
+      iconColor: Colors.green,
+    );
+
+    if (!mounted) return;
+    Navigator.of(context).pop(true);
+  } catch (e) {
+    if (!mounted) return;
+
+    await _showPopup(
+      title: 'Update failed',
+      message: 'Could not update décor item.\n\n'
+          '${e.toString().replaceFirst('Exception: ', '')}',
+      icon: Icons.error_outline,
+      iconColor: Colors.red,
+    );
+  } finally {
+    if (mounted) {
+      setState(() => _saving = false);
+    }
   }
+}
+  Future<void> _showPopup({
+  required String title,
+  required String message,
+  required IconData icon,
+  required Color iconColor,
+}) {
+  return showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) => Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.all(28),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 20)],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 32),
+            ),
+            const SizedBox(height: 16),
+            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 6),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 13, color: Colors.black54),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(ctx),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFCE9448),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: const Text('Done'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
