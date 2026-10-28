@@ -11,7 +11,7 @@ class Order {
   final String? profiles; // raw profiles object
   final String? customerEmail;
   final String? customerName;
-  final int guestCount;
+  final int guests;
   
 
   Order({
@@ -25,7 +25,7 @@ class Order {
     this.notes,
     this.customerEmail,
     this.customerName,
-    this.guestCount = 0,
+    this.guests = 0,
     this.profiles,
   });
 
@@ -50,7 +50,7 @@ class Order {
       notes: json['notes'] as String?,
       customerEmail: email,
       customerName: name,
-      guestCount: json['guest_count'] as int? ?? 0,
+      guests: json['guest_count'] as int? ?? 0,
     );
   }
 

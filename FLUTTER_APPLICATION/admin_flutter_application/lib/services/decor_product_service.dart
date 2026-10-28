@@ -1,4 +1,3 @@
-
 import 'dart:typed_data';
 
 import 'supabase_client.dart';
@@ -6,19 +5,17 @@ import 'supabase_client.dart';
 class DecorProductService {
   final supabase = SupabaseClientManager.client;
 
- Future<List<dynamic>> getCatalogue() async {
-  return await supabase
-      .from('decor_products')
-      .select()
-      .eq('is_active', true)
-      .order('created_at', ascending: false);
-}
- /* Future<List<dynamic>> getCatalogue() async {
+  // Storage bucket (files)  -> hyphen:     'product-images'
+  // Database table (rows)   -> underscore: 'product_images'
+  static const String _bucket = 'product-images';
+
+  Future<List<dynamic>> getCatalogue() async {
     return await supabase
         .from('decor_products')
         .select()
+        .eq('is_active', true)
         .order('created_at', ascending: false);
-  }*/
+  }
 
   Future<Map<String, dynamic>> uploadDecor(
     Map<String, dynamic> data,
@@ -44,10 +41,12 @@ class DecorProductService {
       };
     }).toList();
 
+    // TABLE (underscore)
     await supabase.from('product_images').insert(rows);
   }
 
   Future<List<dynamic>> getProductImages(String productId) async {
+    // TABLE (underscore)
     return await supabase
         .from('product_images')
         .select()
@@ -65,92 +64,70 @@ class DecorProductService {
         .eq('id', productId);
   }
 
-  
-Future<void> deleteDecor(String productId) async {
-  // Delete the additional photo records first.
-  await supabase
-      .from('product_images')
-      .delete()
-      .eq('product_id', productId);
+  Future<void> deleteDecor(String productId) async {
+    // 1. Remember the extra photo links, then delete their rows.
+    final extraRows = await supabase
+        .from('product_images')
+        .select('image_url')
+        .eq('product_id', productId);
 
-  // Delete the décor item and check whether a row was deleted.
-  final deletedRows = await supabase
-      .from('decor_products')
-      .delete()
-      .eq('id', productId)
-      .select('id');
+    await supabase
+        .from('product_images')
+        .delete()
+        .eq('product_id', productId);
 
-  if (deletedRows.isEmpty) {
-    throw Exception(
-      'The item was not deleted. Check the item ID and Supabase DELETE permissions.',
-    );
-  }
-}
-
-
-  Future<String> uploadPhoto(
-    String fileName,
-    Uint8List bytes,
-  ) async {
-    final storage = supabase.storage.from('product-images');
-
-    await storage.uploadBinary(fileName, bytes);
-
-    return storage.getPublicUrl(fileName);
-  }
-}
-
-/*import 'dart:typed_data';
-
-import 'supabase_client.dart';
-
-class DecorProductService {
-  final supabase = SupabaseClientManager.client;
-
-  Future<List<dynamic>> getCatalogue() async {
-    return await supabase
+    // 2. Delete the décor item itself and make sure a row was removed.
+    final deletedRows = await supabase
         .from('decor_products')
-        .select()
-        .order('created_at', ascending: false);
+        .delete()
+        .eq('id', productId)
+        .select();
+
+    if (deletedRows.isEmpty) {
+      throw Exception(
+        'The item was not deleted. Check the item ID and Supabase DELETE permissions.',
+      );
+    }
+
+    // 3. Best-effort cleanup of the files in the bucket.
+    //    A failure here must not undo the delete.
+    try {
+      final urls = <String>[
+        if (deletedRows.first['image_url'] != null)
+          deletedRows.first['image_url'].toString(),
+        ...extraRows.map((r) => r['image_url'].toString()),
+      ];
+
+      final paths = urls
+          .map(_storagePathFromUrl)
+          .whereType<String>()
+          .toList();
+
+      if (paths.isNotEmpty) {
+        await supabase.storage.from(_bucket).remove(paths);
+      }
+    } catch (_) {}
   }
 
-  Future<Map<String, dynamic>> uploadDecor(
-    Map<String, dynamic> data,
-  ) async {
-    final inserted = await supabase
-        .from('decor_products')
-        .insert(data)
-        .select()
-        .single();
+  String? _storagePathFromUrl(String url) {
+    if (url.isEmpty) return null;
 
-    return inserted;
-  }
+    final segments = Uri.parse(url).pathSegments;
+    final bucketIndex = segments.indexOf(_bucket);
 
-  Future<void> addProductImages(
-    String productId,
-    List<String> imageUrls,
-  ) async {
-    if (imageUrls.isEmpty) return;
+    if (bucketIndex == -1 || bucketIndex >= segments.length - 1) return null;
 
-    final rows = imageUrls.asMap().entries.map((entry) {
-      return {
-        'product_id': productId,
-        'image_url': entry.value,
-        'sort_order': entry.key + 2,
-      };
-    }).toList();
-
-    await supabase.from('product_images').insert(rows);
+    return segments.sublist(bucketIndex + 1).join('/');
   }
 
   Future<String> uploadPhoto(
     String fileName,
     Uint8List bytes,
   ) async {
-    final storage = supabase.storage.from('product-images');
+    final storage = supabase.storage.from(_bucket);
 
     await storage.uploadBinary(fileName, bytes);
 
     return storage.getPublicUrl(fileName);
   }
-}*/
+}

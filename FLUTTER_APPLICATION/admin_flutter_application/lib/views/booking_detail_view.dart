@@ -39,7 +39,7 @@ class _BookingDetailViewState extends State<BookingDetailView> {
             Text('Customer: ${o.customerName ?? o.customerEmailOrId}'),
             Text('Date: ${o.eventDate.toLocal()}'),
             if (o.venue != null) Text('Venue: ${o.venue}'),
-            Text('Guests: ${o.guestCount}'),
+            Text('Guests: ${o.guests}'),
             Text('Status: ${o.status}'),
             const SizedBox(height: 20),
             ElevatedButton(

@@ -16,10 +16,12 @@ import '../views/accounts_list_views.dart';
 import '../views/accounts_details_view.dart';
 import '../views/decor_list_view.dart';
 import '../widgets/admin_shell.dart';
+import '../views/splash_view.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/login',
+  initialLocation: '/splash',
   routes: [
+    GoRoute(path: '/splash', builder: (c, s) => const SplashView()),
     GoRoute(path: '/login', builder: (c, s) => const AuthLoginView()),
     ShellRoute(
       builder: (context, state, child) =>

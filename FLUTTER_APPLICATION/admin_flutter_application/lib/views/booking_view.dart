@@ -73,7 +73,7 @@ class _BookingsViewState extends State<BookingsView> {
                   const SizedBox(height: 16),
                   _detailRow(Icons.calendar_today, 'Date', '${order.eventDate.toLocal()}'.split(' ')[0]),
                   if (order.venue != null) _detailRow(Icons.place_outlined, 'Venue', order.venue!),
-                  _detailRow(Icons.group_outlined, 'Guests', '${order.guestCount}'),
+                  _detailRow(Icons.group_outlined, 'Guests', '${order.guests}'),
                   _detailRow(Icons.flag_outlined, 'Status', order.status),
                   if (order.notes != null && order.notes!.isNotEmpty)
                     _detailRow(Icons.notes_outlined, 'Notes', order.notes!),

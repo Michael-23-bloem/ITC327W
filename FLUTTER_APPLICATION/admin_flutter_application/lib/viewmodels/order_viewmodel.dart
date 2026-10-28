@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/order_service.dart';
 import '../models/order.dart';
+import '../models/order_status.dart';
 
 class OrderViewModel extends ChangeNotifier {
   final _service = OrderService();
@@ -12,16 +13,16 @@ class OrderViewModel extends ChangeNotifier {
   Order? selected;
   bool loading = false;
 
-  Future<void> loadQuotations() async {
+ /* Future<void> loadQuotations() async {
     loading = true;
     notifyListeners();
     try {
       final data = await supabase
           .from('orders')
           .select('*, profiles(email, first_name, last_name)')
-          .eq('status', 'pending')
+          .inFilter('status', ['request_sent', 'in_contact', 'quotation_approved'])
           .order('created_at', ascending: false);
-      
+
       quotations = (data as List).map((e) => Order.fromJson(e as Map<String, dynamic>)).toList();
     } catch (e) {
       debugPrint('loadQuotations error: $e');
@@ -29,9 +30,41 @@ class OrderViewModel extends ChangeNotifier {
     loading = false;
     notifyListeners();
   }
+*/
 
+Future<void> loadQuotations() async {
+  loading = true;
+  notifyListeners();
+
+  try {
+    final data = await supabase
+        .from('orders')
+        .select('*, profiles(email, first_name, last_name)')
+        .inFilter('status', [
+          OrderStatus.requestSent,
+          OrderStatus.inContact,
+          OrderStatus.quotationApproved,
+          OrderStatus.orderConfirmed,
+          OrderStatus.depositReceived,
+          OrderStatus.preparationsBegin,
+          OrderStatus.completed,
+          OrderStatus.declined,
+          OrderStatus.cancelled,
+        ])
+        .order('created_at', ascending: false);
+
+    quotations = (data as List)
+        .map((e) => Order.fromJson(e as Map<String, dynamic>))
+        .toList();
+  } catch (e) {
+    debugPrint('loadQuotations error: $e');
+  } finally {
+    loading = false;
+    notifyListeners();
+  }
+}
   Future<void> loadBookings() async {
-    loading = true; 
+    loading = true;
     notifyListeners();
     try {
       final data = await _service.getBookings();
@@ -39,12 +72,12 @@ class OrderViewModel extends ChangeNotifier {
     } catch (e) {
       debugPrint('loadBookings error: $e');
     }
-    loading = false; 
+    loading = false;
     notifyListeners();
   }
 
   Future<void> selectOrder(String orderId) async {
-    loading = true; 
+    loading = true;
     notifyListeners();
     try {
       final data = await _service.getOrder(orderId);
@@ -52,7 +85,7 @@ class OrderViewModel extends ChangeNotifier {
     } catch (e) {
       debugPrint('selectOrder error: $e');
     }
-    loading = false; 
+    loading = false;
     notifyListeners();
   }
 
@@ -70,5 +103,9 @@ class OrderViewModel extends ChangeNotifier {
   Future<void> updateProgress(String orderId, String status, String note) async {
     await _service.updateProgress(orderId, status, note);
     if (selected != null) await selectOrder(orderId);
+    // A status change can move an order between the requests list and the
+    // calendar (or out of both, e.g. "declined"), so refresh both.
+    await loadQuotations();
+    await loadBookings();
   }
 }

@@ -12,7 +12,7 @@ class OrderService {
     return await supabase
         .from('orders')
         .select('*, profiles(email, first_name, last_name)')
-        .eq('status', 'pending')
+        .inFilter('status', ['request_sent', 'in_contact', 'quotation_approved'])
         .order('created_at', ascending: false);
   }
 
@@ -23,7 +23,7 @@ class OrderService {
     return await supabase
         .from('orders')
         .select('*, profiles(email, first_name, last_name)')
-        .neq('status', 'pending')
+        .inFilter('status', ['order_confirmed', 'deposit_received', 'preparations_begin'])
         .order('event_date', ascending: false);
   }
 
@@ -90,7 +90,106 @@ class OrderService {
   // Old: Order.Status = Confirmed
   // New: deposits.status = received + orders.status = confirmed
   // ------------------------------------------------------------------
-  Future<void> validateEftAndConvert(String orderId) async {
+  
+  
+
+Future<void> validateEftAndConvert(String orderId) async {
+  // 1. Get the authenticated owner.
+  final owner = supabase.auth.currentUser;
+
+  if (owner == null) {
+    throw Exception('You must be logged in to validate a deposit.');
+  }
+
+  // 2. Fetch the latest quotation for this order.
+  final quotation = await supabase
+      .from('quotations')
+      .select('id, status, estimated_total')
+      .eq('order_id', orderId)
+      .order('version', ascending: false)
+      .limit(1)
+      .maybeSingle();
+
+  if (quotation == null) {
+    throw Exception('No quotation exists for this order.');
+  }
+
+  if (quotation['status'] != 'confirmed') {
+    throw Exception(
+      'Only confirmed quotations can have deposits validated.',
+    );
+  }
+
+  final total =
+      (quotation['estimated_total'] as num?)?.toDouble() ?? 0.0;
+
+  if (total <= 0) {
+    throw Exception(
+      'The quotation total must be greater than zero.',
+    );
+  }
+
+  final quotationId = quotation['id'];
+
+  // 3. Find the deposit awaiting validation.
+  final deposit = await supabase
+      .from('deposits')
+      .select('id, amount, reference, status')
+      .eq('quotation_id', quotationId)
+      .eq('status', 'awaiting')
+      .maybeSingle();
+
+  if (deposit == null) {
+    throw Exception(
+      'No deposit awaiting validation was found.',
+    );
+  }
+
+  final amount =
+      (deposit['amount'] as num?)?.toDouble() ?? 0.0;
+
+  if (amount <= 0) {
+    throw Exception('The deposit amount must be greater than zero.');
+  }
+
+  // IMPORTANT:
+  // The owner must first verify the EFT in the business bank account.
+
+  // 4. Mark the deposit as received and record who confirmed it.
+  final updatedDeposit = await supabase
+      .from('deposits')
+      .update({
+        'status': 'received',
+        'received_at': DateTime.now().toUtc().toIso8601String(),
+        'confirmed_by': owner.id,
+      })
+      .eq('id', deposit['id'])
+      .eq('status', 'awaiting')
+      .select('id');
+
+  if (updatedDeposit.isEmpty) {
+    throw Exception(
+      'The deposit may already have been processed. Refresh and check its status.',
+    );
+  }
+
+  // 5. Update the order after the deposit update succeeds.
+  final updatedOrder = await supabase
+      .from('orders')
+      .update({'status': 'deposit_received'})
+      .eq('id', orderId)
+      .select('id');
+
+  if (updatedOrder.isEmpty) {
+    throw Exception(
+      'The deposit was updated, but the order could not be updated. '
+      'Check the database before trying again.',
+    );
+  }
+}
+
+
+  /*Future<void> validateEftAndConvert(String orderId) async {
     // 1. Mark deposit as received
     final quotes = await supabase.from('quotations').select('id').eq('order_id', orderId);
     if (quotes.isNotEmpty) {
@@ -99,9 +198,9 @@ class OrderService {
     }
 
     // 2. Confirm order
-    await supabase.from('orders').update({'status': 'confirmed'}).eq('id', orderId);
+    await supabase.from('orders').update({'status': 'deposit_received'}).eq('id', orderId);
   }
-
+*/
   // ------------------------------------------------------------------
   // WIREFRAME 10 - Update progress Save + Add note
   // ------------------------------------------------------------------

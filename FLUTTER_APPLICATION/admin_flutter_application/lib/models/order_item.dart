@@ -1,9 +1,18 @@
+
 class Order_item {
-  String orderItemId; // Order_item_id PK
-  String orderId; // Order_id FK -> Order
-  String? productId; // Product_id FK -> DecorProduct - Contain in ERD
-  String? packageId; // Package_id FK -> Package - Contain in ERD
-  int quantity; // x40, x5 wireframe 5
+  String orderItemId; // Order item primary key
+  String orderId; // Foreign key -> Order
+
+  String? productId; // Foreign key -> DecorProduct
+  String? packageId; // Foreign key -> Package
+
+  // Details retrieved from Supabase
+  String? productName;
+  String? packageName;
+  String? imageUrl;
+  double? cataloguePrice;
+
+  int quantity;
   double priceAtTime;
 
   Order_item({
@@ -11,7 +20,18 @@ class Order_item {
     required this.orderId,
     this.productId,
     this.packageId,
+    this.productName,
+    this.packageName,
+    this.imageUrl,
+    this.cataloguePrice,
     required this.quantity,
     required this.priceAtTime,
   });
+
+  // Display the product or package name
+  String get itemName =>
+      productName ?? packageName ?? 'Unknown item';
+
+  // Calculate the total for this item
+  double get totalPrice => quantity * priceAtTime;
 }

@@ -1,29 +1,39 @@
-import 'supabase_client.dart';
 
+import 'supabase_client.dart';
+ 
 class OrderItemService {
   final supabase = SupabaseClientManager.client;
-
+ 
   // wireframe 5 - Get Requested items for order
   Future<List<dynamic>> getItemsForOrder(String orderId) async {
     return await supabase
-      .from('Order_item')
-      .select('*, DecorProduct(Name, Price, Image_url), Package(Name, Price)')
-      .eq('Order_id', orderId);
+        .from('order_items')
+        .select('''
+          *,
+          decor_products(name, price, image_url),
+          packages(name, price)
+        ''')
+        .eq('order_id', orderId);
   }
-
+ 
   // wireframe 6 - Add item in Edit quotation
   Future<void> addItem(String orderId, String productId, int qty) async {
-    // get price at time
-    final product = await supabase.from('DecorProduct').select('Price').eq('Product_id', productId).single();
-    await supabase.from('Order_item').insert({
-      'Order_id': orderId,
-      'Product_id': productId,
-      'Quantity': qty,
-      'Price_at_time': product['Price'],
+    final product = await supabase
+        .from('decor_products')
+        .select('price')
+        .eq('id', productId)
+        .single();
+ 
+    await supabase.from('order_items').insert({
+      'order_id': orderId,
+      'product_id': productId,
+      'quantity': qty,
+      'unit_price': product['price'],
     });
   }
-
+ 
   Future<void> removeItem(String orderItemId) async {
-    await supabase.from('Order_item').delete().eq('Order_item_id', orderItemId);
+    await supabase.from('order_items').delete().eq('id', orderItemId);
   }
 }
+ 
