@@ -111,6 +111,25 @@ class OrderService {
       'notes': note,
     }).eq('id', orderId);
   }
+
+  Future<void> confirmQuotation(String orderId) async {
+    await supabase.from('orders').update({
+      'status': 'awaiting_deposit',
+    }).eq('id', orderId);
+  }
+
+  Future<List<dynamic>> getRequestOrders() async {
+    return await supabase
+        .from('orders')
+        .select('*, profiles(email, first_name, last_name, phone_number)')
+        .inFilter('status', [
+          'pending',
+          'in_contact',
+          'awaiting_deposit',
+          'confirmed',
+        ])
+        .order('created_at', ascending: false);
+  }
 }
 
 

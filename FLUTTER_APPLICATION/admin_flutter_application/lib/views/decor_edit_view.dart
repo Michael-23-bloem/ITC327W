@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/decor_product.dart';
+import '../theme/akea_theme.dart';
 import '../viewmodels/decor_product_viewmodel.dart';
+import '../widgets/akea_ui.dart';
 
 class DecorEditView extends StatefulWidget {
   final DecorProduct product;
@@ -218,18 +220,27 @@ class _DecorEditViewState extends State<DecorEditView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFBDBAB5),
-      appBar: AppBar(
-        title: const Text('Edit Décor Item'),
-        backgroundColor: const Color(0xFFBDBAB5),
-      ),
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
+    return AkeaPage(
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(32, 28, 32, 32),
+          children: [
+            AkeaPageHeader(
+              title: 'Edit décor item',
+              subtitle: widget.product.name,
+              actions: [
+                AkeaButton(
+                  label: 'Save changes',
+                  loading: _saving,
+                  onPressed: _saving ? null : _saveChanges,
+                ),
+              ],
+            ),
+            AkeaCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
               if (widget.product.imageUrl != null &&
                   widget.product.imageUrl!.isNotEmpty) ...[
                 ClipRRect(
@@ -238,7 +249,7 @@ class _DecorEditViewState extends State<DecorEditView> {
                     widget.product.imageUrl!,
                     height: 200,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const SizedBox(
+                    errorBuilder: (_, _, _) => const SizedBox(
                       height: 120,
                       child: Icon(
                         Icons.broken_image_outlined,
@@ -267,7 +278,7 @@ class _DecorEditViewState extends State<DecorEditView> {
 
               _label('Category'),
               DropdownButtonFormField<String>(
-                value: _category,
+                initialValue: _category,
                 decoration: _decoration('Select category'),
                 items: _categories.map((category) {
                   return DropdownMenuItem(
@@ -334,33 +345,10 @@ class _DecorEditViewState extends State<DecorEditView> {
                 decoration: _decoration('Describe the item'),
               ),
 
-              const SizedBox(height: 28),
-
-              SizedBox(
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: _saving ? null : _saveChanges,
-                  icon: _saving
-                      ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.save_outlined),
-                  label: Text(
-                    _saving ? 'Saving Changes...' : 'Save Changes',
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFCE9448),
-                    foregroundColor: Colors.white,
-                  ),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -380,7 +368,7 @@ class _DecorEditViewState extends State<DecorEditView> {
     return InputDecoration(
       hintText: hint,
       filled: true,
-      fillColor: const Color(0xFFF7F6F3),
+      fillColor: AkeaColors.cream,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,

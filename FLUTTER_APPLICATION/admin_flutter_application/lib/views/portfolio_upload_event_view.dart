@@ -5,7 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../viewmodels/portfolio_viewmodel.dart';
 import '../viewmodels/order_viewmodel.dart';
-import '../models/order.dart';
+import '../theme/akea_theme.dart';
+import '../widgets/akea_ui.dart';
 
 class PortfolioUploadEventView extends StatefulWidget {
   const PortfolioUploadEventView({super.key});
@@ -129,183 +130,136 @@ Future<void> _pickImage(int index) async {
     final vm = context.watch<PortfolioViewModel>();
     final orderVm = context.watch<OrderViewModel>();
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFBDBAB5),
-          // 1. AppBar belongs directly inside Scaffold.
-    appBar: AppBar(
-      backgroundColor: const Color(0xFFBDBAB5),
-      elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.black),
-        onPressed: () {
-          if (context.canPop()) {
-            context.pop();
-          } else {
-            context.go('/portfolio');
-          }
-        },
-      ),),
-      body: SafeArea(
-        child: vm.loading
-            ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-                children: [
-                  const Text(
-                    'Upload Event Images',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 14,
-                    crossAxisSpacing: 14,
-                    childAspectRatio: 1,
-                    children: List.generate(4, (i) => _imageSlot(i)),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  const Text(
-                    'Event Title',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 6),
-                  _fieldContainer(
-                    child: TextField(
-                      controller: _name,
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Enter event title',
+    return AkeaPage(
+      child: vm.loading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(32, 28, 32, 24),
+              children: [
+                AkeaPageHeader(
+                  title: 'Upload event images',
+                  subtitle: 'Add recent work to the public portfolio',
+                  actions: [
+                    AkeaButton(label: 'Upload', onPressed: _submit),
+                  ],
+                ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final photos = AkeaCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Event photos', style: Theme.of(context).textTheme.titleLarge),
+                          const SizedBox(height: 14),
+                          GridView.count(
+                            crossAxisCount: 2,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            mainAxisSpacing: 14,
+                            crossAxisSpacing: 14,
+                            childAspectRatio: 1,
+                            children: List.generate(4, (i) => _imageSlot(i)),
+                          ),
+                        ],
                       ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  const SizedBox(height: 20),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Category',
-                              style: TextStyle(fontWeight: FontWeight.w600),
+                    );
+                    final details = AkeaCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Details', style: Theme.of(context).textTheme.titleLarge),
+                          const SizedBox(height: 16),
+                          const AkeaFieldLabel('Event Title'),
+                          _fieldContainer(
+                            child: TextField(
+                              controller: _name,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'Enter event title',
+                              ),
                             ),
-                            const SizedBox(height: 6),
-                            _fieldContainer(
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  isExpanded: true,
-                                  value: category,
-                                  hint: const Text('Select'),
-                                  items: categories
-                                      .map(
-                                        (c) => DropdownMenuItem(
-                                          value: c,
-                                          child: Text(c),
+                          ),
+                          const SizedBox(height: 16),
+                          const AkeaFieldLabel('Category'),
+                          _fieldContainer(
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value: category,
+                                hint: const Text('Select'),
+                                items: categories
+                                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                                    .toList(),
+                                onChanged: (v) => setState(() => category = v),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const AkeaFieldLabel('Description'),
+                          _fieldContainer(
+                            height: 110,
+                            child: TextField(
+                              controller: _desc,
+                              maxLines: null,
+                              expands: true,
+                              textAlignVertical: TextAlignVertical.top,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'Tell the story of this event…',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const AkeaFieldLabel('Link to previous event (optional)'),
+                          _fieldContainer(
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value: selectedPastEventId,
+                                hint: const Text('Choose past event'),
+                                items: orderVm.bookings
+                                    .map(
+                                      (o) => DropdownMenuItem(
+                                        value: o.id,
+                                        child: Text(
+                                          '${o.eventType} • ${o.displayName}',
                                         ),
-                                      )
-                                      .toList(),
-                                  onChanged: (v) =>
-                                      setState(() => category = v),
-                                ),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (v) async {
+                                  setState(() => selectedPastEventId = v);
+                                  if (v != null) {
+                                    final ids = await context
+                                        .read<PortfolioViewModel>()
+                                        .getProductIdsForOrder(v);
+                                    setState(() {
+                                      selectedProductIds
+                                        ..clear()
+                                        ..addAll(ids);
+                                    });
+                                  }
+                                },
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Price',
-                              style: TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 6),
-                            _fieldContainer(
-                              child: TextField(
-                                controller: _price,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                      decimal: true,
-                                    ),
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'R0.00',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Description',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 6),
-                  _fieldContainer(
-                    height: 110,
-                    child: TextField(
-                      controller: _desc,
-                      maxLines: null,
-                      expands: true,
-                      textAlignVertical: TextAlignVertical.top,
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Describe the event...',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Link to previous event (optional)',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 6),
-                  _fieldContainer(
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value: selectedPastEventId,
-                        hint: const Text('Choose past event'),
-                        items: orderVm.bookings
-                            .map(
-                              (o) => DropdownMenuItem(
-                                value: o.id,
-                                child: Text(
-                                  '${o.eventType} • ${o.customerName ?? o.customerEmailOrId}',
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (v) async {
-                          setState(() => selectedPastEventId = v);
-                          if (v != null) {
-                            final ids = await context
-                                .read<PortfolioViewModel>()
-                                .getProductIdsForOrder(v);
-                            setState(() {
-                              selectedProductIds
-                                ..clear()
-                                ..addAll(ids);
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                    );
+                    if (constraints.maxWidth < 900) {
+                      return Column(children: [photos, const SizedBox(height: 16), details]);
+                    }
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(flex: 3, child: photos),
+                        const SizedBox(width: 16),
+                        Expanded(flex: 2, child: details),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
                   const Text(
                     'Items used',
                     style: TextStyle(fontWeight: FontWeight.w600),
@@ -333,28 +287,8 @@ Future<void> _pickImage(int index) async {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 24),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      onPressed: _submit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFCE9448),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 28,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Upload'),
-                    ),
-                  ),
                 ],
               ),
-      ),
     );
   }
 
@@ -364,17 +298,28 @@ Future<void> _pickImage(int index) async {
       onTap: () => _pickImage(index),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFECECEC),
+          color: AkeaColors.cream,
           borderRadius: BorderRadius.circular(16),
+          border: index == 0 && image == null
+              ? Border.all(color: AkeaColors.gold, style: BorderStyle.solid)
+              : null,
         ),
         clipBehavior: Clip.antiAlias,
         child: image == null
             ? Center(
-                child: Icon(
-                  index == 0 ? Icons.add : Icons.image_outlined,
-                  size: 32,
-                  color: Colors.black45,
-                ),
+                child: index == 0
+                    ? const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Color(0xFFE8D9B0),
+                            child: Icon(Icons.add, color: AkeaColors.ink),
+                          ),
+                          SizedBox(height: 8),
+                          Text('Add photos', style: TextStyle(fontWeight: FontWeight.w600)),
+                        ],
+                      )
+                    : const Icon(Icons.image_outlined, size: 32, color: AkeaColors.muted),
               )
             : FutureBuilder<Uint8List>(
                 future: image.readAsBytes(),

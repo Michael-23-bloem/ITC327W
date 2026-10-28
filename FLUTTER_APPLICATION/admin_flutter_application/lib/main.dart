@@ -2,6 +2,7 @@ import 'routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'theme/akea_theme.dart';
 import 'viewmodels/user_viewmodel.dart';
 import 'viewmodels/order_viewmodel.dart';
 import 'viewmodels/decor_product_viewmodel.dart';
@@ -37,6 +38,8 @@ class   MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ContactEnquiryViewModel()),
       ],
       child: MaterialApp.router(
+        title: 'AkeaEvents Admin',
+        theme: AkeaTheme.light(),
         routerConfig: appRouter,
         debugShowCheckedModeBanner: false,
       ),

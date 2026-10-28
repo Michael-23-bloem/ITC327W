@@ -7,6 +7,7 @@ class AnalyticsViewModel extends ChangeNotifier {
   int ongoingDeals = 0;
   int pastDeals = 0;
   int uniqueClients = 0;
+  int awaitingDecision = 0;
   double confirmedRevenue = 0;
   List<MonthlyDealCount> monthlyDealCounts = const [];
   List<EventTypeCount> eventTypeCounts = const [];
@@ -24,6 +25,7 @@ class AnalyticsViewModel extends ChangeNotifier {
       ongoingDeals = snapshot.ongoingDeals;
       pastDeals = snapshot.pastDeals;
       uniqueClients = snapshot.uniqueClients;
+      awaitingDecision = snapshot.awaitingDecision;
       confirmedRevenue = snapshot.confirmedRevenue;
       monthlyDealCounts = snapshot.monthlyDealCounts;
       eventTypeCounts = snapshot.eventTypeCounts;

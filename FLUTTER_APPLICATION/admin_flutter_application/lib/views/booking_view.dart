@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../viewmodels/order_viewmodel.dart';
 import '../models/order.dart';
+import '../theme/akea_theme.dart';
+import '../viewmodels/order_viewmodel.dart';
+import '../widgets/akea_ui.dart';
 
 class BookingsView extends StatefulWidget {
   const BookingsView({super.key});
@@ -31,157 +33,220 @@ class _BookingsViewState extends State<BookingsView> {
     return allBookings.where((o) => _normalize(o.eventDate) == target).toList();
   }
 
-  void _openBookingDetails(Order order) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.75,
-          minChildSize: 0.4,
-          maxChildSize: 0.95,
-          expand: false,
-          builder: (ctx, scrollController) {
-            return Padding(
-              padding: const EdgeInsets.all(20),
-              child: ListView(
-                controller: scrollController,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    order.eventType,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    order.customerName ?? order.customerEmailOrId,
-                    style: const TextStyle(fontSize: 15, color: Colors.black54),
-                  ),
-                  const SizedBox(height: 16),
-                  _detailRow(Icons.calendar_today, 'Date', '${order.eventDate.toLocal()}'.split(' ')[0]),
-                  if (order.venue != null) _detailRow(Icons.place_outlined, 'Venue', order.venue!),
-                  _detailRow(Icons.group_outlined, 'Guests', '${order.guestCount}'),
-                  _detailRow(Icons.flag_outlined, 'Status', order.status),
-                  if (order.notes != null && order.notes!.isNotEmpty)
-                    _detailRow(Icons.notes_outlined, 'Notes', order.notes!),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(ctx); // close the popup
-                        context.push('/bookings/${order.id}');
-                      },
-                      child: const Text('View more'),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _detailRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 20, color: Colors.black54),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: const TextStyle(fontSize: 12, color: Colors.black45)),
-                Text(value, style: const TextStyle(fontSize: 15)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<OrderViewModel>();
     final bookings = vm.bookings;
-    final selectedDayEvents = _selectedDay == null ? <Order>[] : _eventsForDay(_selectedDay!, bookings);
+    final selected = _selectedDay ?? _focusedDay;
+    final selectedEvents = _eventsForDay(selected, bookings);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Bookings')),
-      body: vm.loading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Card(
-                  margin: const EdgeInsets.all(12),
+    return AkeaPage(
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(32, 28, 32, 32),
+        children: [
+          AkeaPageHeader(
+            title: 'Bookings',
+            subtitle: '${_monthName(_focusedDay)} ${_focusedDay.year}',
+          ),
+          if (vm.loading && bookings.isEmpty)
+            const Padding(
+              padding: EdgeInsets.only(top: 80),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final stacked = constraints.maxWidth < 980;
+                final calendar = AkeaCard(
                   child: TableCalendar<Order>(
                     firstDay: DateTime.utc(2020, 1, 1),
                     lastDay: DateTime.utc(2030, 12, 31),
                     focusedDay: _focusedDay,
-                    selectedDayPredicate: (day) => _selectedDay != null && _normalize(day) == _normalize(_selectedDay!),
+                    selectedDayPredicate: (day) =>
+                        _selectedDay != null && _normalize(day) == _normalize(_selectedDay!),
                     eventLoader: (day) => _eventsForDay(day, bookings),
                     onDaySelected: (selectedDay, focusedDay) {
                       setState(() {
                         _selectedDay = selectedDay;
                         _focusedDay = focusedDay;
                       });
-                      final events = _eventsForDay(selectedDay, bookings);
-                      if (events.length == 1) {
-                        // single booking that day — open it directly
-                        _openBookingDetails(events.first);
-                      }
                     },
-                    calendarStyle: const CalendarStyle(
-                      markerDecoration: BoxDecoration(color: Colors.deepPurple, shape: BoxShape.circle),
-                      todayDecoration: BoxDecoration(color: Colors.deepPurpleAccent, shape: BoxShape.circle),
-                      selectedDecoration: BoxDecoration(color: Colors.deepPurple, shape: BoxShape.circle),
+                    onPageChanged: (focused) => setState(() => _focusedDay = focused),
+                    headerStyle: const HeaderStyle(
+                      titleCentered: true,
+                      formatButtonVisible: false,
+                      leftChevronIcon: Icon(Icons.chevron_left),
+                      rightChevronIcon: Icon(Icons.chevron_right),
+                    ),
+                    calendarStyle: CalendarStyle(
+                      outsideDaysVisible: true,
+                      todayDecoration: BoxDecoration(
+                        color: AkeaColors.cream,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      todayTextStyle: const TextStyle(color: AkeaColors.ink, fontWeight: FontWeight.w700),
+                      selectedDecoration: BoxDecoration(
+                        color: AkeaColors.purple,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      defaultDecoration: BoxDecoration(
+                        color: AkeaColors.cream,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      weekendDecoration: BoxDecoration(
+                        color: AkeaColors.cream,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      outsideDecoration: const BoxDecoration(color: Colors.transparent),
+                      markerDecoration: const BoxDecoration(
+                        color: AkeaColors.gold,
+                        shape: BoxShape.circle,
+                      ),
+                      cellMargin: const EdgeInsets.all(6),
+                    ),
+                    calendarBuilders: CalendarBuilders(
+                      markerBuilder: (context, date, events) {
+                        if (events.isEmpty) return const SizedBox.shrink();
+                        final awaiting = events.any(
+                          (e) => e.status.toLowerCase().contains('deposit'),
+                        );
+                        return Positioned(
+                          bottom: 6,
+                          child: Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: awaiting ? AkeaColors.gold : const Color(0xFF2F8A4A),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
+                );
+                final side = AkeaCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(akeaWeekdayDate(selected), style: Theme.of(context).textTheme.titleLarge),
+                      const SizedBox(height: 16),
+                      if (selectedEvents.isEmpty)
+                        const Text('No bookings on this day.', style: TextStyle(color: AkeaColors.muted))
+                      else
+                        ...selectedEvents.map((o) => _DayBooking(order: o)),
+                      const SizedBox(height: 16),
+                      const Row(
+                        children: [
+                          _LegendDot(color: Color(0xFF2F8A4A), label: 'Confirmed'),
+                          SizedBox(width: 16),
+                          _LegendDot(color: AkeaColors.gold, label: 'Awaiting deposit'),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+                if (stacked) {
+                  return Column(children: [calendar, const SizedBox(height: 16), side]);
+                }
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 3, child: calendar),
+                    const SizedBox(width: 16),
+                    Expanded(flex: 2, child: side),
+                  ],
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  String _monthName(DateTime d) {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    return months[d.month - 1];
+  }
+}
+
+class _DayBooking extends StatelessWidget {
+  const _DayBooking({required this.order});
+  final Order order;
+
+  @override
+  Widget build(BuildContext context) {
+    final awaiting = order.status.toLowerCase().contains('deposit');
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AkeaColors.cream,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
                 Expanded(
-                  child: selectedDayEvents.isEmpty
-                      ? const Center(
-                          child: Text('No bookings yet', style: TextStyle(color: Colors.black45)),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          itemCount: selectedDayEvents.length,
-                          itemBuilder: (_, i) {
-                            final o = selectedDayEvents[i];
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 10),
-                              child: ListTile(
-                                title: Text(o.eventType, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                subtitle: Text('${o.customerName ?? o.customerEmailOrId} • ${o.status}'),
-                                trailing: const Icon(Icons.chevron_right),
-                                onTap: () => _openBookingDetails(o),
-                              ),
-                            );
-                          },
-                        ),
+                  child: Text(order.displayName, style: const TextStyle(fontWeight: FontWeight.w700)),
                 ),
+                AkeaStatusChip.forStatus(order.status),
               ],
             ),
+            const SizedBox(height: 4),
+            Text(
+              '${order.eventType} · ${order.venue ?? 'Venue TBC'}',
+              style: const TextStyle(color: AkeaColors.muted, fontSize: 13),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Text('Guests', style: TextStyle(color: AkeaColors.muted)),
+                const Spacer(),
+                Text('${order.guestCount}'),
+              ],
+            ),
+            Row(
+              children: [
+                const Text('Estimated total', style: TextStyle(color: AkeaColors.muted)),
+                const Spacer(),
+                Text(akeaMoney(order.computedTotal)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            AkeaButton(
+              label: awaiting ? 'Confirm deposit' : 'Open booking',
+              expand: true,
+              onPressed: () => context.go(
+                awaiting ? '/quotations/${order.id}/validate' : '/bookings/${order.id}',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  const _LegendDot({required this.color, required this.label});
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 6),
+        Text(label, style: const TextStyle(fontSize: 12, color: AkeaColors.muted)),
+      ],
     );
   }
 }

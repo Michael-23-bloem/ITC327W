@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../viewmodels/order_viewmodel.dart';
+import '../models/order.dart';
+import '../theme/akea_theme.dart';
+import '../viewmodels/order_viewmodel.dart';
+import '../widgets/akea_ui.dart';
 
 class OwnerDashboardView extends StatefulWidget {
   const OwnerDashboardView({super.key});
@@ -15,145 +18,318 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.read<OrderViewModel>().loadQuotations();
+      if (!mounted) return;
+      final vm = context.read<OrderViewModel>();
+      vm.loadQuotations();
+      vm.loadBookings();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final orderVm = context.watch<OrderViewModel>();
-    final pendingCount = orderVm.quotations.length; // already filtered to status='pending' in the viewmodel
+    final pending = orderVm.quotations.where((o) => o.status == 'pending').toList();
+    final deposits = orderVm.quotations
+        .where((o) => o.status.toLowerCase().contains('deposit'))
+        .toList();
+    final urgent = pending.where((o) => o.hoursLeft <= 6).toList();
+    final upcoming = [...orderVm.bookings]
+      ..sort((a, b) => a.eventDate.compareTo(b.eventDate));
+    final soon = upcoming.where((o) => o.eventDate.isAfter(DateTime.now().subtract(const Duration(days: 1)))).take(4).toList();
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFE9E9EA),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+    return AkeaPage(
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(32, 28, 32, 32),
+        children: [
+          const AkeaPageHeader(
+            title: 'AkeaEvents Admin',
+            subtitle: 'Every celebration, thoughtfully managed',
+          ),
+          if (urgent.isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(bottom: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              decoration: BoxDecoration(
+                color: AkeaColors.banner,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.schedule, color: AkeaColors.bannerInk, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      '${urgent.first.displayName}’s quotation request has ${urgent.first.hoursLeft} hours left for a decision.',
+                      style: const TextStyle(
+                        color: AkeaColors.bannerInk,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final cols = constraints.maxWidth >= 980 ? 3 : constraints.maxWidth >= 640 ? 2 : 1;
+              const tiles = [
+                _DashTileData(
+                  title: 'Event products',
+                  subtitle: 'Upload décor items',
+                  icon: Icons.inventory_2_outlined,
+                  route: '/decor/upload',
+                ),
+                _DashTileData(
+                  title: 'Quotation requests',
+                  subtitle: 'awaiting a decision',
+                  icon: Icons.description_outlined,
+                  route: '/quotations',
+                ),
+                _DashTileData(
+                  title: 'Portfolio',
+                  subtitle: 'Upload recent work',
+                  icon: Icons.photo_outlined,
+                  route: '/portfolio/upload',
+                ),
+                _DashTileData(
+                  title: 'Bookings',
+                  subtitle: 'Client reports',
+                  icon: Icons.calendar_month_outlined,
+                  route: '/bookings',
+                ),
+                _DashTileData(
+                  title: 'Analysis',
+                  subtitle: 'Client analytics',
+                  icon: Icons.bar_chart_outlined,
+                  route: '/analytics',
+                ),
+                _DashTileData(
+                  title: 'Accounts',
+                  subtitle: 'Manage client accounts',
+                  icon: Icons.person_outline,
+                  route: '/accounts',
+                ),
+              ];
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: tiles.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: cols,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: 2.15,
+                ),
+                itemBuilder: (context, i) {
+                  final tile = tiles[i];
+                  final subtitle = tile.title == 'Quotation requests'
+                      ? '${pending.length} awaiting a decision'
+                      : tile.subtitle;
+                  return _DashCard(data: tile, subtitle: subtitle);
+                },
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final stacked = constraints.maxWidth < 860;
+              final needs = [
+                ...pending.map((o) => _NeedItem(
+                      title: '${o.displayName} · quotation decision',
+                      chip: AkeaStatusChip.forStatus(o.status, hoursLeft: o.hoursLeft),
+                      icon: Icons.schedule,
+                    )),
+                ...deposits.map((o) => _NeedItem(
+                      title: '${o.displayName} · EFT deposit',
+                      chip: const AkeaStatusChip(label: 'Awaiting', kind: AkeaChipKind.neutral),
+                      icon: Icons.receipt_long_outlined,
+                    )),
+              ];
+              final left = AkeaCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Needs attention', style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 16),
+                    if (needs.isEmpty)
+                      const Text('Nothing waiting right now.', style: TextStyle(color: AkeaColors.muted))
+                    else
+                      ...needs.take(5).map(
+                            (n) => Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: AkeaColors.cream,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(n.icon, size: 18, color: AkeaColors.muted),
+                                    const SizedBox(width: 10),
+                                    Expanded(child: Text(n.title)),
+                                    n.chip,
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                  ],
+                ),
+              );
+              final right = AkeaCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Upcoming bookings', style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 16),
+                    if (soon.isEmpty)
+                      const Text('No upcoming bookings.', style: TextStyle(color: AkeaColors.muted))
+                    else
+                      ...soon.map((o) => _UpcomingRow(order: o)),
+                  ],
+                ),
+              );
+              if (stacked) {
+                return Column(children: [left, const SizedBox(height: 16), right]);
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: left),
+                  const SizedBox(width: 16),
+                  Expanded(child: right),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DashTileData {
+  const _DashTileData({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.route,
+  });
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final String route;
+}
+
+class _DashCard extends StatelessWidget {
+  const _DashCard({required this.data, required this.subtitle});
+  final _DashTileData data;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AkeaColors.card,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () => context.go(data.route),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('AkeaEvents Admin', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
-                      SizedBox(height: 4),
-                      Text('Every celebration, throughtfully managed', style: TextStyle(fontSize: 13, color: Colors.black54)),
-                    ],
-                  ),
-                 /* CircleAvatar(
-                    radius: 24,
-                    backgroundColor: Colors.white,
-                    child: IconButton(
-                      icon: const Icon(Icons.settings, color: Colors.deepPurple),
-                      onPressed: () {},
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: AkeaColors.cream,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),*/
+                    child: Icon(data.icon, color: AkeaColors.purple),
+                  ),
+                  const Spacer(),
+                  const Icon(Icons.north_east, size: 18, color: AkeaColors.muted),
                 ],
               ),
-              const SizedBox(height: 24),
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 1,
-                children: [
-                  _squareCard(context, title: 'Event Product', subtitle: 'Upload decor items', icon: Icons.restaurant, iconColor: Colors.deepOrange, route: '/decor'),
-                  _squareCard(context, title: 'Quotation Requests', subtitle: 'Review and respond', icon: Icons.description_outlined, iconColor: Colors.indigo, route: '/quotations', badgeCount: pendingCount),
-                  _squareCard(context, title: 'Analytics', subtitle: 'Client Analytics', icon: Icons.bar_chart, iconColor: Colors.teal, route: '/analytics'),
-                  _squareCard(context, title: 'Bookings', subtitle: 'Client Reports', icon: Icons.bookmark_border, iconColor: Colors.blueGrey, route: '/bookings'),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _wideCard(context, title: 'Portfolio', subtitle: 'Upload recent work', icon: Icons.photo_library_outlined, iconColor: Colors.purple, route: '/portfolio'),
-              const SizedBox(height: 16),
-              _wideCard(context, title: 'Accounts', subtitle: 'Client Reports', icon: Icons.person_outline, iconColor: Colors.black87, route: '/accounts'),
+              const Spacer(),
+              Text(data.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+              const SizedBox(height: 2),
+              Text(subtitle, style: const TextStyle(color: AkeaColors.muted, fontSize: 13)),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _squareCard(BuildContext context, {required String title, required String subtitle, required IconData icon, required Color iconColor, required String route, int badgeCount = 0}) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      elevation: 1,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () => context.go(route),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CircleAvatar(radius: 22, backgroundColor: iconColor.withValues(alpha: 0.12), child: Icon(icon, color: iconColor, size: 22)),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-                      const SizedBox(height: 2),
-                      Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.black54)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            if (badgeCount > 0)
-              Positioned(
-                top: 10,
-                right: 10,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                  constraints: const BoxConstraints(minWidth: 22),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 3, offset: const Offset(0, 1))],
-                  ),
-                  child: Text(
-                    badgeCount > 99 ? '99+' : '$badgeCount',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
+class _NeedItem {
+  const _NeedItem({required this.title, required this.chip, required this.icon});
+  final String title;
+  final Widget chip;
+  final IconData icon;
+}
 
-  Widget _wideCard(BuildContext context, {required String title, required String subtitle, required IconData icon, required Color iconColor, required String route}) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      elevation: 1,
+class _UpcomingRow extends StatelessWidget {
+  const _UpcomingRow({required this.order});
+  final Order order;
+
+  @override
+  Widget build(BuildContext context) {
+    const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () => context.go(route),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+        onTap: () => context.go('/bookings/${order.id}'),
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AkeaColors.cream,
+            borderRadius: BorderRadius.circular(14),
+          ),
           child: Row(
             children: [
-              CircleAvatar(radius: 22, backgroundColor: iconColor.withValues(alpha: 0.12), child: Icon(icon, color: iconColor, size: 22)),
-              const SizedBox(width: 14),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-                  const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.black54)),
-                ],
+              Container(
+                width: 48,
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8D9B0),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '${order.eventDate.day}',
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                    Text(
+                      months[order.eventDate.month - 1],
+                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(order.displayName, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    Text(
+                      '${order.eventType} · ${order.venue ?? 'Venue TBC'}',
+                      style: const TextStyle(color: AkeaColors.muted, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+              if (order.status.toLowerCase().contains('deposit'))
+                const AkeaStatusChip(label: 'Awaiting deposit', kind: AkeaChipKind.warn),
             ],
           ),
         ),

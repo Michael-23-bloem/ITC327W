@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../theme/akea_theme.dart';
 import '../viewmodels/decor_product_viewmodel.dart';
+import '../widgets/akea_ui.dart';
 
 class DecorUploadItemView extends StatefulWidget {
   const DecorUploadItemView({super.key});
@@ -274,276 +276,201 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFBDBAB5),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: _submitting ? null : () => context.go('/decor'),
-                    icon: const Icon(Icons.arrow_back),
-                  ),
-                  const Expanded(
-                    child: Text(
-                      'Add Décor Items',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+    return AkeaPage(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 28, 32, 0),
+            child: AkeaPageHeader(
+              title: 'New decor item',
+              subtitle: 'Add an item to the catalogue',
+              actions: [
+                AkeaButton(
+                  label: 'Upload',
+                  loading: _submitting,
+                  onPressed: _submitting ? null : _submit,
+                ),
+              ],
             ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-                children: [
-                  const Text(
-                    'Add several items under one category. Each item can '
-                    'have its own photos, price, stock and description.',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  const SizedBox(height: 18),
-
-                  const Text(
-                    'Category for all items',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 6),
-                  _fieldContainer(
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value: category,
-                        items: categories
-                            .map(
-                              (c) => DropdownMenuItem(value: c, child: Text(c)),
-                            )
-                            .toList(),
-                        onChanged: _submitting
-                            ? null
-                            : (value) {
-                                if (value != null) {
-                                  setState(() => category = value);
-                                }
-                              },
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 22),
-
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(32, 4, 32, 24),
+              children: [
                   ...List.generate(
                     _items.length,
                     (index) => _buildItemCard(_items[index], index),
                   ),
-
-                  OutlinedButton.icon(
+                  AkeaButton(
+                    label: '+ Add another décor item',
+                    style: AkeaButtonStyle.outline,
                     onPressed: _submitting ? null : _addItem,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Another Décor Item'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.black87,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      side: const BorderSide(color: Colors.black45),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _submitting ? null : _submit,
-                      icon: _submitting
-                          ? const SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Icon(Icons.cloud_upload_outlined),
-                      label: Text(
-                        _submitting
-                            ? 'Uploading Items...'
-                            : 'Upload ${_items.length} Item${_items.length == 1 ? '' : 's'}',
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFCE9448),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildItemCard(_DecorItemForm item, int index) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F6F3),
-        borderRadius: BorderRadius.circular(18),
-      ),
+    final photos = AkeaCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  'Item ${index + 1}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+              Text(index == 0 ? 'Photos' : 'Photos · item ${index + 1}',
+                  style: Theme.of(context).textTheme.titleLarge),
+              const Spacer(),
               if (_items.length > 1)
                 IconButton(
                   tooltip: 'Remove item',
                   onPressed: _submitting ? null : () => _removeItem(index),
-                  icon: const Icon(
-                    Icons.delete_outline,
-                    color: Colors.redAccent,
-                  ),
+                  icon: const Icon(Icons.delete_outline, color: AkeaColors.statusDangerInk),
                 ),
             ],
           ),
-
-          const SizedBox(height: 8),
-
-          const Text('Photos', style: TextStyle(fontWeight: FontWeight.w600)),
-          const SizedBox(height: 8),
-
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
+          const SizedBox(height: 14),
+          InkWell(
+            onTap: _submitting ? null : () => _pickImages(item),
+            borderRadius: BorderRadius.circular(18),
+            child: Container(
+              height: 220,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: AkeaColors.cream,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: AkeaColors.gold, width: 1.2),
+              ),
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundColor: Color(0xFFE8D9B0),
+                    child: Icon(Icons.add, color: AkeaColors.ink),
+                  ),
+                  SizedBox(height: 10),
+                  Text('Add photos', style: TextStyle(fontWeight: FontWeight.w700)),
+                  SizedBox(height: 4),
+                  Text(
+                    'PNG or JPG, up to 5 MB each',
+                    style: TextStyle(color: AkeaColors.muted, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
             children: [
-              ...List.generate(
-                item.images.length,
-                (imageIndex) => _imagePreview(
-                  item.images[imageIndex],
-                  () => _removeImage(item, imageIndex),
-                ),
-              ),
-              InkWell(
-                onTap: _submitting ? null : () => _pickImages(item),
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  width: 92,
-                  height: 92,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFECECEC),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.black26),
-                  ),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add_photo_alternate_outlined, size: 28),
-                      SizedBox(height: 4),
-                      Text('Add photos', style: TextStyle(fontSize: 11)),
-                    ],
+              for (var i = 0; i < 3; i++) ...[
+                if (i > 0) const SizedBox(width: 10),
+                Expanded(
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: i < item.images.length
+                        ? _imagePreview(item.images[i], () => _removeImage(item, i), expand: true)
+                        : Container(
+                            decoration: BoxDecoration(
+                              color: AkeaColors.cream,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.image_outlined, color: AkeaColors.muted),
+                          ),
                   ),
                 ),
-              ),
-              /*InkWell(
-                onTap: _submitting ? null : () => _pickOneImage(item),
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  width: 92,
-                  height: 92,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFECECEC),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.black26),
-                  ),
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.image_outlined, size: 28),
-                      SizedBox(height: 4),
-                      Text('One photo', style: TextStyle(fontSize: 11)),
-                    ],
-                  ),
-                ),
-              ),*/
+              ],
             ],
           ),
+          if (item.images.length > 3) ...[
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (var i = 3; i < item.images.length; i++)
+                  _imagePreview(item.images[i], () => _removeImage(item, i)),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
 
-          const SizedBox(height: 18),
-
-          const Text('Name', style: TextStyle(fontWeight: FontWeight.w600)),
-          const SizedBox(height: 6),
+    final details = AkeaCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Item details', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 16),
+          const AkeaFieldLabel('Item name'),
           _fieldContainer(
             child: TextField(
               controller: item.name,
               enabled: !_submitting,
               decoration: const InputDecoration(
                 border: InputBorder.none,
-                hintText: 'e.g. Chiavari Chair',
+                hintText: 'e.g. Gold chiavari chair',
               ),
             ),
           ),
-
-          const SizedBox(height: 16),
-
+          const SizedBox(height: 14),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (index == 0)
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const AkeaFieldLabel('Category'),
+                      _fieldContainer(
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: category,
+                            items: categories
+                                .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                                .toList(),
+                            onChanged: _submitting
+                                ? null
+                                : (value) {
+                                    if (value != null) setState(() => category = value);
+                                  },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (index == 0) const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Price (R)',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 6),
+                    const AkeaFieldLabel('Price'),
                     _fieldContainer(
                       child: TextField(
                         controller: item.price,
                         enabled: !_submitting,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         decoration: const InputDecoration(
                           border: InputBorder.none,
-                          hintText: '0.00',
+                          hintText: 'R 0.00',
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Stock quantity',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 6),
+                    const AkeaFieldLabel('Stock quantity'),
                     _fieldContainer(
                       child: TextField(
                         controller: item.stock,
@@ -560,14 +487,8 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          const Text(
-            'Description',
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 14),
+          const AkeaFieldLabel('Description'),
           _fieldContainer(
             height: 110,
             child: TextField(
@@ -578,24 +499,45 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
               textAlignVertical: TextAlignVertical.top,
               decoration: const InputDecoration(
                 border: InputBorder.none,
-                hintText: 'Describe the item...',
+                hintText: 'Describe the item, size and colour options…',
               ),
             ),
           ),
         ],
       ),
     );
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 860) {
+            return Column(children: [photos, const SizedBox(height: 16), details]);
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: photos),
+              const SizedBox(width: 16),
+              Expanded(child: details),
+            ],
+          );
+        },
+      ),
+    );
   }
 
-  Widget _imagePreview(XFile image, VoidCallback onRemove) {
+  Widget _imagePreview(XFile image, VoidCallback onRemove, {bool expand = false}) {
+    final size = expand ? double.infinity : 92.0;
     return Stack(
+      fit: expand ? StackFit.expand : StackFit.loose,
       children: [
         Container(
-          width: 92,
-          height: 92,
+          width: size,
+          height: size,
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            color: const Color(0xFFECECEC),
+            color: AkeaColors.cream,
             borderRadius: BorderRadius.circular(12),
           ),
           child: FutureBuilder<Uint8List>(
@@ -614,8 +556,8 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
               return Image.memory(
                 snapshot.data!,
                 fit: BoxFit.cover,
-                width: 92,
-                height: 92,
+                width: size,
+                height: size,
               );
             },
           ),
@@ -645,8 +587,9 @@ class _UploadDecorViewState extends State<DecorUploadItemView> {
       height: height,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFECECEC),
-        borderRadius: BorderRadius.circular(14),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AkeaColors.border),
       ),
       alignment: Alignment.centerLeft,
       child: child,
