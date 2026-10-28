@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/decor_product.dart';
+import '../theme/akea_theme.dart';
 import '../viewmodels/decor_product_viewmodel.dart';
+import '../widgets/akea_ui.dart';
 import 'decor_edit_view.dart';
 
 class DecorListView extends StatefulWidget {
@@ -29,31 +31,43 @@ class _DecorListViewState extends State<DecorListView> {
   Widget build(BuildContext context) {
     final vm = context.watch<DecorProductViewModel>();
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/dashboard'),
-        ),
-        title: const Text('Décor Catalogue'),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/decor/upload'),///decor....needs to be check??/
-        child: const Icon(Icons.add),
-      ),
-      body: vm.loading
+    return AkeaPage(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 28, 32, 0),
+            child: AkeaPageHeader(
+              title: 'Décor catalogue',
+              subtitle: 'Items available to quote',
+              actions: [
+                AkeaButton(
+                  label: 'Upload',
+                  onPressed: () => context.push('/decor/upload'),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: vm.loading
           ? const Center(child: CircularProgressIndicator())
           : vm.catalogue.isEmpty
           ? const Center(child: Text('No décor items yet'))
           : RefreshIndicator(
               onRefresh: vm.loadCatalogue,
-              child: GridView.builder(
-                padding: const EdgeInsets.all(12),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.72,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final cols = constraints.maxWidth >= 1100
+                      ? 4
+                      : constraints.maxWidth >= 720
+                          ? 3
+                          : 2;
+                  return GridView.builder(
+                padding: const EdgeInsets.fromLTRB(32, 8, 32, 24),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: cols,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: 0.78,
                 ),
                 itemCount: vm.catalogue.length,
                 itemBuilder: (context, index) {
@@ -61,7 +75,9 @@ class _DecorListViewState extends State<DecorListView> {
 
                   return GestureDetector(
                     onTap: () => _showDetails(context, product),
-                    child: Card(
+                    child: Material(
+                      color: AkeaColors.card,
+                      borderRadius: BorderRadius.circular(18),
                       clipBehavior: Clip.antiAlias,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,7 +92,7 @@ class _DecorListViewState extends State<DecorListView> {
                                   : Image.network(
                                       product.imageUrl!,
                                       fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => const Icon(
+                                      errorBuilder: (_, _, _) => const Icon(
                                         Icons.broken_image_outlined,
                                         size: 40,
                                       ),
@@ -113,8 +129,13 @@ class _DecorListViewState extends State<DecorListView> {
                     ),
                   );
                 },
+                  );
+                },
               ),
             ),
+          ),
+        ],
+      ),
     );
   }
 

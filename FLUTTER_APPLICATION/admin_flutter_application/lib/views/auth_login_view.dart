@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../theme/akea_theme.dart';
 import '../viewmodels/user_login_viewmodel.dart';
+import '../widgets/akea_ui.dart';
 
 class AuthLoginView extends StatefulWidget {
   const AuthLoginView({super.key});
@@ -26,34 +29,30 @@ class _AuthLoginViewState extends State<AuthLoginView> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<UserLoginViewModel>();
+    final wide = MediaQuery.sizeOf(context).width >= 860;
 
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(209, 172, 130, 68),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+    final form = Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 440),
+        child: AkeaCard(
+          padding: const EdgeInsets.fromLTRB(32, 36, 32, 32),
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.event_seat, size: 80, color: Color(0xFF6A1B9A)),
-                const SizedBox(height: 16),
-                const Text('AkeaEvents Admin', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 255, 124, 37))),
+                Text('Welcome back', style: Theme.of(context).textTheme.headlineMedium),
                 const SizedBox(height: 8),
-                const Text('Owner login only', style: TextStyle(color: Colors.grey)),
-                const SizedBox(height: 32),
-
+                const Text(
+                  'Log in to manage events, quotations and bookings.',
+                  style: TextStyle(color: AkeaColors.muted, fontSize: 15),
+                ),
+                const SizedBox(height: 28),
+                const AkeaFieldLabel('Email'),
                 TextFormField(
                   controller: _emailCtrl,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: const Icon(Icons.email),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
                   validator: (v) {
                     if (v == null || v.isEmpty) return 'Enter email';
                     if (!v.contains('@')) return 'Invalid email';
@@ -61,68 +60,108 @@ class _AuthLoginViewState extends State<AuthLoginView> {
                   },
                 ),
                 const SizedBox(height: 16),
-
+                const AkeaFieldLabel('Password'),
                 TextFormField(
                   controller: _passwordCtrl,
                   obscureText: _obscure,
+                  validator: (v) => v == null || v.isEmpty ? 'Enter password' : null,
                   decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock),
                     suffixIcon: IconButton(
-                      icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
+                      icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined),
                       onPressed: () => setState(() => _obscure = !_obscure),
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    filled: true,
-                    fillColor: Colors.white,
                   ),
-                  validator: (v) => v == null || v.isEmpty ? 'Enter password' : null,
                 ),
-                const SizedBox(height: 8),
-
-                if (vm.errorMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Text(vm.errorMessage!, style: const TextStyle(color: Colors.red)),
-                  ),
-
+                if (vm.errorMessage != null) ...[
+                  const SizedBox(height: 12),
+                  Text(vm.errorMessage!, style: const TextStyle(color: AkeaColors.statusDangerInk)),
+                ],
                 const SizedBox(height: 24),
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6A1B9A),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: vm.loading ? null : () async {
-                      if (!_formKey.currentState!.validate()) return;
-                      
-                      final ok = await vm.login(_emailCtrl.text.trim(), _passwordCtrl.text);
-                      
-                      if (!mounted) return;
-                      
-                      if (ok) {
-                        // Route by role
-                        if (vm.role == 'owner') {
-                          context.go('/dashboard'); // owner dashboard
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('This admin app is for owners only')),
-                          );
-                        }
+                AkeaButton(
+                  label: 'Log in',
+                  expand: true,
+                  loading: vm.loading,
+                  onPressed: () async {
+                    if (!_formKey.currentState!.validate()) return;
+                    final ok = await vm.login(_emailCtrl.text.trim(), _passwordCtrl.text);
+                    if (!context.mounted) return;
+                    if (ok) {
+                      if (vm.role == 'owner') {
+                        context.go('/dashboard');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('This admin app is for owners only')),
+                        );
                       }
-                    },
-                    child: vm.loading 
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Login', style: TextStyle(fontSize: 16, color: Colors.white)),
-                  ),
+                    }
+                  },
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+
+    final brand = ColoredBox(
+      color: AkeaColors.sidebar,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const AkeaLogoMark(size: 88),
+            const SizedBox(height: 16),
+            Text(
+              'EST. 2020',
+              style: GoogleFonts.sourceSans3(
+                color: AkeaColors.gold,
+                letterSpacing: 3,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 28),
+            Text(
+              'AkeaEvents Admin',
+              style: GoogleFonts.playfairDisplay(
+                color: Colors.white,
+                fontSize: 36,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Every celebration, thoughtfully managed',
+              style: GoogleFonts.sourceSans3(color: Colors.white70, fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!wide) {
+      return Scaffold(
+        backgroundColor: AkeaColors.bg,
+        body: ListView(
+          children: [
+            SizedBox(height: 280, child: brand),
+            Padding(padding: const EdgeInsets.all(24), child: form),
+          ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      body: Row(
+        children: [
+          Expanded(child: brand),
+          Expanded(
+            child: ColoredBox(
+              color: AkeaColors.bg,
+              child: form,
+            ),
+          ),
+        ],
       ),
     );
   }

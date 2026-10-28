@@ -16,6 +16,7 @@ class AnalyticsSnapshot {
   final int ongoingDeals;
   final int pastDeals;
   final int uniqueClients;
+  final int awaitingDecision;
   final double confirmedRevenue;
   final List<MonthlyDealCount> monthlyDealCounts;
   final List<EventTypeCount> eventTypeCounts;
@@ -24,6 +25,7 @@ class AnalyticsSnapshot {
     required this.ongoingDeals,
     required this.pastDeals,
     required this.uniqueClients,
+    required this.awaitingDecision,
     required this.confirmedRevenue,
     required this.monthlyDealCounts,
     required this.eventTypeCounts,
@@ -52,6 +54,7 @@ class AnalyticsService {
 
     int ongoing = 0;
     int past = 0;
+    int awaiting = 0;
     final clients = <String>{};
     final typeCounts = <String, int>{};
 
@@ -59,6 +62,7 @@ class AnalyticsService {
       final status = (row['status'] as String?) ?? 'pending';
       if (_ongoing.contains(status)) ongoing++;
       if (_past.contains(status)) past++;
+      if (status == 'pending') awaiting++;
       final customerId = row['customer_id'] as String?;
       if (customerId != null) clients.add(customerId);
       final type = (row['event_type'] as String?)?.trim();
@@ -98,6 +102,7 @@ class AnalyticsService {
       ongoingDeals: ongoing,
       pastDeals: past,
       uniqueClients: clients.length,
+      awaitingDecision: awaiting,
       confirmedRevenue: revenue,
       monthlyDealCounts: monthly,
       eventTypeCounts: eventTypes.take(6).toList(),

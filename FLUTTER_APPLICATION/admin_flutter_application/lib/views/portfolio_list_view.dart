@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../viewmodels/portfolio_viewmodel.dart';
-import '../../models/portfolio.dart';
+import '../viewmodels/portfolio_viewmodel.dart';
+import '../models/portfolio.dart';
+import '../theme/akea_theme.dart';
+import '../widgets/akea_ui.dart';
 import 'portfolio_edit_view.dart';
 
 class PortfolioListView extends StatefulWidget {
@@ -24,13 +26,24 @@ class _PortfolioListViewState extends State<PortfolioListView> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<PortfolioViewModel>();
-    return Scaffold(
-      appBar: AppBar(title: const Text('Portfolio')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/portfolio/upload'),
-        child: const Icon(Icons.add),
-      ),
-      body: vm.loading
+    return AkeaPage(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 28, 32, 0),
+            child: AkeaPageHeader(
+              title: 'Portfolio',
+              subtitle: 'Recent work on the public site',
+              actions: [
+                AkeaButton(
+                  label: 'Upload',
+                  onPressed: () => context.push('/portfolio/upload'),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: vm.loading
           ? const Center(child: CircularProgressIndicator())
           : vm.error != null
               ? Center(
@@ -46,18 +59,20 @@ class _PortfolioListViewState extends State<PortfolioListView> {
               : vm.events.isEmpty
                   ? const Center(child: Text('No portfolio events yet'))
                   : GridView.builder(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.fromLTRB(32, 8, 32, 24),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
                       ),
                       itemCount: vm.events.length,
                       itemBuilder: (_, i) {
                         final event = vm.events[i];
                         return GestureDetector(
                           onTap: () => _showPortfolioSheet(context, event),
-                          child: Card(
+                          child: Material(
+                            color: AkeaColors.card,
+                            borderRadius: BorderRadius.circular(18),
                             clipBehavior: Clip.antiAlias,
                             child: Column(
                               children: [
@@ -86,6 +101,9 @@ class _PortfolioListViewState extends State<PortfolioListView> {
                         );
                       },
                     ),
+          ),
+        ],
+      ),
     );
   }
 

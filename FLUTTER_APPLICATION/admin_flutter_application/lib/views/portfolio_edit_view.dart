@@ -6,7 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/portfolio.dart';
+import '../theme/akea_theme.dart';
 import '../viewmodels/portfolio_viewmodel.dart';
+import '../widgets/akea_ui.dart';
 
 class PortfolioEditView extends StatefulWidget {
   final Portfolio portfolio;
@@ -246,8 +248,8 @@ class _PortfolioEditViewState extends State<PortfolioEditView> {
       onTap: () => _pickImage(index),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFECECEC),
-          border: Border.all(color: Colors.black12),
+          color: AkeaColors.cream,
+          border: Border.all(color: AkeaColors.border),
           borderRadius: BorderRadius.circular(12),
         ),
         clipBehavior: Clip.antiAlias,
@@ -391,24 +393,24 @@ class _PortfolioEditViewState extends State<PortfolioEditView> {
   Widget build(BuildContext context) {
     final vm = context.watch<PortfolioViewModel>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit portfolio item'),
-        backgroundColor: const Color(0xFFBDBAB5),
-        foregroundColor: Colors.black,
-      ),
-      body: _initialLoading || vm.loading || _saving
+    return AkeaPage(
+      child: _initialLoading || vm.loading || _saving
           ? const Center(child: CircularProgressIndicator())
           : ListView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(32, 28, 32, 32),
               children: [
-                const Text(
-                  'Event Pictures (1–4)',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
+                AkeaPageHeader(
+                  title: 'Edit event images',
+                  subtitle: 'Update recent work in the public portfolio',
+                  actions: [
+                    AkeaButton(label: 'Save changes', onPressed: _save),
+                  ],
                 ),
+                AkeaCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                Text('Event photos', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 6),
                 const Text(
                   'Tap a picture to replace it. Use the bin icon to remove '
@@ -429,8 +431,16 @@ class _PortfolioEditViewState extends State<PortfolioEditView> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
-
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                AkeaCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                Text('Details', style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 16),
                 const Text(
                   'Event Name',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -452,7 +462,7 @@ class _PortfolioEditViewState extends State<PortfolioEditView> {
                 ),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
-                  value: category,
+                  initialValue: category,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
@@ -540,20 +550,7 @@ class _PortfolioEditViewState extends State<PortfolioEditView> {
                       },
                     );
                   }),
-
-                const SizedBox(height: 28),
-
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _save,
-                    icon: const Icon(Icons.save),
-                    label: const Text('Save Changes'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFCE9448),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                    ),
+                    ],
                   ),
                 ),
               ],

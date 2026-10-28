@@ -23,6 +23,12 @@ class OrderViewModel extends ChangeNotifier {
           .order('created_at', ascending: false);
       
       quotations = (data as List).map((e) => Order.fromJson(e as Map<String, dynamic>)).toList();
+      try {
+        final broader = await _service.getRequestOrders();
+        quotations = broader.map((e) => Order.fromJson(e as Map<String, dynamic>)).toList();
+      } catch (e) {
+        debugPrint('load broader quotations: $e');
+      }
     } catch (e) {
       debugPrint('loadQuotations error: $e');
     }
@@ -70,5 +76,11 @@ class OrderViewModel extends ChangeNotifier {
   Future<void> updateProgress(String orderId, String status, String note) async {
     await _service.updateProgress(orderId, status, note);
     if (selected != null) await selectOrder(orderId);
+  }
+
+  Future<void> confirmQuotation(String orderId) async {
+    await _service.confirmQuotation(orderId);
+    await loadQuotations();
+    await selectOrder(orderId);
   }
 }
