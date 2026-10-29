@@ -4,17 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../viewmodels/order_viewmodel.dart';
-import '../../models/order.dart';
-import '../../models/order_status.dart';
+import '../viewmodels/order_viewmodel.dart';
+import '../models/order.dart';
+import '../models/order_status.dart';
+import '../theme/akea_theme.dart';
+import '../widgets/akea_ui.dart';
 
 class _Palette {
-  static const background = Color(0xFFF7F4EF);
-  static const ink = Color(0xFF2B2621);
-  static const muted = Color(0xFF82766A);
-  static const gold = Color(0xFFCE9448);
-  static const card = Colors.white;
-  static const border = Color(0xFFECE5DB);
+  static const background = AkeaColors.bg;
+  static const ink = AkeaColors.ink;
+  static const muted = AkeaColors.muted;
+  static const gold = AkeaColors.gold;
+  static const card = AkeaColors.card;
+  static const border = AkeaColors.border;
 }
 
 class QuotationListView extends StatefulWidget {
@@ -210,8 +212,8 @@ class _QuotationListViewState extends State<QuotationListView> {
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
-            Color(0xFF3C322A),
-            Color(0xFF66503B),
+            AkeaColors.plumDark,
+            AkeaColors.plum,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -487,25 +489,11 @@ class _QuotationListViewState extends State<QuotationListView> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Container(
-                      constraints: const BoxConstraints(maxWidth: 125),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 9,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: color,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        OrderStatus.label(order.status),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                    AkeaStatusChip.forStatus(
+                      order.status,
+                      hoursLeft: order.status == OrderStatus.requestSent
+                          ? order.hoursLeft
+                          : null,
                     ),
                     const SizedBox(height: 14),
                     Icon(
@@ -565,151 +553,3 @@ class _QuotationListViewState extends State<QuotationListView> {
     );
   }
 }
-
-/*import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
-
-import '../../viewmodels/order_viewmodel.dart';
-import '../../models/order.dart';
-import '../../models/order_status.dart';
-
-class QuotationListView extends StatefulWidget {
-  const QuotationListView({super.key});
-
-  @override
-  State<QuotationListView> createState() =>
-      _QuotationListViewState();
-}
-
-class _QuotationListViewState extends State<QuotationListView> {
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<OrderViewModel>().loadQuotations();
-      }
-    });
-  }
-
-  Color _statusColor(String status) {
-    switch (status) {
-      case OrderStatus.requestSent:
-        return const Color(0xFF3976B8);
-      case OrderStatus.inContact:
-        return const Color(0xFFB7791F);
-      case OrderStatus.quotationApproved:
-        return const Color(0xFF278568);
-      case OrderStatus.orderConfirmed:
-        return const Color(0xFF6B59A3);
-      case OrderStatus.depositReceived:
-        return const Color(0xFF287D78);
-      case OrderStatus.preparationsBegin:
-        return const Color(0xFFD97736);
-      case OrderStatus.completed:
-        return const Color(0xFF34804A);
-      case OrderStatus.declined:
-        return const Color(0xFFB4533D);
-      case OrderStatus.cancelled:
-        return const Color(0xFF777777);
-      default:
-        return const Color(0xFF8A8178);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final vm = context.watch<OrderViewModel>();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Quotation Requests'),
-      ),
-      body: vm.loading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : vm.quotations.isEmpty
-              ? const Center(
-                  child: Text('No quotation requests'),
-                )
-              : RefreshIndicator(
-                  onRefresh: vm.loadQuotations,
-                  child: ListView.builder(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: vm.quotations.length,
-                    itemBuilder: (_, i) {
-                      final Order o = vm.quotations[i];
-
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        child: ListTile(
-                          leading: const CircleAvatar(
-                            child: Icon(Icons.request_quote),
-                          ),
-                          title: Text(
-                            o.customerName ??
-                                o.customerEmail ??
-                                'Customer',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 6),
-                            child: Text(
-                              '${o.eventType} • '
-                              '${o.eventDate.day}/'
-                              '${o.eventDate.month} • '
-                              '${o.venue ?? ''}',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 145,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: _statusColor(o.status),
-                                  borderRadius:
-                                      BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  OrderStatus.label(o.status),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.chevron_right),
-                            ],
-                          ),
-                          onTap: () {
-                            context.push('/quotations/${o.id}');
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
-    );
-  }
-}*/

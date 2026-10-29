@@ -4,14 +4,16 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../viewmodels/order_viewmodel.dart';
-import '../../viewmodels/order_item_viewmodel.dart';
+import '../viewmodels/order_viewmodel.dart';
+import '../viewmodels/order_item_viewmodel.dart';
+import '../theme/akea_theme.dart';
+import '../widgets/akea_ui.dart';
 
-const Color kPageBg = Color(0xFFF8F4ED);
-const Color kGold = Color(0xFFB58A45);
-const Color kDarkGold = Color(0xFF926A30);
-const Color kDarkText = Color(0xFF4A3425);
-const Color kCardBorder = Color(0xFFECE2D3);
+const Color kPageBg = AkeaColors.bg;
+const Color kGold = AkeaColors.gold;
+const Color kDarkGold = AkeaColors.plum;
+const Color kDarkText = AkeaColors.ink;
+const Color kCardBorder = AkeaColors.border;
 
 class QuotationDetailView extends StatefulWidget {
   final String orderId;
@@ -119,70 +121,6 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
         ),
       );
     }
-  }
-
-  Future<void> _showValidateDepositDialog(String orderId) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Confirm Deposit Payment'),
-        content: const Text(
-          'Have you verified that the customer’s EFT deposit '
-          'has been received in the business bank account?\n\n'
-          'Confirming will validate the payment and convert '
-          'the request into a booking.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Confirm Deposit'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true || !mounted) return;
-
-    try {
-      await context.read<OrderViewModel>().validateEft(orderId);
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Deposit validated and booking created successfully.'),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Could not validate payment: $e')));
-    }
-  }
-
-  bool get _isBookingStage {
-    final status = context
-        .read<OrderViewModel>()
-        .selected
-        ?.status
-        .toString()
-        .toLowerCase()
-        .replaceAll('_', ' ')
-        .trim();
-
-    if (status == null) return false;
-
-    return status.contains('confirmed') ||
-        status.contains('booked') ||
-        status.contains('in progress') ||
-        status.contains('ongoing') ||
-        status.contains('completed');
   }
 
   Color _statusColor(String status) {
@@ -452,17 +390,7 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                   ],
                 ),
 
-                /* _sectionCard(
-                  title: 'Customer Details',
-                  icon: Icons.person_outline_rounded,
-                  children: [
-                    _detailRow(
-                      'Customer',
-                      o.customerName ?? o.customerEmailOrId,
-                    ),
-                    _detailRow('Customer ID / Email', o.customerEmailOrId),
-                  ],
-                ),*/
+                
                 const SizedBox(height: 16),
 
                 // Event details
@@ -585,53 +513,7 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                   ],
                 ),
 
-                /*_sectionCard(
-                  title: 'Requested Items',
-                  icon: Icons.inventory_2_outlined,
-                  children: [
-                    if (itemVm.items.isEmpty)
-                      const Text(
-                        'No requested items were found for this request.',
-                        style: TextStyle(color: Colors.black54),
-                      )
-                    else
-                      ...itemVm.items.map(
-                        (item) => Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: kPageBg,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.celebration_outlined,
-                                color: kDarkGold,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  'Item ${item.productId}',
-                                  style: const TextStyle(
-                                    color: kDarkText,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                'x${item.quantity}',
-                                style: const TextStyle(
-                                  color: kDarkGold,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                  ],
-                ),*/
+                
                 const SizedBox(height: 24),
 
                 // Available actions
@@ -649,6 +531,23 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                   spacing: 12,
                   runSpacing: 12,
                   children: [
+                    AkeaButton(
+                      label: 'Confirm quotation',
+                      onPressed: () async {
+                        try {
+                          await context.read<OrderViewModel>().confirmQuotation(o.id);
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Quotation confirmed. Awaiting deposit.')),
+                          );
+                        } catch (e) {
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(e.toString())),
+                          );
+                        }
+                      },
+                    ),
                     OutlinedButton.icon(
                       onPressed: () => _contactCustomerOnWhatsApp(o.customerId),
                       icon: const Icon(Icons.chat_outlined),
@@ -695,23 +594,9 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                       ),
                     ),
 
-                    /*ElevatedButton.icon(
-                      onPressed: () {
-                        context.push('/quotations/${o.id}/edit');
-                      },
-                      icon: const Icon(Icons.edit_outlined),
-                      label: const Text('Edit Quotation'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kGold,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 14,
-                        ),
-                      ),
-                    ),*/
+                    
                     OutlinedButton.icon(
-                      onPressed: () => _showValidateDepositDialog(o.id),
+                      onPressed: () => context.push('/quotations/${o.id}/validate'),
                       icon: const Icon(Icons.payments_outlined),
                       label: const Text('Validate Payment'),
                       style: OutlinedButton.styleFrom(
@@ -724,23 +609,7 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                       ),
                     ),
 
-                    /*OutlinedButton.icon(
-                      onPressed: () {
-                        // Opens your existing payment validation page.
-                        onPressed: () => _showValidateDepositDialog(o.id);
-                        //context.push('/quotations/${o.id}/validate');
-                      },
-                      icon: const Icon(Icons.payments_outlined),
-                      label: const Text('Validate Payment'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: kDarkGold,
-                        side: const BorderSide(color: kGold),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 14,
-                        ),
-                      ),
-                    ),*/
+                    
                     
                       ElevatedButton.icon(
                         onPressed: () {

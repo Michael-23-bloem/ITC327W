@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../services/analytics_service.dart';
+import '../theme/akea_theme.dart';
 import '../viewmodels/analytics_viewmodel.dart';
+import '../widgets/akea_ui.dart';
 import '../widgets/admin_shell.dart';
 
 class ClientAnalyticsView extends StatefulWidget {
@@ -35,7 +37,7 @@ class _ClientAnalyticsViewState extends State<ClientAnalyticsView> {
       child: Consumer<AnalyticsViewModel>(
         builder: (context, vm, _) {
           return Scaffold(
-            backgroundColor: kAdminBg,
+            backgroundColor: AkeaColors.bg,
             body: SafeArea(
               child: vm.loading && vm.monthlyDealCounts.isEmpty
                   ? const Center(child: CircularProgressIndicator())
@@ -48,20 +50,16 @@ class _ClientAnalyticsViewState extends State<ClientAnalyticsView> {
                             physics: const AlwaysScrollableScrollPhysics(),
                             padding: EdgeInsets.fromLTRB(wide ? 32 : 20, 20, wide ? 32 : 20, 24),
                             children: [
-                              Row(
-                                children: [
-                                  const Expanded(
-                                    child: Text(
-                                      'Client analytics',
-                                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
+                              AkeaPageHeader(
+                                title: 'Client analytics',
+                                subtitle: 'Deals, clients and confirmed revenue',
+                                actions: [
                                   TextButton(
                                     onPressed: () => context.go('/bookings'),
                                     child: const Text(
                                       'Calendar',
                                       style: TextStyle(
-                                        color: kAdminBrown,
+                                        color: AkeaColors.plum,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 16,
                                       ),
@@ -187,7 +185,10 @@ class _StatCard extends StatelessWidget {
         children: [
           Text(label, style: const TextStyle(fontSize: 15, color: Colors.black87)),
           const SizedBox(height: 6),
-          Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 28),
+          ),
         ],
       ),
     );
@@ -358,9 +359,10 @@ class _AiTipCard extends StatelessWidget {
 }
 
 final _cardDecoration = BoxDecoration(
-  color: Colors.white,
-  borderRadius: BorderRadius.circular(18),
+  color: AkeaColors.card,
+  borderRadius: BorderRadius.circular(20),
+  border: Border.all(color: AkeaColors.border),
   boxShadow: [
-    BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 6, offset: const Offset(0, 3)),
+    BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 14, offset: const Offset(0, 4)),
   ],
 );

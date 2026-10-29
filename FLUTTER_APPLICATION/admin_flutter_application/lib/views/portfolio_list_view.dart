@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../viewmodels/portfolio_viewmodel.dart';
-import '../../models/portfolio.dart';
+import '../viewmodels/portfolio_viewmodel.dart';
+import '../models/portfolio.dart';
 import 'portfolio_edit_view.dart';
 
 class PortfolioListView extends StatefulWidget {

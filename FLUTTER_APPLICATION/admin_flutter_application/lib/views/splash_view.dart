@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../theme/akea_theme.dart';
+import '../widgets/akea_ui.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -63,32 +66,23 @@ class _SplashViewState extends State<SplashView> with SingleTickerProviderStateM
               child: Column(
                 children: [
                   const Spacer(flex: 3),
-                  Container(
-                    width: 180,
-                    height: 180,
-                    decoration: const BoxDecoration(
-                      color: Colors.black,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: Colors.black54, blurRadius: 16),
-                      ],
-                    ),
-                  ),
+                  const AkeaLogoMark(size: 88),
                   const SizedBox(height: 20),
                   Text(
-                    'EST.2020',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white.withValues(alpha: 0.85),
-                      letterSpacing: 1.2,
+                    'EST. 2020',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: AkeaColors.gold,
+                      letterSpacing: 3,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
+                  Text(
                     'AkeaEvents Admin',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
                   ),

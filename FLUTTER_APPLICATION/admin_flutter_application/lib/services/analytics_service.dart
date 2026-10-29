@@ -33,7 +33,14 @@ class AnalyticsSnapshot {
 class AnalyticsService {
   final supabase = SupabaseClientManager.client;
 
-  static const _ongoing = ['pending', 'awaiting_deposit', 'in_preparation', 'setup'];
+  static const _ongoing = [
+    'request_sent',
+    'in_contact',
+    'quotation_approved',
+    'order_confirmed',
+    'deposit_received',
+    'preparations_begin',
+  ];
   static const _past = ['completed', 'declined', 'cancelled'];
   static const _monthLabels = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',

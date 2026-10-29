@@ -1,13 +1,15 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../theme/akea_theme.dart';
+import 'akea_ui.dart';
 
-// Akea Events theme
-const Color kAdminBg = Color(0xFFF8F4ED);
-const Color kAdminAccent = Color(0xFFB58A45);
-const Color kAdminBrown = Color(0xFF4A3425);
-const Color kAdminSurface = Color(0xFFFFFFFF);
-const Color kAdminText = Color(0xFF34291F);
+const Color kAdminBg = AkeaColors.bg;
+const Color kAdminAccent = AkeaColors.plum;
+const Color kAdminBrown = AkeaColors.ink;
+const Color kAdminSurface = AkeaColors.card;
+const Color kAdminText = AkeaColors.ink;
 
 class _Destination {
   const _Destination({
@@ -31,12 +33,7 @@ const _mobileDestinations = [
     icon: Icons.home_outlined,
     selectedIcon: Icons.home_rounded,
     location: '/dashboard',
-    matchPrefixes: [
-      '/dashboard',
-      '/decor',
-      '/bookings',
-      '/portfolio',
-    ],
+    matchPrefixes: ['/dashboard', '/decor', '/bookings', '/portfolio'],
   ),
   _Destination(
     label: 'Requests',
@@ -94,7 +91,7 @@ const _desktopDestinations = [
     label: 'Decor',
     icon: Icons.inventory_2_outlined,
     selectedIcon: Icons.inventory_2_rounded,
-    location: '/decor/upload',
+    location: '/decor',
     matchPrefixes: ['/decor'],
   ),
   _Destination(
@@ -137,116 +134,29 @@ class AdminShell extends StatelessWidget {
     return 0;
   }
 
+  Future<void> _signOut(BuildContext context) async {
+    await Supabase.instance.client.auth.signOut();
+    if (context.mounted) context.go('/login');
+  }
+
   @override
   Widget build(BuildContext context) {
     final wide = MediaQuery.sizeOf(context).width >= 900;
 
     if (wide) {
       final index = _selectedIndex(location, _desktopDestinations);
-
       return Scaffold(
-        backgroundColor: kAdminBg,
+        backgroundColor: AkeaColors.bg,
         body: Row(
           children: [
-            Container(
-              width: 180,
-              color: kAdminSurface,
-              child: Column(
-                children: [
-                  const SizedBox(height: 24),
-                  const Icon(
-                    Icons.event_seat_rounded,
-                    color: kAdminAccent,
-                    size: 36,
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Akea Events',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                      color: kAdminBrown,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'ADMIN PANEL',
-                    style: TextStyle(
-                      fontSize: 10,
-                      letterSpacing: 2,
-                      color: kAdminAccent,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(height: 1),
-                  Expanded(
-                    child: NavigationRail(
-                      extended: true,
-                      minExtendedWidth: 180,
-                      selectedIndex: index,
-                      backgroundColor: kAdminSurface,
-                      indicatorColor: kAdminAccent.withOpacity(0.16),
-                      selectedIconTheme: const IconThemeData(
-                        color: kAdminBrown,
-                      ),
-                      unselectedIconTheme: const IconThemeData(
-                        color: Color(0xFF8A8177),
-                      ),
-                      selectedLabelTextStyle: const TextStyle(
-                        color: kAdminBrown,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
-                      unselectedLabelTextStyle: const TextStyle(
-                        color: Color(0xFF71675D),
-                        fontSize: 13,
-                      ),
-                      labelType: NavigationRailLabelType.none,
-                      useIndicator: true,
-                      onDestinationSelected: (i) {
-                        context.go(_desktopDestinations[i].location);
-                      },
-                      destinations: [
-                        for (final d in _desktopDestinations)
-                          NavigationRailDestination(
-                            icon: Icon(d.icon),
-                            selectedIcon: Icon(d.selectedIcon),
-                            label: Text(d.label),
-                          ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.spa_outlined,
-                          color: kAdminAccent,
-                          size: 18,
-                        ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Creating beautiful moments',
-                            style: TextStyle(
-                              color: kAdminBrown,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+            SizedBox(
+              width: 232,
+              child: _Sidebar(
+                selectedIndex: index,
+                destinations: _desktopDestinations,
+                onSelect: (i) => context.go(_desktopDestinations[i].location),
+                onSignOut: () => _signOut(context),
               ),
-            ),
-            const VerticalDivider(
-              width: 1,
-              thickness: 1,
-              color: Color(0xFFE9E0D4),
             ),
             Expanded(child: child),
           ],
@@ -255,33 +165,238 @@ class AdminShell extends StatelessWidget {
     }
 
     final index = _selectedIndex(location, _mobileDestinations);
-
     return Scaffold(
-      backgroundColor: kAdminBg,
+      backgroundColor: AkeaColors.bg,
       body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: index,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: kAdminSurface,
-        selectedItemColor: kAdminBrown,
-        unselectedItemColor: const Color(0xFF8A8177),
-        selectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
+      bottomNavigationBar: _GoldPillTabBar(
+        index: index,
+        destinations: _mobileDestinations,
+        onSelect: (i) => context.go(_mobileDestinations[i].location),
+      ),
+    );
+  }
+}
+
+class _GoldPillTabBar extends StatelessWidget {
+  const _GoldPillTabBar({
+    required this.index,
+    required this.destinations,
+    required this.onSelect,
+  });
+
+  final int index;
+  final List<_Destination> destinations;
+  final ValueChanged<int> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AkeaColors.card,
+      elevation: 8,
+      shadowColor: Colors.black26,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
+          child: Row(
+            children: [
+              for (var i = 0; i < destinations.length; i++)
+                Expanded(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => onSelect(i),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: i == index
+                                  ? AkeaColors.gold.withValues(alpha: 0.28)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Icon(
+                              i == index
+                                  ? destinations[i].selectedIcon
+                                  : destinations[i].icon,
+                              color: i == index
+                                  ? AkeaColors.plum
+                                  : AkeaColors.muted,
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            destinations[i].label,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight:
+                                  i == index ? FontWeight.w700 : FontWeight.w500,
+                              color: i == index
+                                  ? AkeaColors.plum
+                                  : AkeaColors.muted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
-        unselectedLabelStyle: const TextStyle(fontSize: 12),
-        showUnselectedLabels: true,
-        onTap: (i) {
-          context.go(_mobileDestinations[i].location);
-        },
-        items: [
-          for (final d in _mobileDestinations)
-            BottomNavigationBarItem(
-              icon: Icon(d.icon),
-              activeIcon: Icon(d.selectedIcon),
-              label: d.label,
-            ),
-        ],
+      ),
+    );
+  }
+}
+
+class _Sidebar extends StatelessWidget {
+  const _Sidebar({
+    required this.selectedIndex,
+    required this.destinations,
+    required this.onSelect,
+    required this.onSignOut,
+  });
+
+  final int selectedIndex;
+  final List<_Destination> destinations;
+  final ValueChanged<int> onSelect;
+  final VoidCallback onSignOut;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: AkeaColors.sidebar,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 22, 16, 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const AkeaLogoMark(size: 36),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'AkeaEvents',
+                        style: GoogleFonts.playfairDisplay(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Text(
+                        'ADMIN',
+                        style: GoogleFonts.inter(
+                          color: AkeaColors.gold,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 28),
+              for (var i = 0; i < destinations.length; i++)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Material(
+                    color: i == selectedIndex
+                        ? AkeaColors.sidebarSelected
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(12),
+                    child: InkWell(
+                      onTap: () => onSelect(i),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 11,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              i == selectedIndex
+                                  ? destinations[i].selectedIcon
+                                  : destinations[i].icon,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              destinations[i].label,
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontWeight: i == selectedIndex
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              const Spacer(),
+              InkWell(
+                onTap: onSignOut,
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 16,
+                        backgroundColor: AkeaColors.plum,
+                        child: Text(
+                          'A',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Admin',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            'Sign out',
+                            style: GoogleFonts.inter(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

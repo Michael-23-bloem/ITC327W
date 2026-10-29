@@ -2,19 +2,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../viewmodels/order_viewmodel.dart';
-import '../../models/order_status.dart';
+import '../viewmodels/order_viewmodel.dart';
+import '../models/order_status.dart';
+
+import '../theme/akea_theme.dart';
 
 class _Palette {
-  static const background = Color(0xFFF7F4EF);
-  static const ink = Color(0xFF2B2621);
-  static const muted = Color(0xFF82766A);
-  static const gold = Color(0xFFCE9448);
-  static const goldLight = Color(0xFFF5E9D6);
-  static const card = Colors.white;
-  static const border = Color(0xFFECE5DB);
-  static const success = Color(0xFF4C7A5E);
-  static const danger = Color(0xFFB4533D);
+  static const background = AkeaColors.bg;
+  static const ink = AkeaColors.ink;
+  static const muted = AkeaColors.muted;
+  static const gold = AkeaColors.gold;
+  static const goldLight = AkeaColors.goldSoft;
+  static const card = AkeaColors.card;
+  static const border = AkeaColors.border;
+  static const success = AkeaColors.statusOkInk;
+  static const danger = AkeaColors.statusDangerInk;
 }
 
 class UpdateProgressView extends StatefulWidget {
@@ -827,8 +829,8 @@ class _UpdateProgressViewState extends State<UpdateProgressView> {
 
 /*import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../viewmodels/order_viewmodel.dart';
-import '../../models/order_status.dart';
+import '../viewmodels/order_viewmodel.dart';
+import '../models/order_status.dart';
 
 // Palette shared with the rest of the admin app, plus warm,
 // non-generic success/danger tones instead of Material's defaults.
