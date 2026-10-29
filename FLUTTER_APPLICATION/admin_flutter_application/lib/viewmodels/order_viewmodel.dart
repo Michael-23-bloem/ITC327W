@@ -32,6 +32,17 @@ class OrderViewModel extends ChangeNotifier {
   }
 */
 
+Future<Map<String, dynamic>?> loadQuotationForEdit(
+    String orderId) async {
+  try {
+    return await _service.getLatestQuotation(orderId);
+  } catch (e) {
+    debugPrint('loadQuotationForEdit error: $e');
+    rethrow;
+  }
+}
+
+
 Future<void> loadQuotations() async {
   loading = true;
   notifyListeners();
@@ -63,6 +74,7 @@ Future<void> loadQuotations() async {
     notifyListeners();
   }
 }
+
   Future<void> loadBookings() async {
     loading = true;
     notifyListeners();

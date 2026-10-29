@@ -53,7 +53,7 @@ class OrderService {
   // Old: updated Order table directly
   // New: quotations are in separate table `quotations`
   // ------------------------------------------------------------------
-  Future<void> editQuotation(String orderId, double total, double transport, double service) async {
+  /*Future<void> editQuotation(String orderId, double total, double transport, double service) async {
     // First get latest quotation for this order
     final existing = await supabase
         .from('quotations')
@@ -83,7 +83,7 @@ class OrderService {
 
     // Also update order status to in_contact
     await supabase.from('orders').update({'status': 'in_contact'}).eq('id', orderId);
-  }
+  }*/
 
   // ------------------------------------------------------------------
   // WIREFRAME 7 - Validate EFT Payment -> converts Quotation to Booking
@@ -91,7 +91,67 @@ class OrderService {
   // New: deposits.status = received + orders.status = confirmed
   // ------------------------------------------------------------------
   
-  
+   // Load the latest quotation for the Edit Quotation page.
+  Future<Map<String, dynamic>?> getLatestQuotation(
+    String orderId,
+  ) async {
+    final data = await supabase
+        .from('quotations')
+        .select()
+        .eq('order_id', orderId)
+        .order('version', ascending: false)
+        .limit(1)
+        .maybeSingle();
+
+    return data;
+  }
+  // Save a revision as a NEW quotation version.
+  Future<void> editQuotation(
+    String orderId,
+    double total,
+    double transport,
+    double service,
+  ) async {
+    if (total < 0 || transport < 0 || service < 0) {
+      throw Exception('Quotation amounts cannot be negative.');
+    }
+
+    // Get the latest version so we can increment it.
+    final latest = await getLatestQuotation(orderId);
+
+    final nextVersion = latest == null
+        ? 1
+        : ((latest['version'] as num).toInt() + 1);
+
+    // Insert instead of updating: the previous quotation remains unchanged.
+    await supabase.from('quotations').insert({
+      'order_id': orderId,
+      'version': nextVersion,
+      'status': 'pending',
+      'estimated_total': total,
+      'transportation_fee': transport,
+      'service_fee': service,
+    });
+
+    // Do not reset the order's status here.
+    // The existing order may already be confirmed or in preparation.
+  }
+/*Future<Map<String, dynamic>?> getLatestQuotation(
+    String orderId) async {
+  final data = await supabase
+      .from('quotations')
+      .select(
+        'id, order_id, estimated_total, transportation_fee, service_fee, status, version',
+      )
+      .eq('order_id', orderId)
+      .order('version', ascending: false)
+      .limit(1)
+      .maybeSingle();
+
+  return data;
+}*/
+
+
 
 Future<void> validateEftAndConvert(String orderId) async {
   // 1. Get the authenticated owner.

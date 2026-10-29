@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../viewmodels/order_viewmodel.dart';
 import '../../viewmodels/order_item_viewmodel.dart';
@@ -30,57 +32,139 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
 
       context.read<OrderViewModel>().selectOrder(widget.orderId);
       context.read<OrderItemViewModel>().loadForOrder(widget.orderId);
+      _loadLatestQuotation();
     });
   }
 
-  
-Future<void> _showValidateDepositDialog(String orderId) async {
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: const Text('Confirm Deposit Payment'),
-      content: const Text(
-        'Have you verified that the customer’s EFT deposit '
-        'has been received in the business bank account?\n\n'
-        'Confirming will validate the payment and convert '
-        'the request into a booking.',
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(dialogContext, false),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(dialogContext, true),
-          child: const Text('Confirm Deposit'),
-        ),
-      ],
-    ),
-  );
+  Map<String, dynamic>? _quotation;
+  bool _quotationLoading = true;
 
-  if (confirmed != true || !mounted) return;
+  Future<void> _loadLatestQuotation() async {
+    try {
+      final result = await context.read<OrderViewModel>().loadQuotationForEdit(
+        widget.orderId,
+      );
 
-  try {
-    await context.read<OrderViewModel>().validateEft(orderId);
+      if (!mounted) return;
 
-    if (!mounted) return;
+      setState(() {
+        _quotation = result;
+        _quotationLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Deposit validated and booking created successfully.'),
-      ),
-    );
-  } catch (e) {
-    if (!mounted) return;
+      setState(() {
+        _quotationLoading = false;
+      });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Could not validate payment: $e'),
-      ),
-    );
+      debugPrint('Load quotation error: $e');
+    }
   }
-}
 
+  Future<void> _contactCustomerOnWhatsApp(String customerId) async {
+    try {
+      // Retrieve the customer's phone number from Supabase.
+      final customer = await Supabase.instance.client
+          .from('profiles')
+          .select('phone_number')
+          .eq('id', customerId)
+          .maybeSingle();
+
+      if (!mounted) return;
+
+      final rawPhone = customer?['phone_number']?.toString().trim() ?? '';
+
+      if (rawPhone.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Customer phone number is not available.'),
+          ),
+        );
+        return;
+      }
+
+      // WhatsApp requires the international number without "+" or spaces.
+      String phone = rawPhone.replaceAll(RegExp(r'\D'), '');
+
+      if (phone.startsWith('00')) {
+        phone = phone.substring(2);
+      } else if (phone.startsWith('0')) {
+        // Convert a South African local number, e.g. 082... to 2782...
+        phone = '27${phone.substring(1)}';
+      }
+
+      final whatsappUri = Uri.parse('https://wa.me/$phone');
+
+      final opened = await launchUrl(
+        whatsappUri,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!opened && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not open WhatsApp. Please try again.'),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Contact customer error: $e');
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to retrieve the customer contact details.'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _showValidateDepositDialog(String orderId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Confirm Deposit Payment'),
+        content: const Text(
+          'Have you verified that the customer’s EFT deposit '
+          'has been received in the business bank account?\n\n'
+          'Confirming will validate the payment and convert '
+          'the request into a booking.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Confirm Deposit'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await context.read<OrderViewModel>().validateEft(orderId);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Deposit validated and booking created successfully.'),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not validate payment: $e')));
+    }
+  }
 
   bool get _isBookingStage {
     final status = context
@@ -190,6 +274,75 @@ Future<void> _showValidateDepositDialog(String orderId) async {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuotationCard() {
+    if (_quotationLoading) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    final quotation = _quotation;
+
+    if (quotation == null) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Text('No quotation has been created yet.'),
+        ),
+      );
+    }
+
+    String money(dynamic value) {
+      final amount = (value as num?)?.toDouble() ?? 0;
+      return 'R ${amount.toStringAsFixed(2)}';
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Quotation Summary',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Text('Version: ${quotation['version'] ?? 1}'),
+            Text('Status: ${quotation['status'] ?? 'pending'}'),
+            const Divider(),
+            _quotationRow(
+              'Estimated total',
+              money(quotation['estimated_total']),
+            ),
+            _quotationRow(
+              'Transportation fee',
+              money(quotation['transportation_fee']),
+            ),
+            _quotationRow('Service fee', money(quotation['service_fee'])),
+            if (quotation['final_total'] != null)
+              _quotationRow('Final total', money(quotation['final_total'])),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _quotationRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        children: [
+          Expanded(child: Text(label)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -325,8 +478,114 @@ Future<void> _showValidateDepositDialog(String orderId) async {
 
                 const SizedBox(height: 16),
 
+                // Quotation summary
+                _buildQuotationCard(),
+
+                const SizedBox(height: 16),
                 // Requested items
                 _sectionCard(
+                  title: 'Requested Items',
+                  icon: Icons.inventory_2_outlined,
+                  children: [
+                    if (itemVm.loading)
+                      const Center(
+                        child: CircularProgressIndicator(color: kGold),
+                      )
+                    else if (itemVm.items.isEmpty)
+                      const Text(
+                        'No requested items were found for this request.',
+                        style: TextStyle(color: Colors.black54),
+                      )
+                    else
+                      ...itemVm.items.map(
+                        (item) => Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: kPageBg,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child:
+                                    item.imageUrl != null &&
+                                        item.imageUrl!.isNotEmpty
+                                    ? Image.network(
+                                        item.imageUrl!,
+                                        width: 55,
+                                        height: 55,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) =>
+                                            const SizedBox(
+                                              width: 55,
+                                              height: 55,
+                                              child: Icon(
+                                                Icons.celebration_outlined,
+                                                color: kDarkGold,
+                                              ),
+                                            ),
+                                      )
+                                    : const SizedBox(
+                                        width: 55,
+                                        height: 55,
+                                        child: Icon(
+                                          Icons.celebration_outlined,
+                                          color: kDarkGold,
+                                        ),
+                                      ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.itemName,
+                                      style: const TextStyle(
+                                        color: kDarkText,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Unit price: R${item.priceAtTime.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        color: Colors.black54,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'x${item.quantity}',
+                                    style: const TextStyle(
+                                      color: kDarkGold,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  Text(
+                                    'R${item.totalPrice.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      color: kDarkText,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+
+                /*_sectionCard(
                   title: 'Requested Items',
                   icon: Icons.inventory_2_outlined,
                   children: [
@@ -372,8 +631,7 @@ Future<void> _showValidateDepositDialog(String orderId) async {
                         ),
                       ),
                   ],
-                ),
-
+                ),*/
                 const SizedBox(height: 24),
 
                 // Available actions
@@ -391,9 +649,39 @@ Future<void> _showValidateDepositDialog(String orderId) async {
                   spacing: 12,
                   runSpacing: 12,
                   children: [
+                    OutlinedButton.icon(
+                      onPressed: () => _contactCustomerOnWhatsApp(o.customerId),
+                      icon: const Icon(Icons.chat_outlined),
+                      label: const Text('Contact Customer'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.green.shade800,
+                        side: BorderSide(color: Colors.green.shade700),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 14,
+                        ),
+                      ),
+                    ),
+
                     ElevatedButton.icon(
-                      onPressed: () {
-                        context.push('/quotations/${o.id}/edit');
+                      onPressed: () async {
+                        final saved = await context.push<bool>(
+                          '/quotations/${o.id}/edit',
+                        );
+
+                        if (!mounted || saved != true) return;
+
+                        await context.read<OrderViewModel>().selectOrder(o.id);
+                        await _loadLatestQuotation();
+                        // await context.read<OrderViewModel>().selectOrder(o.id);
+
+                        if (!mounted) return;
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Quotation updated successfully.'),
+                          ),
+                        );
                       },
                       icon: const Icon(Icons.edit_outlined),
                       label: const Text('Edit Quotation'),
@@ -407,7 +695,36 @@ Future<void> _showValidateDepositDialog(String orderId) async {
                       ),
                     ),
 
+                    /*ElevatedButton.icon(
+                      onPressed: () {
+                        context.push('/quotations/${o.id}/edit');
+                      },
+                      icon: const Icon(Icons.edit_outlined),
+                      label: const Text('Edit Quotation'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kGold,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 14,
+                        ),
+                      ),
+                    ),*/
                     OutlinedButton.icon(
+                      onPressed: () => _showValidateDepositDialog(o.id),
+                      icon: const Icon(Icons.payments_outlined),
+                      label: const Text('Validate Payment'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: kDarkGold,
+                        side: const BorderSide(color: kGold),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 14,
+                        ),
+                      ),
+                    ),
+
+                    /*OutlinedButton.icon(
                       onPressed: () {
                         // Opens your existing payment validation page.
                         onPressed: () => _showValidateDepositDialog(o.id);
@@ -423,9 +740,8 @@ Future<void> _showValidateDepositDialog(String orderId) async {
                           vertical: 14,
                         ),
                       ),
-                    ),
-
-                    if (_isBookingStage)
+                    ),*/
+                    
                       ElevatedButton.icon(
                         onPressed: () {
                           context.push('/bookings/${o.id}/progress');
@@ -442,7 +758,7 @@ Future<void> _showValidateDepositDialog(String orderId) async {
                         ),
                       ),
 
-                    if (_isBookingStage)
+                    
                       OutlinedButton.icon(
                         onPressed: () {
                           context.push('/bookings/${o.id}');
