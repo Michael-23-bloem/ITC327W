@@ -120,4 +120,16 @@ Future<void> loadQuotations() async {
     await loadQuotations();
     await loadBookings();
   }
+
+  Future<void> confirmQuotation(String orderId) async {
+    await _service.confirmQuotation(orderId);
+    await loadQuotations();
+    await selectOrder(orderId);
+  }
+
+  Future<void> markInContact(String orderId) async {
+    await _service.markInContact(orderId);
+    await loadQuotations();
+    await selectOrder(orderId);
+  }
 }

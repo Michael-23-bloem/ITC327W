@@ -1,7 +1,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../viewmodels/order_viewmodel.dart';
+import '../viewmodels/order_viewmodel.dart';
+import '../theme/akea_theme.dart';
+import '../widgets/akea_ui.dart';
 
 class QuotationEditView extends StatefulWidget {
   final String orderId;
@@ -123,14 +125,21 @@ class _QuotationEditViewState extends State<QuotationEditView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Quotation'),
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+    return AkeaPage(
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+        children: [
+          const AkeaPageHeader(
+            title: 'Edit quotation',
+            subtitle: 'Send a revised total back to the client',
+          ),
+          if (_loading)
+            const Padding(
+              padding: EdgeInsets.only(top: 80),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else
+            AkeaCard(
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -140,80 +149,51 @@ class _QuotationEditViewState extends State<QuotationEditView> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16),
                         child: Text(
-                          'Current quotation: Version $_currentVersion\n'
+                          'Current quotation: Version $_currentVersion. '
                           'Saving will create Version ${_currentVersion! + 1}.',
+                          style: const TextStyle(color: AkeaColors.muted),
                         ),
                       ),
-
+                    const AkeaFieldLabel('Estimated total (R)'),
                     TextFormField(
                       controller: _total,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: const InputDecoration(
-                        labelText: 'Estimated total (R)',
-                        border: OutlineInputBorder(),
-                      ),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: _validateAmount,
                     ),
-
                     const SizedBox(height: 16),
-
+                    const AkeaFieldLabel('Transportation fee (R)'),
                     TextFormField(
                       controller: _transport,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: const InputDecoration(
-                        labelText: 'Transportation fee (R)',
-                        border: OutlineInputBorder(),
-                      ),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: _validateAmount,
                     ),
-
                     const SizedBox(height: 16),
-
+                    const AkeaFieldLabel('Service fee (R)'),
                     TextFormField(
                       controller: _service,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: const InputDecoration(
-                        labelText: 'Service fee (R)',
-                        border: OutlineInputBorder(),
-                      ),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: _validateAmount,
                     ),
-
                     if (_error != null) ...[
                       const SizedBox(height: 12),
                       Text(
                         _error!,
-                        style: const TextStyle(color: Colors.red),
+                        style: const TextStyle(color: AkeaColors.statusDangerInk),
                       ),
                     ],
-
                     const SizedBox(height: 24),
-
-                    ElevatedButton(
-                      onPressed: _saving ? null : _saveQuotation,
-                      child: _saving
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text('Save New Version'),
+                    AkeaButton(
+                      label: 'Save new version',
+                      expand: true,
+                      loading: _saving,
+                      onPressed: _saveQuotation,
                     ),
                   ],
                 ),
               ),
             ),
+        ],
+      ),
     );
   }
 }

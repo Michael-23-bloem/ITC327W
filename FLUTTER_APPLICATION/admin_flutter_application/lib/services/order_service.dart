@@ -270,51 +270,16 @@ Future<void> validateEftAndConvert(String orderId) async {
       'notes': note,
     }).eq('id', orderId);
   }
+
+  Future<void> confirmQuotation(String orderId) async {
+    await supabase.from('orders').update({
+      'status': 'quotation_approved',
+    }).eq('id', orderId);
+  }
+
+  Future<void> markInContact(String orderId) async {
+    await supabase.from('orders').update({
+      'status': 'in_contact',
+    }).eq('id', orderId);
+  }
 }
-
-
-/*import 'supabase_client.dart';
-
-class OrderService {
-  final supabase = SupabaseClientManager.client;
-
-  // wireframe 4 - Quotation requests
-  Future<List<dynamic>> getQuotationRequests() async {
-    return await supabase.from('Order').select().eq('Status', 'Quotation').order('Order_id', ascending: false);
-  }
-
-  // wireframe 8 - Bookings - Past bookings
-  Future<List<dynamic>> getBookings() async {
-    return await supabase.from('Order').select().neq('Status', 'Quotation').order('Date_to_deliver', ascending: false);
-  }
-
-  // wireframe 5 - Requested items + Customer Details + Event Overview
-  Future<dynamic> getOrder(String orderId) async {
-    return await supabase.from('Order').select('*, User(Username, Display_name, Email, Phone)').eq('Order_id', orderId).single();
-  }
-
-  // wireframe 6 - Edit quotation Save
-  Future<void> editQuotation(String orderId, double total, double transport, double service) async {
-    await supabase.from('Order').update({
-      'Total_price': total,
-      'Transport_fee': transport,
-      'Service_fee': service,
-    }).eq('Order_id', orderId);
-  }
-
-  // wireframe 7 - Validate EFT Payment -> converts Quotation to Booking
-  Future<void> validateEftAndConvert(String orderId) async {
-    await supabase.from('Order').update({
-      'Status': 'Confirmed',
-      'Payment_status': 'Paid',
-    }).eq('Order_id', orderId);
-  }
-
-  // wireframe 10 - Update progress Save + Add note
-  Future<void> updateProgress(String orderId, String status, String note) async {
-    await supabase.from('Order').update({
-      'Status': status,
-      'Notes': note,
-    }).eq('Order_id', orderId);
-  }
-}*/
