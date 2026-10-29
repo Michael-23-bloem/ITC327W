@@ -57,12 +57,7 @@ namespace FirstWebApp.Controllers
 
         public IActionResult Privacy() => View();
 
-        public IActionResult About()
-        {
-            ViewData["Title"] = "About us";
-            ViewData["Lead"] = "The story behind AkeaEvents.";
-            return View("ComingSoon");
-        }
+        public IActionResult About() => View();
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error() =>

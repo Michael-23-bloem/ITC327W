@@ -969,3 +969,113 @@ body:has(dialog[open]) {
     font-size: 1.1rem;
     font-weight: 700;
 }
+
+/* ---------- About us ---------- */
+.page-about .page-head {
+    padding-block: 3rem;
+    text-align: center;
+}
+
+.page-about .page-lead {
+    margin-inline: auto;
+}
+
+.about-page {
+    max-width: 760px;
+    margin: 0 auto 3rem;
+    text-align: center;
+}
+
+.about-intro {
+    margin: 0 auto 2.5rem;
+    max-width: 56ch;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.about-block {
+    margin-bottom: 2.75rem;
+}
+
+    .about-block h2 {
+        margin: 0 0 .75rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -.01em;
+    }
+
+    .about-block p {
+        margin: 0 auto .75rem;
+        max-width: 62ch;
+        font-size: .95rem;
+        line-height: 1.7;
+    }
+
+/* The four "making planning easier" points as cards */
+.about-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+}
+
+.about-feature {
+    display: flex;
+    flex-direction: column;
+    padding: 1.1rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .about-feature h3 {
+        margin: 0 0 .35rem;
+        font-size: .95rem;
+        font-weight: 700;
+    }
+
+    .about-feature p {
+        margin: 0 0 .75rem;
+        font-size: .82rem;
+        line-height: 1.5;
+        color: var(--muted);
+    }
+
+    .about-feature a {
+        margin-top: auto;
+        font-size: .8rem;
+        font-weight: 600;
+    }
+
+.about-cta {
+    padding: 2rem clamp(1.25rem, 4vw, 2.5rem);
+    background: var(--beige-deep);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .about-cta h2 {
+        margin: 0 0 .5rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .about-cta p {
+        margin: 0 auto;
+        max-width: 58ch;
+        font-size: .95rem;
+    }
+
+    .about-cta .btn-row {
+        justify-content: center;
+        margin: 1.25rem 0;
+    }
+
+.about-tagline {
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
