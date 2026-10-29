@@ -30,8 +30,10 @@ class _BookingsViewState extends State<BookingsView> {
     final target = _normalize(day);
     return allBookings.where((o) => _normalize(o.eventDate) == target).toList();
   }
-
-  void _openBookingDetails(Order order) {
+   void _openBookingDetails(Order order) {
+  context.push('/quotations/${order.id}');
+}
+  /*void _openBookingDetails(Order order) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -63,7 +65,10 @@ class _BookingsViewState extends State<BookingsView> {
                   const SizedBox(height: 16),
                   Text(
                     order.eventType,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -71,8 +76,13 @@ class _BookingsViewState extends State<BookingsView> {
                     style: const TextStyle(fontSize: 15, color: Colors.black54),
                   ),
                   const SizedBox(height: 16),
-                  _detailRow(Icons.calendar_today, 'Date', '${order.eventDate.toLocal()}'.split(' ')[0]),
-                  if (order.venue != null) _detailRow(Icons.place_outlined, 'Venue', order.venue!),
+                  _detailRow(
+                    Icons.calendar_today,
+                    'Date',
+                    '${order.eventDate.toLocal()}'.split(' ')[0],
+                  ),
+                  if (order.venue != null)
+                    _detailRow(Icons.place_outlined, 'Venue', order.venue!),
                   _detailRow(Icons.group_outlined, 'Guests', '${order.guests}'),
                   _detailRow(Icons.flag_outlined, 'Status', order.status),
                   if (order.notes != null && order.notes!.isNotEmpty)
@@ -95,7 +105,7 @@ class _BookingsViewState extends State<BookingsView> {
         );
       },
     );
-  }
+  }*/
 
   Widget _detailRow(IconData icon, String label, String value) {
     return Padding(
@@ -109,7 +119,10 @@ class _BookingsViewState extends State<BookingsView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontSize: 12, color: Colors.black45)),
+                Text(
+                  label,
+                  style: const TextStyle(fontSize: 12, color: Colors.black45),
+                ),
                 Text(value, style: const TextStyle(fontSize: 15)),
               ],
             ),
@@ -123,7 +136,10 @@ class _BookingsViewState extends State<BookingsView> {
   Widget build(BuildContext context) {
     final vm = context.watch<OrderViewModel>();
     final bookings = vm.bookings;
-    final selectedDayEvents = _selectedDay == null ? <Order>[] : _eventsForDay(_selectedDay!, bookings);
+    // Show all bookings initially.
+    final displayedBookings = _selectedDay == null
+        ? bookings
+        : _eventsForDay(_selectedDay!, bookings);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Bookings')),
@@ -137,7 +153,9 @@ class _BookingsViewState extends State<BookingsView> {
                     firstDay: DateTime.utc(2020, 1, 1),
                     lastDay: DateTime.utc(2030, 12, 31),
                     focusedDay: _focusedDay,
-                    selectedDayPredicate: (day) => _selectedDay != null && _normalize(day) == _normalize(_selectedDay!),
+                    selectedDayPredicate: (day) =>
+                        _selectedDay != null &&
+                        _normalize(day) == _normalize(_selectedDay!),
                     eventLoader: (day) => _eventsForDay(day, bookings),
                     onDaySelected: (selectedDay, focusedDay) {
                       setState(() {
@@ -151,14 +169,66 @@ class _BookingsViewState extends State<BookingsView> {
                       }
                     },
                     calendarStyle: const CalendarStyle(
-                      markerDecoration: BoxDecoration(color: Colors.deepPurple, shape: BoxShape.circle),
-                      todayDecoration: BoxDecoration(color: Colors.deepPurpleAccent, shape: BoxShape.circle),
-                      selectedDecoration: BoxDecoration(color: Colors.deepPurple, shape: BoxShape.circle),
+                      markerDecoration: BoxDecoration(
+                        color: Colors.deepPurple,
+                        shape: BoxShape.circle,
+                      ),
+                      todayDecoration: BoxDecoration(
+                        color: Colors.deepPurpleAccent,
+                        shape: BoxShape.circle,
+                      ),
+                      selectedDecoration: BoxDecoration(
+                        color: Colors.deepPurple,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 8),
+
                 Expanded(
+                  child: displayedBookings.isEmpty
+                      ? Center(
+                          child: Text(
+                            _selectedDay == null
+                                ? 'No active bookings yet.'
+                                : 'No bookings on this date.',
+                            style: const TextStyle(color: Colors.black45),
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          itemCount: displayedBookings.length,
+                          itemBuilder: (_, i) {
+                            final o = displayedBookings[i];
+
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              child: ListTile(
+                                leading: const CircleAvatar(
+                                  child: Icon(Icons.event_available),
+                                ),
+                                title: Text(
+                                  o.eventType,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  '${o.customerName ?? o.customerEmailOrId}\n'
+                                  '${o.eventDate.toLocal().toString().split(' ')[0]}'
+                                  ' • ${o.status}',
+                                ),
+                                isThreeLine: true,
+                                trailing: const Icon(Icons.chevron_right),
+                                onTap: () => _openBookingDetails(o),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+
+                /*Expanded(
                   child: selectedDayEvents.isEmpty
                       ? const Center(
                           child: Text('No bookings yet', style: TextStyle(color: Colors.black45)),
@@ -179,7 +249,7 @@ class _BookingsViewState extends State<BookingsView> {
                             );
                           },
                         ),
-                ),
+                ),*/
               ],
             ),
     );
