@@ -28,12 +28,12 @@ namespace FirstWebApp.Models
         [Column("notes")]
         public string? Notes { get; set; }
 
-        // // Setup, indoors/outdoors, delivery, colour theme, budget
-        // [Column("needs_assessment")]
-        // public Dictionary<string, string>? NeedsAssessment { get; set; }
-
         [Column("status")]
         public string Status { get; set; } = string.Empty;
+
+        // Set by the database / the owner
+        [Column("decision_due_at", ignoreOnInsert: true, ignoreOnUpdate: true)]
+        public DateTime? DecisionDueAt { get; set; }
 
         [Column("created_at", ignoreOnInsert: true, ignoreOnUpdate: true)]
         public DateTime CreatedAt { get; set; }

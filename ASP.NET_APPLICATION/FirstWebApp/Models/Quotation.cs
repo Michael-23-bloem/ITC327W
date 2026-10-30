@@ -1,10 +1,9 @@
-using System.Text.Json.Serialization;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
 namespace FirstWebApp.Models
 {
-    // One row of quotations: version 1 is the initial quotation the owner reviews
+    // One row of quotations. Version 1 is the customer's estimate; the owner adds revised versions.
     [Table("quotations")]
     public class Quotation : BaseModel
     {
@@ -23,21 +22,26 @@ namespace FirstWebApp.Models
         [Column("estimated_total")]
         public decimal? EstimatedTotal { get; set; }
 
-        // // A copy of the items at the time of the request
-        // [Column("items_snapshot")]
-        // public List<QuoteSnapshotLine>? ItemsSnapshot { get; set; }
+        // Filled in by the owner in Flutter
+        [Column("transportation_fee", ignoreOnInsert: true, ignoreOnUpdate: true)]
+        public decimal TransportationFee { get; set; }
+
+        [Column("service_fee", ignoreOnInsert: true, ignoreOnUpdate: true)]
+        public decimal ServiceFee { get; set; }
+
+        [Column("final_total", ignoreOnInsert: true, ignoreOnUpdate: true)]
+        public decimal? FinalTotal { get; set; }
+
+        [Column("banking_details", ignoreOnInsert: true, ignoreOnUpdate: true)]
+        public string? BankingDetails { get; set; }
+
+        [Column("note_to_client", ignoreOnInsert: true, ignoreOnUpdate: true)]
+        public string? NoteToClient { get; set; }
+
+        [Column("decline_reason", ignoreOnInsert: true, ignoreOnUpdate: true)]
+        public string? DeclineReason { get; set; }
 
         [Column("created_at", ignoreOnInsert: true, ignoreOnUpdate: true)]
         public DateTime CreatedAt { get; set; }
     }
-
-    // public class QuoteSnapshotLine
-    // {
-    //     [JsonPropertyName("type")] public string Type { get; set; } = string.Empty;
-    //     [JsonPropertyName("item_id")] public Guid ItemId { get; set; }
-    //     [JsonPropertyName("name")] public string Name { get; set; } = string.Empty;
-    //     [JsonPropertyName("quantity")] public int Quantity { get; set; }
-    //     [JsonPropertyName("unit_price")] public decimal UnitPrice { get; set; }
-    //     [JsonPropertyName("line_total")] public decimal LineTotal { get; set; }
-    // }
 }

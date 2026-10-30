@@ -31,22 +31,45 @@ namespace FirstWebApp.Controllers
             _logger = logger;
         }
 
-        // /Quotes (My Quotes): sample data for now, to be loaded from Supabase later
+        // /Quotes: My Quotes
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            ViewData["Title"] = "My Quotes";
+            if (!await _session.UseCustomerSessionAsync()) return await SignInAgain(Url.Action(nameof(Index)));
 
-            var quotes = new List<QuoteListItem>
+            var items = new List<QuoteListItem>();
+
+            try
             {
-                new QuoteListItem("AKEAEVENTS-2026-01", "Wedding",         new DateOnly(2026, 5, 12), 10060m, "18h left",           false),
-                new QuoteListItem("AKEAEVENTS-2026-02", "Birthday",        new DateOnly(2027, 3, 11),  6800m, "Quotation approved", true),
-                new QuoteListItem("AKEAEVENTS-2026-03", "Baby Shower",     new DateOnly(2026, 8, 10),  5200m, "Declined",           false),
-                new QuoteListItem("AKEAEVENTS-2026-04", "Corporate Event", new DateOnly(2026, 4, 9),   7450m, "Awaiting deposit",   false),
-                new QuoteListItem("AKEAEVENTS-2026-05", "Corporate Event", new DateOnly(2027, 4, 8),   7450m, "Preparations begun", false)
-            };
+                var customerId = CurrentCustomerId();
 
-            return View(quotes);
+                var orders = (await _supabase.From<Order>()
+                    .Where(o => o.CustomerId == customerId)
+                    .Order(o => o.CreatedAt, Constants.Ordering.Descending)
+                    .Get()).Models;
+
+                var latestQuotes = await LoadLatestQuotesAsync(orders.Select(o => o.Id).ToList());
+
+                items = orders.Select(o =>
+                {
+                    latestQuotes.TryGetValue(o.Id, out var quote);
+                    return new QuoteListItem(
+                        o.Id,
+                        ToReference(o.Id),
+                        o.EventType ?? "Event",
+                        DateOnly.FromDateTime(o.EventDate),
+                        TotalFor(quote),
+                        QuoteStatus.ListLabel(o.Status, o.DecisionDueAt),
+                        QuoteStatus.NeedsAction(o.Status));
+                }).ToList();
+            }
+            catch (Exception ex) when (ex is PostgrestException or HttpRequestException)
+            {
+                _logger.LogError(ex, "Loading My Quotes failed");
+                ViewData["Error"] = "We couldn't load your requests right now. Please try again in a moment.";
+            }
+
+            return View(items);
         }
 
         // GET /Quotes/Request
@@ -165,6 +188,111 @@ namespace FirstWebApp.Controllers
             });
         }
 
+                // /Quotes/Details/{id}: one request, its latest quotation, payment details and progress
+        public async Task<IActionResult> Details(Guid id)
+        {
+            if (!await _session.UseCustomerSessionAsync()) return await SignInAgain(Url.Action(nameof(Details), new { id }));
+
+            try
+            {
+                var order = await _supabase.From<Order>().Where(o => o.Id == id).Single();
+                if (order == null || order.CustomerId != CurrentCustomerId()) return NotFound();
+
+                // The latest quotation version
+                var quote = (await _supabase.From<Quotation>()
+                    .Where(q => q.OrderId == id)
+                    .Order(q => q.Version, Constants.Ordering.Descending)
+                    .Limit(1)
+                    .Get()).Models.FirstOrDefault();
+
+                var lines = await LoadLinesAsync(id);
+
+                Deposit? deposit = null;
+                if (quote != null)
+                {
+                    deposit = (await _supabase.From<Deposit>()
+                        .Where(d => d.QuotationId == quote.Id)
+                        .Order(d => d.CreatedAt, Constants.Ordering.Descending)
+                        .Limit(1)
+                        .Get()).Models.FirstOrDefault();
+                }
+
+                var updates = (await _supabase.From<OrderProgressUpdate>()
+                    .Where(p => p.OrderId == id)
+                    .Order(p => p.CreatedAt, Constants.Ordering.Descending)
+                    .Get()).Models;
+
+                var total = TotalFor(quote);
+
+                var model = new QuoteDetailsViewModel
+                {
+                    Id = order.Id,
+                    Reference = ToReference(order.Id),
+                    Status = order.Status,
+                    EventType = order.EventType,
+                    EventDate = order.EventDate,
+                    Venue = order.Venue,
+                    Guests = order.Guests,
+                    Notes = order.Notes,
+                    DecisionDueAt = order.DecisionDueAt,
+                    Lines = lines,
+                    QuoteVersion = quote?.Version,
+                    QuoteStatus = quote?.Status,
+                    ItemsSubtotal = quote?.EstimatedTotal ?? lines.Sum(l => l.LineTotal),
+                    TransportationFee = quote?.TransportationFee ?? 0,
+                    ServiceFee = quote?.ServiceFee ?? 0,
+                    Total = total,
+                    NoteToClient = quote?.NoteToClient,
+                    BankingDetails = quote?.BankingDetails,
+                    DeclineReason = quote?.DeclineReason,
+                    // The deposit the owner recorded, or 50% of the total (as in the SRS)
+                    DepositAmount = deposit?.Amount ?? (total.HasValue ? Math.Round(total.Value * 0.5m, 2) : null),
+                    DepositStatus = deposit?.Status,
+                    Updates = updates.Select(u => new ProgressUpdateViewModel
+                    {
+                        Message = u.Message,
+                        CreatedAt = u.CreatedAt
+                    }).ToList()
+                };
+
+                return View(model);
+            }
+            catch (Exception ex) when (ex is PostgrestException or HttpRequestException)
+            {
+                _logger.LogError(ex, "Loading request {OrderId} failed", id);
+                TempData["QuoteMessage"] = "We couldn't load that request right now. Please try again in a moment.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // Customers can cancel only while the request is still awaiting review
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel(Guid id)
+        {
+            if (!await _session.UseCustomerSessionAsync()) return await SignInAgain(Url.Action(nameof(Details), new { id }));
+
+            try
+            {
+                var result = await _supabase.From<Order>()
+                    .Where(o => o.Id == id)
+                    .Where(o => o.Status == NewOrderStatus)
+                    .Set(o => o.Status, "cancelled")
+                    .Update();
+
+                TempData["QuoteMessage"] = result.Models.Any()
+                    ? "Your request has been cancelled."
+                    : "This request can no longer be cancelled online. Please contact us on WhatsApp.";
+            }
+            catch (Exception ex) when (ex is PostgrestException or HttpRequestException)
+            {
+                _logger.LogError(ex, "Cancelling request {OrderId} failed", id);
+                TempData["QuoteMessage"] = "We couldn't cancel your request right now. Please try again.";
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
         // ---------- Helpers ----------
 
         // The needs-assessment answers, followed by the customer's own notes
@@ -206,6 +334,72 @@ namespace FirstWebApp.Controllers
             }
         }
 
+        // The highest quotation version for each order
+        private async Task<Dictionary<Guid, Quotation>> LoadLatestQuotesAsync(List<Guid> orderIds)
+        {
+            if (orderIds.Count == 0) return new();
+
+            var quotes = (await _supabase.From<Quotation>()
+                .Filter("order_id", Constants.Operator.In, orderIds.Select(id => id.ToString()).ToList())
+                .Get()).Models;
+
+            return quotes
+                .GroupBy(q => q.OrderId)
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(q => q.Version).First());
+        }
+
+        // The request's items, with product and package names
+        private async Task<List<QuoteLineViewModel>> LoadLinesAsync(Guid orderId)
+        {
+            var items = (await _supabase.From<OrderItem>()
+                .Where(i => i.OrderId == orderId)
+                .Get()).Models;
+
+            var productIds = items.Where(i => i.ProductId.HasValue).Select(i => i.ProductId!.Value.ToString()).Distinct().ToList();
+            var packageIds = items.Where(i => i.PackageId.HasValue).Select(i => i.PackageId!.Value.ToString()).Distinct().ToList();
+
+            var names = new Dictionary<Guid, string>();
+
+            if (productIds.Count > 0)
+            {
+                foreach (var p in (await _supabase.From<DecorProduct>()
+                    .Filter("id", Constants.Operator.In, productIds).Get()).Models)
+                {
+                    names[p.Id] = p.Name;
+                }
+            }
+
+            if (packageIds.Count > 0)
+            {
+                foreach (var p in (await _supabase.From<DecorPackage>()
+                    .Filter("id", Constants.Operator.In, packageIds).Get()).Models)
+                {
+                    names[p.Id] = p.Name;
+                }
+            }
+
+            return items.Select(i =>
+            {
+                var itemId = i.ProductId ?? i.PackageId!.Value;
+                return new QuoteLineViewModel
+                {
+                    Name = names.TryGetValue(itemId, out var name) ? name : "Item no longer listed",
+                    IsPackage = i.PackageId.HasValue,
+                    Quantity = i.Quantity,
+                    UnitPrice = i.UnitPrice
+                };
+            }).OrderBy(l => l.Name).ToList();
+        }
+
+        // The owner's final total if set, otherwise the estimate plus fees
+        private static decimal? TotalFor(Quotation? quote)
+        {
+            if (quote == null) return null;
+            if (quote.FinalTotal.HasValue) return quote.FinalTotal;
+            if (!quote.EstimatedTotal.HasValue) return null;
+            return quote.EstimatedTotal.Value + quote.TransportationFee + quote.ServiceFee;
+        }
+
         // A short, readable reference such as REQ-3F2A9C1B
         private static string ToReference(Guid id) => "REQ-" + id.ToString("N")[..8].ToUpperInvariant();
 
@@ -218,10 +412,10 @@ namespace FirstWebApp.Controllers
         private Guid CurrentCustomerId() =>
             Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        private async Task<IActionResult> SignInAgain()
+        private async Task<IActionResult> SignInAgain(string? returnUrl = null)
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Request", "Quotes") });
+            return RedirectToAction("Login", "Account", new { returnUrl = returnUrl ?? Url.Action("Request", "Quotes") });
         }
     }
 }
