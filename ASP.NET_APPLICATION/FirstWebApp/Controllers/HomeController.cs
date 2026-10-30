@@ -37,9 +37,9 @@ namespace FirstWebApp.Controllers
                 {
                     new("Weddings",      "images/occasion/weddings.jpg"),
                     new("Birthdays",     "images/occasion/birthdays.jpg"),
-                    new("Corporate",     "images/occasion/corporate.jpg"),
-                    new("Kid's parties", "images/occasion/kids-parties.jpg"),
-                    new("Baby showers",  "images/occasion/baby-showers.jpg")
+                    new("Corporate",     "images/occasion/corporates.jpg"),
+                    new("Kid's parties", "images/occasion/kidsparties.jpg"),
+                    new("Baby showers",  "images/occasion/babyshowers.jpg")
                 },
 
                 Packages = new()
