@@ -117,7 +117,12 @@ namespace FirstWebApp.Controllers
                     EventDate = form.EventDate!.Value.Date,
                     Venue = form.Venue?.Trim(),
                     Guests = form.Guests,
-                    Notes = BuildNotes(form),
+                    Notes = string.IsNullOrWhiteSpace(form.Notes) ? null : form.Notes.Trim(),
+                    Theme = string.IsNullOrWhiteSpace(form.ColourTheme) ? null : form.ColourTheme.Trim(),
+                    SetupRequired = form.NeedsSetup,
+                    VenueSetting = form.VenueSetting?.ToLowerInvariant(),
+                    DeliveryRequired = form.NeedsDelivery,
+                    BudgetRange = string.IsNullOrWhiteSpace(form.BudgetRange) ? null : form.BudgetRange,
                     Status = NewOrderStatus
                 })).Models.First();
 
@@ -234,6 +239,11 @@ namespace FirstWebApp.Controllers
                     Venue = order.Venue,
                     Guests = order.Guests,
                     Notes = order.Notes,
+                    Theme = order.Theme,
+                    SetupRequired = order.SetupRequired,
+                    VenueSetting = order.VenueSetting,
+                    DeliveryRequired = order.DeliveryRequired,
+                    BudgetRange = order.BudgetRange,
                     DecisionDueAt = order.DecisionDueAt,
                     Lines = lines,
                     QuoteVersion = quote?.Version,

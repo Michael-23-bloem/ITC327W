@@ -56,6 +56,31 @@ else
                 <dd>@(Model.Venue ?? "–")</dd>
                 <dt>Guests</dt>
                 <dd>@(Model.Guests?.ToString() ?? "–")</dd>
+                @if (!string.IsNullOrWhiteSpace(Model.Theme))
+                {
+                    <dt>Colour theme</dt>
+                    <dd>@Model.Theme</dd>
+                }
+                @if (Model.SetupRequired.HasValue)
+                {
+                    <dt>Setup and take-down</dt>
+                    <dd>@(Model.SetupRequired.Value ? "Yes" : "No")</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.VenueSetting))
+                {
+                    <dt>Indoors or outdoors</dt>
+                    <dd>@(Model.VenueSetting == "indoors" ? "Indoors" : "Outdoors")</dd>
+                }
+                @if (Model.DeliveryRequired.HasValue)
+                {
+                    <dt>Delivery to venue</dt>
+                    <dd>@(Model.DeliveryRequired.Value ? "Yes" : "No")</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.BudgetRange))
+                {
+                    <dt>Budget range</dt>
+                    <dd>@Model.BudgetRange</dd>
+                }
             </dl>
             @if (!string.IsNullOrWhiteSpace(Model.Notes))
             {

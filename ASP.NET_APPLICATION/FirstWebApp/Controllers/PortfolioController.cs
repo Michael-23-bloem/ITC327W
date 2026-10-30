@@ -77,6 +77,7 @@ namespace FirstWebApp.Controllers
                     if (!string.IsNullOrWhiteSpace(url) && !images.Contains(url)) images.Add(url);
                 }
 
+                var itemsUsed = await LoadItemsUsedAsync(id);
                 var related = new List<PortfolioEntry>();
                 if (!string.IsNullOrWhiteSpace(entry.Category))
                 {
@@ -95,6 +96,7 @@ namespace FirstWebApp.Controllers
                     Category = entry.Category,
                     Price = entry.Price,
                     Images = images,
+                    ItemsUsed = itemsUsed,
                     Related = related.Select(ToCard).ToList()
                 };
 
@@ -106,6 +108,33 @@ namespace FirstWebApp.Controllers
                 TempData["PortfolioError"] = LoadError;
                 return RedirectToAction(nameof(Index));
             }
+        }
+
+        // The décor products the owner linked to this event in Flutter
+        private async Task<List<PortfolioUsedItemViewModel>> LoadItemsUsedAsync(Guid portfolioId)
+        {
+            var links = (await _supabase.From<PortfolioProductLink>()
+                .Where(l => l.PortfolioId == portfolioId)
+                .Get()).Models;
+
+            if (links.Count == 0) return new();
+
+            var productIds = links.Select(l => l.ProductId.ToString()).Distinct().ToList();
+
+            var products = (await _supabase.From<DecorProduct>()
+                .Filter("id", Constants.Operator.In, productIds)
+                .Get()).Models;
+
+            // Products the owner has hidden aren't returned, so they're simply left out
+            return products
+                .Select(p => new PortfolioUsedItemViewModel
+                {
+                    Name = p.Name,
+                    ImageUrl = p.ImageUrl,
+                    Price = p.Price
+                })
+                .OrderBy(p => p.Name)
+                .ToList();
         }
 
         private static PortfolioCardViewModel ToCard(PortfolioEntry e) => new()

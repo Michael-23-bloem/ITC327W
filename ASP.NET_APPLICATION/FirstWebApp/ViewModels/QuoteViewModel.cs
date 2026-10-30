@@ -35,6 +35,11 @@ namespace FirstWebApp.ViewModels
         public string? Venue { get; set; }
         public int? Guests { get; set; }
         public string? Notes { get; set; }
+        public string? Theme { get; set; }
+        public bool? SetupRequired { get; set; }
+        public string? VenueSetting { get; set; }
+        public bool? DeliveryRequired { get; set; }
+        public string? BudgetRange { get; set; }
         public DateTime? DecisionDueAt { get; set; }
 
         public List<QuoteLineViewModel> Lines { get; set; } = new();

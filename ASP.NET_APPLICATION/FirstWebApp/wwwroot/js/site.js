@@ -57,3 +57,18 @@ document.addEventListener("click", function (e) {
         t.setAttribute("aria-pressed", isCurrent ? "true" : "false");
     });
 });
+
+// Portfolio details: "View all" items used
+document.addEventListener("click", function (e) {
+    const button = e.target.closest("[data-toggle-items]");
+    if (!button) return;
+
+    const list = document.getElementById(button.getAttribute("aria-controls"));
+    if (!list) return;
+
+    const expand = button.getAttribute("aria-expanded") !== "true";
+    list.querySelectorAll(".is-extra").forEach(item => { item.hidden = !expand; });
+
+    button.setAttribute("aria-expanded", expand ? "true" : "false");
+    button.textContent = expand ? "Show fewer" : button.dataset.label;
+});

@@ -1304,3 +1304,462 @@ body:has(dialog[open]) {
     color: #fff;
     background: var(--ink);
 }
+
+/* ---------- Enquiries: a conversation with a nude accent ---------- */
+.page-enquiries .page-head {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 6px solid var(--nude);
+}
+
+.enquiry-heading {
+    margin: 0 0 1rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.enquiry-form {
+    position: sticky;
+    top: 1rem;
+    padding: 1.5rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+.enquiry-list {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.enquiry {
+    padding: 1.1rem 1.25rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+.enquiry-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .6rem;
+    font-size: .75rem;
+    color: var(--muted);
+}
+
+.status-badge {
+    padding: .15rem .6rem;
+    font-size: .7rem;
+    font-weight: 600;
+    border-radius: 999px;
+}
+
+.status-waiting {
+    color: var(--nude-ink);
+    background: var(--beige-deep);
+}
+
+.status-answered {
+    color: #fff;
+    background: var(--ink);
+}
+
+/* Keep the customer's line breaks */
+.enquiry-text {
+    margin: 0;
+    font-size: .9rem;
+    white-space: pre-line;
+}
+
+.enquiry-reply {
+    margin-top: .9rem;
+    padding: .8rem 1rem;
+    background: var(--beige);
+    border-left: 3px solid var(--nude);
+    border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+/* ---------- Estimate page: request a quotation ---------- */
+.request-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    background: var(--beige);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+    .request-cta > div:first-child {
+        flex: 1 1 260px;
+    }
+
+.request-cta-title {
+    margin: 0 0 .2rem;
+    font-weight: 700;
+}
+
+.request-cta-text {
+    margin: 0;
+    font-size: .85rem;
+    color: var(--muted);
+}
+
+.request-cta-note {
+    margin: .75rem 0 0;
+    font-size: .75rem;
+    text-align: right;
+    color: var(--muted);
+}
+
+/* ---------- Request a quotation form ---------- */
+.page-request .page-head {
+    background: var(--beige-deep);
+    border: 1px solid var(--line);
+    border-left: 6px solid var(--ink);
+}
+
+    .page-request .page-head .eyebrow,
+    .page-request .page-lead {
+        color: var(--nude-ink);
+    }
+
+.request-layout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.request-form {
+    flex: 999 1 560px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.request-card {
+    margin: 0;
+    padding: 1.5rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .request-card > legend {
+        float: left;
+        width: 100%;
+        margin: 0 0 1rem;
+        padding: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
+
+        .request-card > legend + * {
+            clear: both;
+        }
+
+.request-step {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    margin-right: .5rem;
+    font-size: .8rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--ink);
+    border-radius: 50%;
+}
+
+.request-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+    .request-grid .span-all {
+        grid-column: 1 / -1;
+    }
+
+.optional {
+    font-weight: 400;
+    color: var(--muted);
+}
+
+/* Yes / No questions as pill buttons */
+.choice-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem 1rem;
+    margin: 0;
+    padding: .9rem 0;
+    border: 0;
+    border-top: 1px dashed var(--line);
+}
+
+    .choice-row:first-child {
+        padding-top: 0;
+        border-top: 0;
+    }
+
+    .choice-row > legend {
+        float: left;
+        width: auto;
+        margin: 0;
+        font-size: .9rem;
+    }
+
+.choice-pills {
+    display: flex;
+    gap: .5rem;
+}
+
+    .choice-pills label {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        min-height: 44px;
+        padding: 0 1rem;
+        font-size: .85rem;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        cursor: pointer;
+    }
+
+        .choice-pills label:has(input:checked) {
+            color: #fff;
+            background: var(--ink);
+            border-color: var(--ink);
+        }
+
+        .choice-pills label:has(input:focus-visible) {
+            outline: 3px solid var(--nude);
+            outline-offset: 2px;
+        }
+
+    .choice-pills input {
+        accent-color: var(--ink);
+    }
+
+    .choice-pills label:has(input:checked) input {
+        accent-color: #fff;
+    }
+
+.choice-error {
+    width: 100%;
+}
+
+.choice-notes {
+    padding-top: .9rem;
+    border-top: 1px dashed var(--line);
+}
+
+.request-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: .75rem;
+}
+
+    .request-actions .btn {
+        min-height: 44px;
+    }
+
+/* The summary on the right */
+.request-summary {
+    flex: 1 1 300px;
+    position: sticky;
+    top: 1rem;
+    padding: 1.4rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .request-summary h2 {
+        margin: 0 0 .9rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
+
+.summary-list {
+    margin: 0 0 .9rem;
+    padding: 0;
+    list-style: none;
+    font-size: .82rem;
+}
+
+    .summary-list li {
+        display: flex;
+        justify-content: space-between;
+        gap: .75rem;
+        padding: .5rem 0;
+        border-bottom: 1px dashed var(--line);
+    }
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+}
+
+/* ---------- Request sent ---------- */
+.sent-card {
+    max-width: 640px;
+    margin: 3rem auto;
+    padding: 2.5rem clamp(1.25rem, 5vw, 3rem);
+    text-align: center;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(60, 40, 25, .12);
+}
+
+    .sent-card h1 {
+        margin: 0 0 .5rem;
+        font-size: clamp(1.5rem, 3vw, 1.9rem);
+        font-weight: 700;
+        letter-spacing: -.02em;
+    }
+
+.sent-icon {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.1rem;
+    background: var(--ink);
+    border-radius: 50%;
+}
+
+.sent-summary,
+.sent-reference {
+    margin: 0 0 .4rem;
+    font-size: .85rem;
+    color: var(--muted);
+}
+
+    .sent-reference strong {
+        color: var(--ink);
+    }
+
+.sent-next {
+    margin-top: 1.75rem;
+    padding: 1.25rem 1.4rem;
+    text-align: left;
+    background: var(--beige);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .sent-next h2 {
+        margin: 0 0 .75rem;
+        font-size: .95rem;
+        font-weight: 700;
+    }
+
+    .sent-next ol {
+        display: grid;
+        gap: .75rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-size: .88rem;
+    }
+
+    .sent-next li {
+        display: flex;
+        gap: .75rem;
+    }
+
+.sent-actions {
+    justify-content: center;
+    margin-top: 1.75rem;
+}
+
+/* ---------- Portfolio details: items used ---------- */
+.items-used {
+    margin-top: 3rem;
+}
+
+.items-used-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.items-used-count {
+    font-size: .8rem;
+    color: var(--muted);
+}
+
+.items-used-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: .75rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+}
+
+.used-item {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    align-items: center;
+    gap: .75rem;
+    padding: .6rem .75rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+    /* Needed because display:grid would otherwise override the hidden attribute */
+    .used-item[hidden] {
+        display: none;
+    }
+
+.used-thumb {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    background: #d9d4cc;
+    border-radius: var(--radius);
+}
+
+.used-thumb--placeholder {
+    display: grid;
+    place-items: center;
+    font-size: .6rem;
+    color: var(--nude-ink);
+}
+
+.used-name {
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+.used-price {
+    font-size: .78rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.items-used-note {
+    margin: .75rem 0 0;
+    font-size: .85rem;
+}

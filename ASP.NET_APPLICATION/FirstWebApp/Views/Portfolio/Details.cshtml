@@ -57,6 +57,51 @@
     </div>
 </div>
 
+@if (Model.ItemsUsed.Any())
+{
+    const int initiallyShown = 5;
+    var total = Model.ItemsUsed.Count;
+
+    <section class="items-used" aria-labelledby="usedTitle">
+        <div class="items-used-head">
+            <h2 id="usedTitle" class="related-title">Items used at this event</h2>
+            <span class="items-used-count">@total @(total == 1 ? "item" : "items")</span>
+        </div>
+
+        <ul class="items-used-list" id="itemsUsedList">
+            @for (var i = 0; i < total; i++)
+            {
+                var item = Model.ItemsUsed[i];
+                <li class="used-item @(i >= initiallyShown ? "is-extra" : "")" hidden="@(i >= initiallyShown)">
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl" alt="" class="used-thumb" loading="lazy" />
+                    }
+                    else
+                    {
+                        <span class="used-thumb used-thumb--placeholder" aria-hidden="true">No image</span>
+                    }
+                    <span class="used-name">@item.Name</span>
+                    <span class="used-price">R @item.Price.ToString("N0") each</span>
+                </li>
+            }
+        </ul>
+
+        @if (total > initiallyShown)
+        {
+            <button type="button" class="btn btn-outline-dark btn-sm"
+                    data-toggle-items aria-controls="itemsUsedList" aria-expanded="false"
+                    data-label="View all @total items">
+                View all @total items
+            </button>
+        }
+
+        <p class="items-used-note">
+            Like this look? <a asp-controller="Catalogue" asp-action="Products">Find these items in the catalogue</a>.
+        </p>
+    </section>
+}
+
 @if (Model.Related.Any())
 {
     <section class="related" aria-labelledby="relatedTitle">

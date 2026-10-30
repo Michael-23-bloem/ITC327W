@@ -28,6 +28,21 @@ namespace FirstWebApp.Models
         [Column("notes")]
         public string? Notes { get; set; }
 
+        [Column("theme")]
+        public string? Theme { get; set; }
+
+        [Column("setup_required")]
+        public bool? SetupRequired { get; set; }
+
+        [Column("venue_setting")]
+        public string? VenueSetting { get; set; }   // "indoors" or "outdoors"
+
+        [Column("delivery_required")]
+        public bool? DeliveryRequired { get; set; }
+
+        [Column("budget_range")]
+        public string? BudgetRange { get; set; }
+
         [Column("status")]
         public string Status { get; set; } = string.Empty;
 
