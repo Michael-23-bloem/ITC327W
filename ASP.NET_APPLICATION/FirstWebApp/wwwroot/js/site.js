@@ -72,3 +72,42 @@ document.addEventListener("click", function (e) {
     button.setAttribute("aria-expanded", expand ? "true" : "false");
     button.textContent = expand ? "Show fewer" : button.dataset.label;
 });
+
+// Floating Décor Assistant (placeholder): open and close the panel.
+// The floating button toggles it; any element with data-assistant-open opens it.
+(function () {
+    const panel = document.getElementById("assistantPanel");
+    const toggle = document.querySelector("[data-assistant-toggle]");
+    if (!panel || !toggle) return;
+
+    const closeButton = panel.querySelector("[data-assistant-close]");
+    let returnFocusTo = toggle;
+
+    function setOpen(open, opener) {
+        panel.hidden = !open;
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+
+        if (open) {
+            returnFocusTo = opener || toggle;
+            closeButton?.focus();
+        } else {
+            returnFocusTo?.focus();
+        }
+    }
+
+    document.addEventListener("click", e => {
+        if (e.target.closest("[data-assistant-toggle]")) {
+            setOpen(panel.hidden, toggle);
+            return;
+        }
+
+        const opener = e.target.closest("[data-assistant-open]");
+        if (opener) setOpen(true, opener);
+    });
+
+    closeButton?.addEventListener("click", () => setOpen(false));
+
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && !panel.hidden) setOpen(false);
+    });
+})();

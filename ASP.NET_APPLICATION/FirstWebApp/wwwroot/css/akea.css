@@ -1305,85 +1305,6 @@ body:has(dialog[open]) {
     background: var(--ink);
 }
 
-/* ---------- Enquiries: a conversation with a nude accent ---------- */
-.page-enquiries .page-head {
-    background: #fff;
-    border: 1px solid var(--line);
-    border-left: 6px solid var(--nude);
-}
-
-.enquiry-heading {
-    margin: 0 0 1rem;
-    font-size: 1.05rem;
-    font-weight: 700;
-}
-
-.enquiry-form {
-    position: sticky;
-    top: 1rem;
-    padding: 1.5rem;
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-}
-
-.enquiry-list {
-    display: grid;
-    gap: 1rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.enquiry {
-    padding: 1.1rem 1.25rem;
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-}
-
-.enquiry-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: .6rem;
-    font-size: .75rem;
-    color: var(--muted);
-}
-
-.status-badge {
-    padding: .15rem .6rem;
-    font-size: .7rem;
-    font-weight: 600;
-    border-radius: 999px;
-}
-
-.status-waiting {
-    color: var(--nude-ink);
-    background: var(--beige-deep);
-}
-
-.status-answered {
-    color: #fff;
-    background: var(--ink);
-}
-
-/* Keep the customer's line breaks */
-.enquiry-text {
-    margin: 0;
-    font-size: .9rem;
-    white-space: pre-line;
-}
-
-.enquiry-reply {
-    margin-top: .9rem;
-    padding: .8rem 1rem;
-    background: var(--beige);
-    border-left: 3px solid var(--nude);
-    border-radius: 0 var(--radius) var(--radius) 0;
-}
-
 /* ---------- Estimate page: request a quotation ---------- */
 .request-cta {
     display: flex;
@@ -1762,4 +1683,198 @@ body:has(dialog[open]) {
 .items-used-note {
     margin: .75rem 0 0;
     font-size: .85rem;
+}
+
+/* ---------- Floating contact: assistant + WhatsApp ---------- */
+.floating-contact {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .8rem;
+}
+
+/* A label pill and a round button, clickable as one */
+.akea .fab-row {
+    display: inline-flex;
+    align-items: center;
+    gap: .65rem;
+    padding: 0;
+    font: inherit;
+    color: var(--ink);
+    text-decoration: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+    .akea .fab-row:hover {
+        color: var(--ink);
+    }
+
+    .fab-row:focus-visible {
+        outline: none;
+    }
+
+        .fab-row:focus-visible .fab-circle {
+            outline: 3px solid var(--nude);
+            outline-offset: 3px;
+        }
+
+.fab-label {
+    padding: .6rem .95rem;
+    font-size: .88rem;
+    white-space: nowrap;
+    background: #f4f2ef;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(22, 20, 18, .1);
+}
+
+.fab-circle {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 58px;
+    height: 58px;
+    color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 8px 22px rgba(22, 20, 18, .25);
+    transition: transform .12s, background-color .12s;
+}
+
+.fab-row:hover .fab-circle {
+    transform: translateY(-2px);
+}
+
+.fab-assistant {
+    background: var(--ink);
+}
+
+.fab-row[aria-expanded="true"] .fab-assistant {
+    color: var(--nude-ink);
+    background: var(--nude);
+}
+
+/* Green, dark enough for the white icon to stand out */
+.fab-whatsapp {
+    background: #1f9d55;
+}
+
+.fab-row:hover .fab-whatsapp {
+    background: #188247;
+}
+
+/* On small screens show only the round buttons
+   (the labels stay available to screen readers) */
+@media (max-width: 480px) {
+    .fab-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+    }
+}
+
+/* The assistant panel */
+.assistant-panel {
+    width: min(92vw, 340px);
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(22, 20, 18, .2);
+}
+
+.assistant-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .85rem 1rem;
+    color: #fff;
+    background: var(--ink);
+}
+
+    .assistant-head h2 {
+        margin: 0;
+        font-size: .95rem;
+        font-weight: 700;
+    }
+
+.assistant-close {
+    width: 32px;
+    height: 32px;
+    font-size: 1.3rem;
+    line-height: 1;
+    color: #fff;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, .4);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+    .assistant-close:focus-visible {
+        outline: 3px solid var(--nude);
+        outline-offset: 2px;
+    }
+
+.assistant-body {
+    display: grid;
+    gap: .6rem;
+    padding: 1rem;
+    background: var(--beige);
+}
+
+.assistant-bubble {
+    margin: 0;
+    padding: .65rem .8rem;
+    font-size: .85rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px 12px 12px 4px;
+}
+
+/* Keep the footer text clear of the floating buttons */
+.site-footer {
+    padding-bottom: 5.5rem;
+}
+
+@media print {
+    .floating-contact {
+        display: none;
+    }
+}
+
+/* A button that looks like a text link (e.g. "Ask our assistant →") */
+.link-button {
+    padding: 0;
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+    .link-button:hover {
+        color: var(--nude-ink);
+    }
+
+    .link-button:focus-visible {
+        outline: 3px solid var(--nude);
+        outline-offset: 2px;
+    }
+
+.about-feature .link-button {
+    margin-top: auto;
+    font-size: .8rem;
 }
