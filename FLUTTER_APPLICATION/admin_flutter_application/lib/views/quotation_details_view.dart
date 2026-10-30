@@ -122,6 +122,87 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
       );
     }
   }
+    Future<void> _confirmPayment(BuildContext context, String orderId) async {
+    bool paymentReceived = false;
+    bool referenceMatches = false;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            return AlertDialog(
+              title: const Text('Validate Payment'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Please confirm both of the following before validating this deposit:',
+                  ),
+                  const SizedBox(height: 16),
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: paymentReceived,
+                    onChanged: (value) {
+                      setDialogState(() => paymentReceived = value ?? false);
+                    },
+                    title: const Text(
+                      'The payment reflects in the business bank account.',
+                    ),
+                  ),
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: referenceMatches,
+                    onChanged: (value) {
+                      setDialogState(() => referenceMatches = value ?? false);
+                    },
+                    title: const Text(
+                      'The EFT reference used matches the customer\'s name on their order details.',
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: (paymentReceived && referenceMatches)
+                      ? () => Navigator.pop(dialogContext, true)
+                      : null,
+                  child: const Text('Confirm & Validate'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final orderVm = context.read<OrderViewModel>();
+
+    try {
+      await orderVm.validateEft(orderId);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Payment validated successfully.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
 
   Color _statusColor(String status) {
     final value = status.toLowerCase();
@@ -621,9 +702,8 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                       ),
                     ),
 
-                    OutlinedButton.icon(
-                      onPressed: () =>
-                          context.push('/quotations/${o.id}/validate'),
+                                        OutlinedButton.icon(
+                      onPressed: () => _confirmPayment(context, o.id),
                       icon: const Icon(Icons.payments_outlined),
                       label: const Text('Validate Payment'),
                       style: OutlinedButton.styleFrom(
