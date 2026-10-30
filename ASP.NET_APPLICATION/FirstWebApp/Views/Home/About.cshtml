@@ -1,0 +1,103 @@
+
+@{
+    ViewData["Title"] = "About us";
+    ViewData["BodyClass"] = "page-info page-about";
+}
+
+<header class="page-head">
+    <p class="eyebrow">About AkeaEvents</p>
+    <h1>Creating beautiful moments, one event at a time</h1>
+    <p class="page-lead">
+        At AkeaEvents, we help bring your event vision to life through thoughtfully planned décor and event styling.
+        Whether you're planning a special celebration or a memorable gathering, our goal is to help you create an
+        atmosphere that reflects your style and makes your occasion unforgettable.
+    </p>
+</header>
+
+<div class="about-page">
+    <p class="about-intro">
+        We believe every event deserves attention to detail, careful preparation, and a décor setup that brings people together.
+    </p>
+
+    <section class="about-block" aria-labelledby="whoTitle">
+        <h2 id="whoTitle">Who we are</h2>
+        <p>
+            AkeaEvents is an event décor business managed by a dedicated team passionate about helping clients bring
+            their ideas to life. From selecting the right décor elements to coordinating the details of your event,
+            we work with you to understand your needs and create a setup suited to your occasion.
+        </p>
+        <p>
+            Our services can include décor furniture, chairs, tables, tents, floral arrangements, and complete event
+            décor solutions tailored to your requirements.
+        </p>
+    </section>
+
+    <section class="about-block" aria-labelledby="missionTitle">
+        <h2 id="missionTitle">Our mission</h2>
+        <p>
+            Our mission is to make the event décor planning process simpler and more convenient for our clients,
+            while helping them explore creative possibilities for their special occasions.
+        </p>
+        <p>
+            We aim to provide a clear starting point for your planning journey, allowing you to explore previous
+            work, consider available options, and estimate costs before making an enquiry.
+        </p>
+    </section>
+
+    <section class="about-block" aria-labelledby="easierTitle">
+        <h2 id="easierTitle">Making event planning easier</h2>
+        <p>
+            Planning an event involves many decisions. We want to make the décor process easier by giving you
+            the tools to explore your options at your own pace.
+        </p>
+
+        <ul class="about-features">
+            <li class="about-feature">
+                <h3>Explore our portfolio</h3>
+                <p>Browse previous décor projects to discover styles and ideas that inspire you.</p>
+                <a asp-controller="Portfolio" asp-action="Index">View our work &rarr;</a>
+            </li>
+            <li class="about-feature">
+                <h3>Estimate your costs</h3>
+                <p>Use our self-service estimator to see an estimated cost based on your event requirements.</p>
+                <a asp-controller="Catalogue" asp-action="Products">Start an estimate &rarr;</a>
+            </li>
+            <li class="about-feature">
+                <h3>Make an enquiry</h3>
+                <p>Tell us about your event and the services you are interested in.</p>
+                <a asp-controller="Enquiries" asp-action="Index">Send an enquiry &rarr;</a>
+            </li>
+            <li class="about-feature">
+                <h3>Plan with confidence</h3>
+                <p>Use the information on our website to decide which options suit your needs and budget.</p>
+                <a asp-controller="Catalogue" asp-action="Packages">See our packages &rarr;</a>
+            </li>
+        </ul>
+    </section>
+
+    <section class="about-block" aria-labelledby="approachTitle">
+        <h2 id="approachTitle">Our approach</h2>
+        <p>
+            Every event begins with an idea. We focus on understanding your requirements, considering the details
+            that matter, and working with you as your plans take shape.
+        </p>
+        <p>
+            From your initial enquiry to the confirmation of your décor arrangements, we aim to make communication
+            clearer and the planning process more organised.
+        </p>
+    </section>
+
+    <section class="about-cta" aria-labelledby="ctaTitle">
+        <h2 id="ctaTitle">Let's bring your vision to life</h2>
+        <p>
+            Have an event in mind? Explore our portfolio, try our cost estimator, or send us an enquiry to take
+            the next step towards your event.
+        </p>
+        <div class="btn-row">
+            <a asp-controller="Portfolio" asp-action="Index" class="btn btn-outline-dark">Explore our portfolio</a>
+            <a asp-controller="Catalogue" asp-action="Products" class="btn btn-dark">Get an instant estimate</a>
+            <a asp-controller="Enquiries" asp-action="Index" class="btn btn-outline-dark">Send an enquiry</a>
+        </div>
+        <p class="about-tagline">Your vision. Your occasion. Let's make it memorable.</p>
+    </section>
+</div>

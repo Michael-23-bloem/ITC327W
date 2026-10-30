@@ -29,12 +29,6 @@
                 </div>
             }
 
-            @* OPTIONAL: a video slide. Put the file in wwwroot/videos/ and uncomment.
-               If you add one, also add a dot for it below.
-            <div class="slide tone-1">
-                <video src="~/videos/hero.mp4" autoplay muted loop playsinline preload="metadata"></video>
-            </div>
-            *@
         </div>
 
         <div class="hero-content">
@@ -59,9 +53,7 @@
         <div class="wrap about-grid">
             <div class="media" data-label="Team or studio photo">
                 <img src="@Url.Content("~/" + Model.AboutImage)" alt="The AkeaEvents team" loading="lazy" onerror="this.remove()" />
-                @* OPTIONAL: use a video instead of the photo
-                <video src="~/videos/about.mp4" controls playsinline preload="metadata" poster="~/images/about/team.jpg"></video>
-                *@
+               
             </div>
             <div>
                 <p class="eyebrow">About AkeaEvents</p>

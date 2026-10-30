@@ -43,7 +43,7 @@
         opacity: 1;
     }
 
-    .slide img, .slide video {
+    .slide img{
         display: block;
         width: 100%;
         height: 100%;
@@ -57,9 +57,9 @@
     }
 
 /* Placeholder tones shown until real photos are added */
-.tone-0 { background: linear-gradient(135deg, #cdb59f, #efe6da); }
-.tone-1 { background: linear-gradient(135deg, #bfae9c, #e6d8c7); }
-.tone-2 { background: linear-gradient(135deg, #d8b4a0, #f3ebe0); }
+/*.tone-0 { background: linear-gradient(135deg, #cdb59f, #efe6da); }*/
+/*.tone-1 { background: linear-gradient(135deg, #bfae9c, #e6d8c7); }*/
+/*.tone-2 { background: linear-gradient(135deg, #d8b4a0, #f3ebe0); }*/
 
 .hero::after { /* darkens the bottom so the text is readable */
     content: "";
