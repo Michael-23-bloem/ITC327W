@@ -32,22 +32,38 @@ class _BookingsViewState extends State<BookingsView> {
     final target = _normalize(day);
     return allBookings.where((o) => _normalize(o.eventDate) == target).toList();
   }
+  
 
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<OrderViewModel>();
     final bookings = vm.bookings;
-    final selected = _selectedDay ?? _focusedDay;
-    final selectedEvents = _eventsForDay(selected, bookings);
+    ///final selected = _selectedDay ?? _focusedDay;
+    //final selectedEvents = _eventsForDay(selected, bookings);
 
-    return AkeaPage(
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(32, 28, 32, 32),
-        children: [
-          AkeaPageHeader(
+    return Scaffold(
+       appBar: AppBar(
+  backgroundColor: const Color(0xFFF7F1E8),
+  elevation: 0,
+  leading: IconButton(
+    icon: const Icon(
+      Icons.arrow_back,
+      color: Color(0xFF51483F),
+    ),
+    onPressed: () => context.pop(),
+  ),
+  title:   AkeaPageHeader(
             title: 'Bookings',
             subtitle: '${_monthName(_focusedDay)} ${_focusedDay.year}',
           ),
+    
+  ),
+
+     body: AkeaPage(
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(32, 28, 32, 32),
+        children: [
+         
           if (vm.loading && bookings.isEmpty)
             const Padding(
               padding: EdgeInsets.only(top: 80),
@@ -56,14 +72,15 @@ class _BookingsViewState extends State<BookingsView> {
           else
             LayoutBuilder(
               builder: (context, constraints) {
-                final stacked = constraints.maxWidth < 980;
+                //final stacked = constraints.maxWidth < 980;
                 final calendar = AkeaCard(
                   child: TableCalendar<Order>(
                     firstDay: DateTime.utc(2020, 1, 1),
                     lastDay: DateTime.utc(2030, 12, 31),
                     focusedDay: _focusedDay,
                     selectedDayPredicate: (day) =>
-                        _selectedDay != null && _normalize(day) == _normalize(_selectedDay!),
+                        _selectedDay != null &&
+                        _normalize(day) == _normalize(_selectedDay!),
                     eventLoader: (day) => _eventsForDay(day, bookings),
                     onDaySelected: (selectedDay, focusedDay) {
                       setState(() {
@@ -71,7 +88,8 @@ class _BookingsViewState extends State<BookingsView> {
                         _focusedDay = focusedDay;
                       });
                     },
-                    onPageChanged: (focused) => setState(() => _focusedDay = focused),
+                    onPageChanged: (focused) =>
+                        setState(() => _focusedDay = focused),
                     headerStyle: const HeaderStyle(
                       titleCentered: true,
                       formatButtonVisible: false,
@@ -84,7 +102,10 @@ class _BookingsViewState extends State<BookingsView> {
                         color: AkeaColors.cream,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      todayTextStyle: const TextStyle(color: AkeaColors.ink, fontWeight: FontWeight.w700),
+                      todayTextStyle: const TextStyle(
+                        color: AkeaColors.ink,
+                        fontWeight: FontWeight.w700,
+                      ),
                       selectedDecoration: BoxDecoration(
                         color: AkeaColors.purple,
                         borderRadius: BorderRadius.circular(12),
@@ -97,7 +118,9 @@ class _BookingsViewState extends State<BookingsView> {
                         color: AkeaColors.cream,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      outsideDecoration: const BoxDecoration(color: Colors.transparent),
+                      outsideDecoration: const BoxDecoration(
+                        color: Colors.transparent,
+                      ),
                       markerDecoration: const BoxDecoration(
                         color: AkeaColors.gold,
                         shape: BoxShape.circle,
@@ -118,7 +141,9 @@ class _BookingsViewState extends State<BookingsView> {
                             width: 6,
                             height: 6,
                             decoration: BoxDecoration(
-                              color: awaiting ? AkeaColors.gold : const Color(0xFF2F8A4A),
+                              color: awaiting
+                                  ? AkeaColors.gold
+                                  : const Color(0xFF2F8A4A),
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -127,28 +152,59 @@ class _BookingsViewState extends State<BookingsView> {
                     ),
                   ),
                 );
-                final side = AkeaCard(
+               /* final side = AkeaCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(akeaWeekdayDate(selected), style: Theme.of(context).textTheme.titleLarge),
+                      Text(
+                        akeaWeekdayDate(selected),
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                       const SizedBox(height: 16),
                       if (selectedEvents.isEmpty)
-                        const Text('No bookings on this day.', style: TextStyle(color: AkeaColors.muted))
+                        const Text(
+                          'No bookings on this day.',
+                          style: TextStyle(color: AkeaColors.muted),
+                        )
                       else
                         ...selectedEvents.map((o) => _DayBooking(order: o)),
                       const SizedBox(height: 16),
                       const Row(
                         children: [
-                          _LegendDot(color: Color(0xFF2F8A4A), label: 'Confirmed'),
+                          _LegendDot(
+                            color: Color(0xFF2F8A4A),
+                            label: 'Confirmed',
+                          ),
                           SizedBox(width: 16),
-                          _LegendDot(color: AkeaColors.gold, label: 'Awaiting deposit'),
+                          _LegendDot(
+                            color: AkeaColors.gold,
+                            label: 'Awaiting deposit',
+                          ),
                         ],
                       ),
                     ],
                   ),
+                );*/
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    calendar,
+                    const SizedBox(height: 24),
+
+                    // All bookings, regardless of the selected calendar day
+                    _AllBookings(bookings: bookings),
+                  ],
                 );
-                if (stacked) {
+                /*return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [calendar, 
+                  const SizedBox(height: 20), 
+
+                  _AllBookings(bookings: bookings),
+                  ],
+                );*/
+                /*if (stacked) {
                   return Column(children: [calendar, const SizedBox(height: 16), side]);
                 }
                 return Row(
@@ -158,18 +214,28 @@ class _BookingsViewState extends State<BookingsView> {
                     const SizedBox(width: 16),
                     Expanded(flex: 2, child: side),
                   ],
-                );
+                );*/
               },
             ),
         ],
       ),
-    );
+    ),);
   }
 
   String _monthName(DateTime d) {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return months[d.month - 1];
   }
@@ -181,8 +247,10 @@ class _DayBooking extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final awaiting = order.status == 'quotation_approved' ||
-        order.status.toLowerCase().contains('deposit');
+    /* final awaiting =
+        order.status == 'quotation_approved' ||
+        order.status.toLowerCase().contains('deposit');*/
+    final isPreparing = order.status == 'preparations_begin';
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Container(
@@ -197,7 +265,10 @@ class _DayBooking extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(order.displayName, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  child: Text(
+                    order.displayName,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
                 AkeaStatusChip.forStatus(order.status),
               ],
@@ -217,19 +288,29 @@ class _DayBooking extends StatelessWidget {
             ),
             Row(
               children: [
-                const Text('Estimated total', style: TextStyle(color: AkeaColors.muted)),
+                const Text(
+                  'Estimated total',
+                  style: TextStyle(color: AkeaColors.muted),
+                ),
                 const Spacer(),
                 Text(akeaMoney(order.computedTotal)),
               ],
             ),
             const SizedBox(height: 12),
             AkeaButton(
+              label: isPreparing ? 'Open booking' : 'View booking',
+              expand: true,
+              onPressed: () => context.go('/bookings/${order.id}'),
+            ),
+            /*AkeaButton(
               label: awaiting ? 'Confirm deposit' : 'Open booking',
               expand: true,
               onPressed: () => context.go(
-                awaiting ? '/quotations/${order.id}/validate' : '/bookings/${order.id}',
+                awaiting
+                    ? '/quotations/${order.id}/validate'
+                    : '/bookings/${order.id}',
               ),
-            ),
+            ),*/
           ],
         ),
       ),
@@ -238,7 +319,11 @@ class _DayBooking extends StatelessWidget {
 }
 
 class _LegendDot extends StatelessWidget {
-  const _LegendDot({required this.color, required this.label});
+  const _LegendDot({
+    required this.color,
+    required this.label,
+  });
+
   final Color color;
   final String label;
 
@@ -246,10 +331,191 @@ class _LegendDot extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
         const SizedBox(width: 6),
-        Text(label, style: const TextStyle(fontSize: 12, color: AkeaColors.muted)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: AkeaColors.muted,
+          ),
+        ),
       ],
     );
   }
 }
+
+// Keep this class separate from _LegendDot.
+
+class _AllBookings extends StatelessWidget {
+  final List<Order> bookings;
+
+  const _AllBookings({
+    required this.bookings,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (bookings.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Center(
+          child: Text(
+            'No active bookings yet.',
+            style: TextStyle(
+              color: AkeaColors.muted,
+              fontSize: 13,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: bookings.length,
+      separatorBuilder: (context, index) =>
+          const SizedBox(height: 10),
+      itemBuilder: (context, index) {
+        final order = bookings[index];
+
+        return Material(
+          color: AkeaColors.cream,
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () {
+              context.go('/quotations/${order.id}');
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          order.displayName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${order.eventType} · ${order.venue ?? 'Venue TBC'}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AkeaColors.muted,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  AkeaStatusChip.forStatus(order.status),
+                  const SizedBox(width: 8),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: AkeaColors.muted,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+/*class _AllBookings extends StatelessWidget {
+  const _AllBookings({required this.bookings});
+
+  final List<Order> bookings;
+
+  @override
+  Widget build(BuildContext context) {
+    final allBookings = [...bookings]
+      ..sort((a, b) => b.eventDate.compareTo(a.eventDate));
+
+    if (allBookings.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: Text(
+            'No quotations available.',
+            style: TextStyle(color: AkeaColors.muted),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: allBookings.map((order) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Material(
+            color: AkeaColors.cream,
+            borderRadius: BorderRadius.circular(14),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () {
+                context.go('/quotations/${order.id}');
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            order.displayName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${order.eventType} · ${order.venue ?? 'Venue TBC'}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AkeaColors.muted,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    AkeaStatusChip.forStatus(order.status),
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.chevron_right,
+                      color: AkeaColors.muted,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+*/
+
+

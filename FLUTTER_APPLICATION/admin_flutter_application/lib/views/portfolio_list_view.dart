@@ -25,7 +25,14 @@ class _PortfolioListViewState extends State<PortfolioListView> {
   Widget build(BuildContext context) {
     final vm = context.watch<PortfolioViewModel>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Portfolio')),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back to Dashboard',
+          onPressed: () => context.go('/dashboard'),
+        ),
+        title: const Text('Portfolio'),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/portfolio/upload'),
         child: const Icon(Icons.add),
@@ -33,59 +40,61 @@ class _PortfolioListViewState extends State<PortfolioListView> {
       body: vm.loading
           ? const Center(child: CircularProgressIndicator())
           : vm.error != null
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(vm.error!),
-                      const SizedBox(height: 12),
-                      TextButton(onPressed: vm.load, child: const Text('Retry')),
-                    ],
-                  ),
-                )
-              : vm.events.isEmpty
-                  ? const Center(child: Text('No portfolio events yet'))
-                  : GridView.builder(
-                      padding: const EdgeInsets.all(12),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                      ),
-                      itemCount: vm.events.length,
-                      itemBuilder: (_, i) {
-                        final event = vm.events[i];
-                        return GestureDetector(
-                          onTap: () => _showPortfolioSheet(context, event),
-                          child: Card(
-                            clipBehavior: Clip.antiAlias,
-                            child: Column(
-                              children: [
-                                Expanded(
-                                  child: event.imageUrl.isEmpty
-                                      ? const Center(child: Icon(Icons.image))
-                                      : Image.network(
-                                          event.imageUrl,
-                                          width: double.infinity,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) =>
-                                              const Icon(Icons.image),
-                                        ),
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(vm.error!),
+                  const SizedBox(height: 12),
+                  TextButton(onPressed: vm.load, child: const Text('Retry')),
+                ],
+              ),
+            )
+          : vm.events.isEmpty
+          ? const Center(child: Text('No portfolio events yet'))
+          : GridView.builder(
+              padding: const EdgeInsets.all(12),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+              ),
+              itemCount: vm.events.length,
+              itemBuilder: (_, i) {
+                final event = vm.events[i];
+                return GestureDetector(
+                  onTap: () => _showPortfolioSheet(context, event),
+                  child: Card(
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: event.imageUrl.isEmpty
+                              ? const Center(child: Icon(Icons.image))
+                              : Image.network(
+                                  event.imageUrl,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(Icons.image),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Text(
-                                    event.name?.isNotEmpty == true ? event.name! : 'Untitled',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Text(
+                            event.name?.isNotEmpty == true
+                                ? event.name!
+                                : 'Untitled',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
+                  ),
+                );
+              },
+            ),
     );
   }
 
@@ -99,7 +108,10 @@ class _PortfolioListViewState extends State<PortfolioListView> {
       builder: (ctx) => FutureBuilder<Map<String, dynamic>>(
         future: vm.loadDetail(p.id),
         builder: (ctx, snapshot) {
-          final images = [p.imageUrl, ...(snapshot.data?['images'] as List<String>? ?? [])];
+          final images = [
+            p.imageUrl,
+            ...(snapshot.data?['images'] as List<String>? ?? []),
+          ];
           final items = snapshot.data?['items'] as List<String>? ?? [];
 
           return Container(
@@ -118,7 +130,10 @@ class _PortfolioListViewState extends State<PortfolioListView> {
                       width: 40,
                       height: 4,
                       margin: const EdgeInsets.only(bottom: 16),
-                      decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(2)),
+                      decoration: BoxDecoration(
+                        color: Colors.black12,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
                   SizedBox(
@@ -127,10 +142,15 @@ class _PortfolioListViewState extends State<PortfolioListView> {
                         ? const Center(child: CircularProgressIndicator())
                         : PageView(
                             children: images
-                                .map((url) => ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: Image.network(url, fit: BoxFit.cover),
-                                    ))
+                                .map(
+                                  (url) => ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Image.network(
+                                      url,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                )
                                 .toList(),
                           ),
                   ),
@@ -141,21 +161,35 @@ class _PortfolioListViewState extends State<PortfolioListView> {
                   ),
                   const SizedBox(height: 16),
                   if (p.category != null)
-                    Text(p.category!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(
+                      p.category!,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                   if (p.price != null)
-                    Text('R${p.price!.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16)),
+                    Text(
+                      'R${p.price!.toStringAsFixed(2)}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
                   if (p.description != null) ...[
                     const SizedBox(height: 8),
                     Text(p.description!),
                   ],
                   if (items.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    const Text('Items used', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Items used',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: items.map((name) => Chip(label: Text(name))).toList(),
+                      children: items
+                          .map((name) => Chip(label: Text(name)))
+                          .toList(),
                     ),
                   ],
                   const SizedBox(height: 24),
@@ -165,12 +199,16 @@ class _PortfolioListViewState extends State<PortfolioListView> {
                       onPressed: () async {
                         Navigator.pop(ctx); // close the sheet first
                         await Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => PortfolioEditView(portfolio: p)),
+                          MaterialPageRoute(
+                            builder: (_) => PortfolioEditView(portfolio: p),
+                          ),
                         );
                       },
                       icon: const Icon(Icons.edit_outlined),
                       label: const Text('Edit'),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -182,15 +220,21 @@ class _PortfolioListViewState extends State<PortfolioListView> {
                           context: ctx,
                           builder: (dialogCtx) => AlertDialog(
                             title: const Text('Delete this item?'),
-                            content: const Text('This will permanently remove it and its photos.'),
+                            content: const Text(
+                              'This will permanently remove it and its photos.',
+                            ),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(dialogCtx, false),
+                                onPressed: () =>
+                                    Navigator.pop(dialogCtx, false),
                                 child: const Text('Cancel'),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(dialogCtx, true),
-                                child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                                child: const Text(
+                                  'Delete',
+                                  style: TextStyle(color: Colors.red),
+                                ),
                               ),
                             ],
                           ),
@@ -209,7 +253,10 @@ class _PortfolioListViewState extends State<PortfolioListView> {
                         }
                       },
                       icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      label: const Text('Delete', style: TextStyle(color: Colors.red)),
+                      label: const Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.red),
+                      ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.red),
                         padding: const EdgeInsets.symmetric(vertical: 12),

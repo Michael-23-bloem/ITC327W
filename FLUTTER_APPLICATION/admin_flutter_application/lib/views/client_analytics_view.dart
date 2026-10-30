@@ -37,7 +37,34 @@ class _ClientAnalyticsViewState extends State<ClientAnalyticsView> {
       child: Consumer<AnalyticsViewModel>(
         builder: (context, vm, _) {
           return Scaffold(
-            backgroundColor: AkeaColors.bg,
+            appBar: AppBar(
+              backgroundColor: AkeaColors.card,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: 'Back to Dashboard',
+                onPressed: () => context.go('/dashboard'),
+              ),
+              title: AkeaPageHeader(
+                title: 'Client analytics',
+                subtitle: 'Deals, clients and confirmed revenue',
+                actions: [
+                  TextButton(
+                    onPressed: () => context.go('/bookings'),
+                    child: Text(
+                      'Calendar',
+                      style: TextStyle(
+                        color: AkeaColors.plum,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // backgroundColor: AkeaColors.bg,
             body: SafeArea(
               child: vm.loading && vm.monthlyDealCounts.isEmpty
                   ? const Center(child: CircularProgressIndicator())
@@ -48,11 +75,17 @@ class _ClientAnalyticsViewState extends State<ClientAnalyticsView> {
                           onRefresh: vm.load,
                           child: ListView(
                             physics: const AlwaysScrollableScrollPhysics(),
-                            padding: EdgeInsets.fromLTRB(wide ? 32 : 20, 20, wide ? 32 : 20, 24),
+                            padding: EdgeInsets.fromLTRB(
+                              wide ? 32 : 20,
+                              20,
+                              wide ? 32 : 20,
+                              24,
+                            ),
                             children: [
-                              AkeaPageHeader(
+                             /* AkeaPageHeader(
                                 title: 'Client analytics',
-                                subtitle: 'Deals, clients and confirmed revenue',
+                                subtitle:
+                                    'Deals, clients and confirmed revenue',
                                 actions: [
                                   TextButton(
                                     onPressed: () => context.go('/bookings'),
@@ -66,10 +99,15 @@ class _ClientAnalyticsViewState extends State<ClientAnalyticsView> {
                                     ),
                                   ),
                                 ],
-                              ),
+                              ),*/
                               if (vm.error != null) ...[
                                 const SizedBox(height: 12),
-                                Text(vm.error!, style: const TextStyle(color: Colors.redAccent)),
+                                Text(
+                                  vm.error!,
+                                  style: const TextStyle(
+                                    color: Colors.redAccent,
+                                  ),
+                                ),
                               ],
                               const SizedBox(height: 20),
                               if (wide)
@@ -103,9 +141,16 @@ class _NarrowLayout extends StatelessWidget {
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _MiniStat(label: 'Clients', value: '${vm.uniqueClients}')),
+            Expanded(
+              child: _MiniStat(label: 'Clients', value: '${vm.uniqueClients}'),
+            ),
             const SizedBox(width: 12),
-            Expanded(child: _MiniStat(label: 'Confirmed', value: _formatRand(vm.confirmedRevenue))),
+            Expanded(
+              child: _MiniStat(
+                label: 'Confirmed',
+                value: _formatRand(vm.confirmedRevenue),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -129,20 +174,37 @@ class _WideLayout extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: _StatCard(label: 'Ongoing deals', value: '${vm.ongoingDeals}')),
+            Expanded(
+              child: _StatCard(
+                label: 'Ongoing deals',
+                value: '${vm.ongoingDeals}',
+              ),
+            ),
             const SizedBox(width: 16),
-            Expanded(child: _StatCard(label: 'Past Deals', value: '${vm.pastDeals}')),
+            Expanded(
+              child: _StatCard(label: 'Past Deals', value: '${vm.pastDeals}'),
+            ),
             const SizedBox(width: 16),
-            Expanded(child: _MiniStat(label: 'Clients', value: '${vm.uniqueClients}')),
+            Expanded(
+              child: _MiniStat(label: 'Clients', value: '${vm.uniqueClients}'),
+            ),
             const SizedBox(width: 16),
-            Expanded(child: _MiniStat(label: 'Confirmed', value: _formatRand(vm.confirmedRevenue))),
+            Expanded(
+              child: _MiniStat(
+                label: 'Confirmed',
+                value: _formatRand(vm.confirmedRevenue),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 20),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(flex: 3, child: _ChartCard(counts: vm.monthlyDealCounts, height: 280)),
+            Expanded(
+              flex: 3,
+              child: _ChartCard(counts: vm.monthlyDealCounts, height: 280),
+            ),
             const SizedBox(width: 16),
             Expanded(
               flex: 2,
@@ -183,11 +245,16 @@ class _StatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 15, color: Colors.black87)),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 15, color: Colors.black87),
+          ),
           const SizedBox(height: 6),
           Text(
             value,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 28),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineMedium?.copyWith(fontSize: 28),
           ),
         ],
       ),
@@ -209,9 +276,15 @@ class _MiniStat extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 13, color: Colors.black54)),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 13, color: Colors.black54),
+          ),
           const SizedBox(height: 6),
-          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
@@ -237,11 +310,19 @@ class _ChartCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Deals by month', style: TextStyle(fontWeight: FontWeight.w600)),
+          const Text(
+            'Deals by month',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: 12),
           Expanded(
             child: counts.every((c) => c.count == 0)
-                ? const Center(child: Text('No data yet', style: TextStyle(color: Colors.black54)))
+                ? const Center(
+                    child: Text(
+                      'No data yet',
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                  )
                 : Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -256,18 +337,27 @@ class _ChartCard extends StatelessWidget {
                                   child: Align(
                                     alignment: Alignment.bottomCenter,
                                     child: FractionallySizedBox(
-                                      heightFactor: (month.count / maxVal).clamp(0.04, 1.0),
+                                      heightFactor: (month.count / maxVal)
+                                          .clamp(0.04, 1.0),
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: const Color(0xFFA9A9A9),
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(height: 6),
-                                Text(month.label, style: const TextStyle(fontSize: 10, color: Colors.black54)),
+                                Text(
+                                  month.label,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.black54,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -294,10 +384,16 @@ class _EventTypesCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Event types', style: TextStyle(fontWeight: FontWeight.w600)),
+          const Text(
+            'Event types',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: 12),
           if (types.isEmpty)
-            const Text('No event types yet', style: TextStyle(color: Colors.black54))
+            const Text(
+              'No event types yet',
+              style: TextStyle(color: Colors.black54),
+            )
           else
             for (final type in types)
               Padding(
@@ -305,7 +401,10 @@ class _EventTypesCard extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(child: Text(type.type)),
-                    Text('${type.count}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                    Text(
+                      '${type.count}',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
                   ],
                 ),
               ),
@@ -338,17 +437,34 @@ class _AiTipCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-            child: const Icon(Icons.auto_awesome, size: 18, color: Color(0xFF5A7FBF)),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.auto_awesome,
+              size: 18,
+              color: Color(0xFF5A7FBF),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('AI tip', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                const Text(
+                  'AI tip',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
                 const SizedBox(height: 4),
-                Text(tip, style: const TextStyle(fontSize: 13, color: Colors.black87, height: 1.3)),
+                Text(
+                  tip,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.black87,
+                    height: 1.3,
+                  ),
+                ),
               ],
             ),
           ),
@@ -363,6 +479,10 @@ final _cardDecoration = BoxDecoration(
   borderRadius: BorderRadius.circular(20),
   border: Border.all(color: AkeaColors.border),
   boxShadow: [
-    BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 14, offset: const Offset(0, 4)),
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.06),
+      blurRadius: 14,
+      offset: const Offset(0, 4),
+    ),
   ],
 );

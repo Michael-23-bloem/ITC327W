@@ -38,7 +38,14 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
     final urgent = pending.where((o) => o.hoursLeft <= 6).toList();
     final upcoming = [...orderVm.bookings]
       ..sort((a, b) => a.eventDate.compareTo(b.eventDate));
-    final soon = upcoming.where((o) => o.eventDate.isAfter(DateTime.now().subtract(const Duration(days: 1)))).take(4).toList();
+    final soon = upcoming
+        .where(
+          (o) => o.eventDate.isAfter(
+            DateTime.now().subtract(const Duration(days: 1)),
+          ),
+        )
+        .take(4)
+        .toList();
 
     return AkeaPage(
       child: ListView(
@@ -58,7 +65,11 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.schedule, color: AkeaColors.bannerInk, size: 20),
+                  const Icon(
+                    Icons.schedule,
+                    color: AkeaColors.bannerInk,
+                    size: 20,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -74,7 +85,11 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
             ),
           LayoutBuilder(
             builder: (context, constraints) {
-              final cols = constraints.maxWidth >= 980 ? 3 : constraints.maxWidth >= 640 ? 2 : 1;
+              final cols = constraints.maxWidth >= 980
+                  ? 3
+                  : constraints.maxWidth >= 640
+                  ? 2
+                  : 1;
               const tiles = [
                 _DashTileData(
                   title: 'Event products',
@@ -118,10 +133,14 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: tiles.length,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: cols,
+                  crossAxisCount: constraints.maxWidth >= 980 ? 3 : 2,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
-                  childAspectRatio: 2.15,
+                  childAspectRatio: constraints.maxWidth < 640 ? 0.95 : 2.15,
+                  /* crossAxisCount: cols,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: 0.95,*/
                 ),
                 itemBuilder: (context, i) {
                   final tile = tiles[i];
@@ -138,38 +157,63 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
             builder: (context, constraints) {
               final stacked = constraints.maxWidth < 860;
               final needs = [
-                ...pending.map((o) => _NeedItem(
-                      title: '${o.displayName} · quotation decision',
-                      chip: AkeaStatusChip.forStatus(o.status, hoursLeft: o.hoursLeft),
-                      icon: Icons.schedule,
-                    )),
-                ...deposits.map((o) => _NeedItem(
-                      title: '${o.displayName} · EFT deposit',
-                      chip: const AkeaStatusChip(label: 'Awaiting', kind: AkeaChipKind.neutral),
-                      icon: Icons.receipt_long_outlined,
-                    )),
+                ...pending.map(
+                  (o) => _NeedItem(
+                    title: '${o.displayName} · quotation decision',
+                    chip: AkeaStatusChip.forStatus(
+                      o.status,
+                      hoursLeft: o.hoursLeft,
+                    ),
+                    icon: Icons.schedule,
+                  ),
+                ),
+                ...deposits.map(
+                  (o) => _NeedItem(
+                    title: '${o.displayName} · EFT deposit',
+                    chip: const AkeaStatusChip(
+                      label: 'Awaiting',
+                      kind: AkeaChipKind.neutral,
+                    ),
+                    icon: Icons.receipt_long_outlined,
+                  ),
+                ),
               ];
               final left = AkeaCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Needs attention', style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      'Needs attention',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: 16),
                     if (needs.isEmpty)
-                      const Text('Nothing waiting right now.', style: TextStyle(color: AkeaColors.muted))
+                      const Text(
+                        'Nothing waiting right now.',
+                        style: TextStyle(color: AkeaColors.muted),
+                      )
                     else
-                      ...needs.take(5).map(
+                      ...needs
+                          .take(5)
+                          .map(
                             (n) => Padding(
                               padding: const EdgeInsets.only(bottom: 10),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 12,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AkeaColors.cream,
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 child: Row(
                                   children: [
-                                    Icon(n.icon, size: 18, color: AkeaColors.muted),
+                                    Icon(
+                                      n.icon,
+                                      size: 18,
+                                      color: AkeaColors.muted,
+                                    ),
                                     const SizedBox(width: 10),
                                     Expanded(child: Text(n.title)),
                                     n.chip,
@@ -185,17 +229,25 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Upcoming bookings', style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      'Upcoming bookings',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: 16),
                     if (soon.isEmpty)
-                      const Text('No upcoming bookings.', style: TextStyle(color: AkeaColors.muted))
+                      const Text(
+                        'No upcoming bookings.',
+                        style: TextStyle(color: AkeaColors.muted),
+                      )
                     else
                       ...soon.map((o) => _UpcomingRow(order: o)),
                   ],
                 ),
               );
               if (stacked) {
-                return Column(children: [left, const SizedBox(height: 16), right]);
+                return Column(
+                  children: [left, const SizedBox(height: 16), right],
+                );
               }
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,13 +308,26 @@ class _DashCard extends StatelessWidget {
                     child: Icon(data.icon, color: AkeaColors.purple),
                   ),
                   const Spacer(),
-                  const Icon(Icons.north_east, size: 18, color: AkeaColors.muted),
+                  const Icon(
+                    Icons.north_east,
+                    size: 18,
+                    color: AkeaColors.muted,
+                  ),
                 ],
               ),
               const Spacer(),
-              Text(data.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+              Text(
+                data.title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                ),
+              ),
               const SizedBox(height: 2),
-              Text(subtitle, style: const TextStyle(color: AkeaColors.muted, fontSize: 13)),
+              Text(
+                subtitle,
+                style: const TextStyle(color: AkeaColors.muted, fontSize: 13),
+              ),
             ],
           ),
         ),
@@ -272,7 +337,11 @@ class _DashCard extends StatelessWidget {
 }
 
 class _NeedItem {
-  const _NeedItem({required this.title, required this.chip, required this.icon});
+  const _NeedItem({
+    required this.title,
+    required this.chip,
+    required this.icon,
+  });
   final String title;
   final Widget chip;
   final IconData icon;
@@ -284,7 +353,20 @@ class _UpcomingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    const months = [
+      'JAN',
+      'FEB',
+      'MAR',
+      'APR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AUG',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DEC',
+    ];
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(
@@ -313,7 +395,10 @@ class _UpcomingRow extends StatelessWidget {
                     ),
                     Text(
                       months[order.eventDate.month - 1],
-                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ),
@@ -323,16 +408,25 @@ class _UpcomingRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(order.displayName, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    Text(
+                      order.displayName,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
                     Text(
                       '${order.eventType} · ${order.venue ?? 'Venue TBC'}',
-                      style: const TextStyle(color: AkeaColors.muted, fontSize: 13),
+                      style: const TextStyle(
+                        color: AkeaColors.muted,
+                        fontSize: 13,
+                      ),
                     ),
                   ],
                 ),
               ),
               if (order.status.toLowerCase().contains('deposit'))
-                const AkeaStatusChip(label: 'Awaiting deposit', kind: AkeaChipKind.warn),
+                const AkeaStatusChip(
+                  label: 'Awaiting deposit',
+                  kind: AkeaChipKind.warn,
+                ),
             ],
           ),
         ),

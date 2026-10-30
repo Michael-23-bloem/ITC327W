@@ -121,7 +121,12 @@ class Order {
       customerEmail: email,
       customerName: name,
       customerPhone: phone,
-      guestCount: json['guest_count'] as int? ?? json['guests'] as int? ?? 0,
+      guestCount: (json['guest_count'] ?? json['guests'] ?? 0) is num
+    ? ((json['guest_count'] ?? json['guests'] ?? 0) as num).toInt()
+    : int.tryParse(
+        '${json['guest_count'] ?? json['guests'] ?? 0}',
+      ) ?? 0,
+     // guestCount: json['guest_count'] as int? ?? json['guests'] as int? ?? 0,
       estimatedTotal: asDouble(quote?['estimated_total'] ?? quote?['final_total']),
       transportFee: asDouble(quote?['transportation_fee']),
       serviceFee: asDouble(quote?['service_fee']),

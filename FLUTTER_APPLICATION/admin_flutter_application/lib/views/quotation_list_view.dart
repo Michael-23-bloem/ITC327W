@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -23,8 +21,7 @@ class QuotationListView extends StatefulWidget {
   const QuotationListView({super.key});
 
   @override
-  State<QuotationListView> createState() =>
-      _QuotationListViewState();
+  State<QuotationListView> createState() => _QuotationListViewState();
 }
 
 class _QuotationListViewState extends State<QuotationListView> {
@@ -79,13 +76,16 @@ class _QuotationListViewState extends State<QuotationListView> {
 
     final newCount = _countStatus(OrderStatus.requestSent);
 
-    final inProgressCount = requests.where((o) =>
-        [
-          OrderStatus.inContact,
-          OrderStatus.quotationApproved,
-          OrderStatus.orderConfirmed,
-          OrderStatus.preparationsBegin,
-        ].contains(o.status)).length;
+    final inProgressCount = requests
+        .where(
+          (o) => [
+            OrderStatus.inContact,
+            OrderStatus.quotationApproved,
+            OrderStatus.orderConfirmed,
+            OrderStatus.preparationsBegin,
+          ].contains(o.status),
+        )
+        .length;
 
     final depositCount = _countStatus(OrderStatus.quotationApproved);
 
@@ -95,12 +95,14 @@ class _QuotationListViewState extends State<QuotationListView> {
         backgroundColor: _Palette.background,
         foregroundColor: _Palette.ink,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back to Dashboard',
+          onPressed: () => context.go('/dashboard'),
+        ),
         title: const Text(
           'Akea Events',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.3,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.3),
         ),
         actions: [
           IconButton(
@@ -112,11 +114,7 @@ class _QuotationListViewState extends State<QuotationListView> {
         ],
       ),
       body: vm.loading && requests.isEmpty
-          ? const Center(
-              child: CircularProgressIndicator(
-                color: _Palette.gold,
-              ),
-            )
+          ? const Center(child: CircularProgressIndicator(color: _Palette.gold))
           : RefreshIndicator(
               color: _Palette.gold,
               onRefresh: vm.loadQuotations,
@@ -187,10 +185,7 @@ class _QuotationListViewState extends State<QuotationListView> {
                       const SizedBox(width: 4),
                       const Text(
                         'Newest first',
-                        style: TextStyle(
-                          color: _Palette.muted,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: _Palette.muted, fontSize: 12),
                       ),
                     ],
                   ),
@@ -211,10 +206,7 @@ class _QuotationListViewState extends State<QuotationListView> {
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [
-            AkeaColors.plumDark,
-            AkeaColors.plum,
-          ],
+          colors: [AkeaColors.plumDark, AkeaColors.plum],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -360,10 +352,7 @@ class _QuotationListViewState extends State<QuotationListView> {
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: _Palette.muted,
-              fontSize: 11,
-            ),
+            style: const TextStyle(color: _Palette.muted, fontSize: 11),
           ),
         ],
       ),
@@ -412,9 +401,7 @@ class _QuotationListViewState extends State<QuotationListView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        order.customerName ??
-                            order.customerEmail ??
-                            'Customer',
+                        order.customerName ?? order.customerEmail ?? 'Customer',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -496,11 +483,7 @@ class _QuotationListViewState extends State<QuotationListView> {
                           : null,
                     ),
                     const SizedBox(height: 14),
-                    Icon(
-                      Icons.arrow_forward_rounded,
-                      size: 18,
-                      color: color,
-                    ),
+                    Icon(Icons.arrow_forward_rounded, size: 18, color: color),
                   ],
                 ),
               ],
@@ -513,10 +496,7 @@ class _QuotationListViewState extends State<QuotationListView> {
 
   Widget _emptyState() {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 24,
-        vertical: 36,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
       decoration: BoxDecoration(
         color: _Palette.card,
         borderRadius: BorderRadius.circular(20),
@@ -524,11 +504,7 @@ class _QuotationListViewState extends State<QuotationListView> {
       ),
       child: const Column(
         children: [
-          Icon(
-            Icons.inbox_rounded,
-            size: 46,
-            color: _Palette.gold,
-          ),
+          Icon(Icons.inbox_rounded, size: 46, color: _Palette.gold),
           SizedBox(height: 14),
           Text(
             'No quotation requests yet',
@@ -542,11 +518,7 @@ class _QuotationListViewState extends State<QuotationListView> {
           Text(
             'New customer requests will appear here when they arrive.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: _Palette.muted,
-              fontSize: 12,
-              height: 1.5,
-            ),
+            style: TextStyle(color: _Palette.muted, fontSize: 12, height: 1.5),
           ),
         ],
       ),

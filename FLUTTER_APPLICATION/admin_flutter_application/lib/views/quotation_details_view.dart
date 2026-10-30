@@ -386,11 +386,14 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                       'Customer Email',
                       o.customerEmail ?? 'Email not available',
                     ),
-                    _detailRow('Customer ID', o.customerId),
+                    _detailRow(
+                      'Phone number',
+                      o.customerPhone ?? 'Phone number not available',
+                    ),
+                    //_detailRow('Customer ID', o.customerId),
                   ],
                 ),
 
-                
                 const SizedBox(height: 16),
 
                 // Event details
@@ -398,9 +401,28 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                   title: 'Event Overview',
                   icon: Icons.event_outlined,
                   children: [
-                    _detailRow('Event type', o.eventType.toString()),
+                    _detailRow('Event type', o.eventType),
                     _detailRow('Event date', eventDate),
+                    _detailRow('Venue', o.venue ?? 'Not provided'),
+                    _detailRow('Theme', o.theme ?? 'Not specified'),
+                    _detailRow('Guest count', '${o.guestCount}'),
                     _detailRow('Current status', status),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // Customer notes
+                _sectionCard(
+                  title: 'Additional Information',
+                  icon: Icons.notes_rounded,
+                  children: [
+                    _detailRow(
+                      'Customer notes',
+                      (o.notes?.trim().isNotEmpty == true)
+                          ? o.notes!
+                          : 'No additional notes provided.',
+                    ),
                   ],
                 ),
 
@@ -513,7 +535,6 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                   ],
                 ),
 
-                
                 const SizedBox(height: 24),
 
                 // Available actions
@@ -535,16 +556,22 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                       label: 'Confirm quotation',
                       onPressed: () async {
                         try {
-                          await context.read<OrderViewModel>().confirmQuotation(o.id);
+                          await context.read<OrderViewModel>().confirmQuotation(
+                            o.id,
+                          );
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Quotation confirmed. Awaiting deposit.')),
+                            const SnackBar(
+                              content: Text(
+                                'Quotation confirmed. Awaiting deposit.',
+                              ),
+                            ),
                           );
                         } catch (e) {
                           if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(e.toString())),
-                          );
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text(e.toString())));
                         }
                       },
                     ),
@@ -594,9 +621,9 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                       ),
                     ),
 
-                    
                     OutlinedButton.icon(
-                      onPressed: () => context.push('/quotations/${o.id}/validate'),
+                      onPressed: () =>
+                          context.push('/quotations/${o.id}/validate'),
                       icon: const Icon(Icons.payments_outlined),
                       label: const Text('Validate Payment'),
                       style: OutlinedButton.styleFrom(
@@ -609,40 +636,37 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                       ),
                     ),
 
-                    
-                    
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          context.push('/bookings/${o.id}/progress');
-                        },
-                        icon: const Icon(Icons.trending_up_rounded),
-                        label: const Text('Update Progress'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF47734C),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 14,
-                          ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        context.push('/bookings/${o.id}/progress');
+                      },
+                      icon: const Icon(Icons.trending_up_rounded),
+                      label: const Text('Update Progress'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF47734C),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 14,
                         ),
                       ),
+                    ),
 
-                    
-                      OutlinedButton.icon(
-                        onPressed: () {
-                          context.push('/bookings/${o.id}');
-                        },
-                        icon: const Icon(Icons.calendar_month_outlined),
-                        label: const Text('View Booking'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: kDarkText,
-                          side: const BorderSide(color: kCardBorder),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 14,
-                          ),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        context.push('/bookings/${o.id}');
+                      },
+                      icon: const Icon(Icons.calendar_month_outlined),
+                      label: const Text('View Booking'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: kDarkText,
+                        side: const BorderSide(color: kCardBorder),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 14,
                         ),
                       ),
+                    ),
                   ],
                 ),
 

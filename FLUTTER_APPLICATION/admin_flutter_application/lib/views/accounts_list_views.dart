@@ -52,14 +52,32 @@ class _AccountListViewState extends State<AccountListView> {
             orElse: () => filtered.isEmpty ? null : filtered.first,
           );
 
-    return AkeaPage(
+          
+      return Scaffold(
+  appBar: AppBar(
+    backgroundColor: AkeaColors.card,
+    elevation: 0,
+    leading: IconButton(
+      icon: const Icon(Icons.arrow_back),
+      tooltip: 'Back to Dashboard',
+      onPressed: () => context.go('/dashboard'),
+    ),
+    title: const AkeaPageHeader(
+            title: 'Client accounts',
+            subtitle: 'Website accounts',
+  ),
+  toolbarHeight: 90,
+    
+    
+  ),
+    body:  AkeaPage(
       child: ListView(
         padding: const EdgeInsets.fromLTRB(32, 28, 32, 32),
         children: [
-          const AkeaPageHeader(
+          /*const AkeaPageHeader(
             title: 'Client accounts',
             subtitle: 'Website accounts',
-          ),
+          ),*/
           if (vm.loading && vm.users.isEmpty)
             const Center(child: CircularProgressIndicator())
           else
@@ -140,7 +158,7 @@ class _AccountListViewState extends State<AccountListView> {
             ),
         ],
       ),
-    );
+    ));
   }
 }
 

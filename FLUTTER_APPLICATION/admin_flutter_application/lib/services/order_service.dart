@@ -1,5 +1,5 @@
 import 'supabase_client.dart';
-
+import '../models/quotation.dart';
 class OrderService {
   final supabase = SupabaseClientManager.client;
 
@@ -23,8 +23,8 @@ class OrderService {
     return await supabase
         .from('orders')
         .select('*, profiles(email, first_name, last_name)')
-        .inFilter('status', ['order_confirmed', 'deposit_received', 'preparations_begin'])
-        .order('event_date', ascending: false);
+        .inFilter('status', [ 'deposit_received', 'preparations_begin'])
+        .order('event_date', ascending: true);
   }
 
   // ------------------------------------------------------------------
@@ -47,6 +47,7 @@ class OrderService {
         .eq('id', orderId)
         .single();
   }
+  
 
   // ------------------------------------------------------------------
   // WIREFRAME 6 - Edit quotation Save
@@ -92,6 +93,7 @@ class OrderService {
   // ------------------------------------------------------------------
   
    // Load the latest quotation for the Edit Quotation page.
+   // Retrieve the latest quotation version, including its JSONB items.
   Future<Map<String, dynamic>?> getLatestQuotation(
     String orderId,
   ) async {
@@ -105,8 +107,74 @@ class OrderService {
 
     return data;
   }
+  void testQuotationItem() {
+  final item = QuotationItem(
+    productName: 'Test decoration',
+    quantity: 2,
+    unitPrice: 100,
+  );
+
+  print(item.totalPrice);
+}
   // Save a revision as a NEW quotation version.
-  Future<void> editQuotation(
+  
+  // Save a new quotation version with its items and financial summary.
+  Future<Map<String, dynamic>> editQuotation(
+    String orderId,
+    List<QuotationItem> items,
+    double transport,
+    double service,
+  ) async {
+    if (transport < 0 || service < 0) {
+      throw Exception('Quotation fees cannot be negative.');
+    }
+
+    // Validate quotation items.
+    for (final item in items) {
+      if (item.quantity <= 0 || item.unitPrice < 0) {
+        throw Exception('Invalid quotation item quantity or price.');
+      }
+    }
+
+    // Calculate the item subtotal.
+    final itemsSubtotal = items.fold<double>(
+      0,
+      (total, item) => total + item.totalPrice,
+    );
+
+    // Calculate the complete estimated quotation total.
+    final total = itemsSubtotal + transport + service;
+
+    // Retrieve the previous quotation version.
+    final latest = await getLatestQuotation(orderId);
+
+    final nextVersion = latest == null
+        ? 1
+        : (latest['version'] as num).toInt() + 1;
+
+    // Save a new quotation version.
+    final savedQuotation = await supabase
+        .from('quotations')
+        .insert({
+          'order_id': orderId,
+          'version': nextVersion,
+          'status': 'pending',
+          'estimated_total': total,
+          'transportation_fee': transport,
+          'service_fee': service,
+
+          // Save the items inside the JSONB column.
+          'quotation_items': items
+              .map((item) => item.toJson())
+              .toList(),
+        })
+        .select()
+        .single();
+
+    return savedQuotation;
+  }
+
+  /*Future<void> editQuotation(
     String orderId,
     double total,
     double transport,
@@ -135,7 +203,7 @@ class OrderService {
 
     // Do not reset the order's status here.
     // The existing order may already be confirmed or in preparation.
-  }
+  }*/
 /*Future<Map<String, dynamic>?> getLatestQuotation(
     String orderId) async {
   final data = await supabase
