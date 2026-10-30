@@ -12,7 +12,7 @@ namespace FirstWebApp.ViewModels
         [Required, Display(Name = "First name")] public string FirstName { get; set; } = "";
         [Required, Display(Name = "Last name")] public string LastName { get; set; } = "";
         [Phone] public string? Phone { get; set; }
-        [DataType(DataType.Date)] public DateTime? DateOfBirth { get; set; }
+        // [DataType(DataType.Date)] public DateTime? DateOfBirth { get; set; }
         public string Role { get; set; } = "User"; // Default role is "user"    
     }
 }

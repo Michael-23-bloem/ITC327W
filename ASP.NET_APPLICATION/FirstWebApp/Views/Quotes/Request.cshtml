@@ -1,0 +1,136 @@
+@model QuoteRequestViewModel
+@{
+    ViewData["Title"] = "Request a quotation";
+    ViewData["BodyClass"] = "page-request";
+    var minDate = DateTime.Today.AddDays(QuoteRequestViewModel.MinDaysAhead).ToString("yyyy-MM-dd");
+}
+
+<a asp-controller="Estimate" asp-action="Index" class="back-link">&larr; Back to your estimate</a>
+
+<header class="page-head">
+    <p class="eyebrow">Request a quotation</p>
+    <h1>Tell us about your event</h1>
+    <p class="page-lead">We'll use these details and your selected items to prepare your quotation. We review every request within 24 hours.</p>
+</header>
+
+<div class="request-layout">
+    <form asp-action="Request" method="post" class="request-form" novalidate>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <fieldset class="request-card">
+            <legend><span class="request-step" aria-hidden="true">1</span>Event details</legend>
+            <div class="request-grid">
+                <div>
+                    <label asp-for="EventType" class="form-label"></label>
+                    <select asp-for="EventType" class="form-select">
+                        <option value="">Choose…</option>
+                        @foreach (var type in QuoteRequestViewModel.EventTypes)
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </select>
+                    <span asp-validation-for="EventType" class="text-danger small"></span>
+                </div>
+
+                <div>
+                    <label asp-for="EventDate" class="form-label"></label>
+                    <input asp-for="EventDate" type="date" class="form-control" min="@minDate" />
+                    <span asp-validation-for="EventDate" class="text-danger small"></span>
+                </div>
+
+                <div class="span-all">
+                    <label asp-for="Venue" class="form-label"></label>
+                    <input asp-for="Venue" class="form-control" autocomplete="street-address"
+                           placeholder="e.g. The Garden Venue, 12 Oak Street" />
+                    <span asp-validation-for="Venue" class="text-danger small"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Guests" class="form-label"></label>
+                    <input asp-for="Guests" type="number" min="1" max="2000" class="form-control" />
+                    <span asp-validation-for="Guests" class="text-danger small"></span>
+                </div>
+
+                <div>
+                    <label asp-for="ColourTheme" class="form-label">Colour theme <span class="optional">(optional)</span></label>
+                    <input asp-for="ColourTheme" class="form-control" placeholder="e.g. Blush and gold" />
+                </div>
+
+                <div>
+                    <label asp-for="BudgetRange" class="form-label">Budget range <span class="optional">(optional)</span></label>
+                    <select asp-for="BudgetRange" class="form-select">
+                        <option value="">Prefer not to say</option>
+                        @foreach (var range in QuoteRequestViewModel.BudgetRanges)
+                        {
+                            <option value="@range">@range</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="request-card">
+            <legend><span class="request-step" aria-hidden="true">2</span>Needs assessment</legend>
+            <div>
+                <fieldset class="choice-row">
+                    <legend>Do you need setup and take-down?</legend>
+                    <div class="choice-pills">
+                        <label><input type="radio" asp-for="NeedsSetup" value="true" id="setupYes" />Yes</label>
+                        <label><input type="radio" asp-for="NeedsSetup" value="false" id="setupNo" />No</label>
+                    </div>
+                    <span asp-validation-for="NeedsSetup" class="text-danger small choice-error"></span>
+                </fieldset>
+
+                <fieldset class="choice-row">
+                    <legend>Is the venue indoors or outdoors?</legend>
+                    <div class="choice-pills">
+                        <label><input type="radio" asp-for="VenueSetting" value="Indoors" id="venueIndoors" />Indoors</label>
+                        <label><input type="radio" asp-for="VenueSetting" value="Outdoors" id="venueOutdoors" />Outdoors</label>
+                    </div>
+                    <span asp-validation-for="VenueSetting" class="text-danger small choice-error"></span>
+                </fieldset>
+
+                <fieldset class="choice-row">
+                    <legend>Do you need delivery to the venue?</legend>
+                    <div class="choice-pills">
+                        <label><input type="radio" asp-for="NeedsDelivery" value="true" id="deliveryYes" />Yes</label>
+                        <label><input type="radio" asp-for="NeedsDelivery" value="false" id="deliveryNo" />No</label>
+                    </div>
+                    <span asp-validation-for="NeedsDelivery" class="text-danger small choice-error"></span>
+                </fieldset>
+
+                <div class="choice-notes">
+                    <label asp-for="Notes" class="form-label">Additional notes / inspiration <span class="optional">(optional)</span></label>
+                    <textarea asp-for="Notes" rows="4" class="form-control" maxlength="2000"
+                              placeholder="Anything else we should know: themes, special requests, links to photos you like…"></textarea>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="request-actions">
+            <a asp-controller="Estimate" asp-action="Index" class="btn btn-outline-dark">Back</a>
+            <button type="submit" class="btn btn-dark">Submit request</button>
+        </div>
+    </form>
+
+    <aside class="request-summary" aria-labelledby="summaryTitle">
+        <p class="eyebrow">Step 3 · Review</p>
+        <h2 id="summaryTitle">Items from your estimate</h2>
+        <ul class="summary-list">
+            @foreach (var line in Model.Lines)
+            {
+                <li>
+                    <span>@line.Name @(line.ItemType == CatalogueItemTypes.Package ? "(package)" : "") × @line.Quantity</span>
+                    <span>R @line.LineTotal.ToString("N2")</span>
+                </li>
+            }
+        </ul>
+        <div class="summary-total"><span>Estimated total</span><span>R @Model.Total.ToString("N2")</span></div>
+        <p class="estimate-note">Delivery, setup and transport are added in your quotation. Final prices are confirmed by AkeaEvents.</p>
+        <a asp-controller="Estimate" asp-action="Index" class="more">Edit items</a>
+    </aside>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

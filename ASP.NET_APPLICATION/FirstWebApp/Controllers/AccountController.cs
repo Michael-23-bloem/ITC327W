@@ -34,7 +34,7 @@ namespace FirstWebApp.Controllers
                         ["last_name"] = model.LastName,
                         ["phone_number"] = model.Phone ?? "",
                         ["email"] = model.Email,
-                        ["date_of_birth"] = model.DateOfBirth?.ToString("yyyy-MM-dd") ?? "",
+                        // ["date_of_birth"] = model.DateOfBirth?.ToString("yyyy-MM-dd") ?? "",
                         ["role"] = model.Role
                     }
                 };
@@ -91,16 +91,25 @@ namespace FirstWebApp.Controllers
         {
             var user = session.User!;
             var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, user.Id!),   // Supabase user UUID
-            new(ClaimTypes.Email, user.Email ?? "")
-        };
+            {
+                new(ClaimTypes.NameIdentifier, user.Id!),   // Supabase user UUID
+                new(ClaimTypes.Email, user.Email ?? "")
+            };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var properties = new AuthenticationProperties { IsPersistent = true };
+
+            // Keep the Supabase session so later pages can act as this customer (needed for RLS)
+            properties.StoreTokens(new[]
+            {
+                new AuthenticationToken { Name = "access_token", Value = session.AccessToken! },
+                new AuthenticationToken { Name = "refresh_token", Value = session.RefreshToken! }
+            });
+
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(identity),
-                new AuthenticationProperties { IsPersistent = true });
+                properties);
         }
     }
 }
