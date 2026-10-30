@@ -63,8 +63,16 @@
             </table>
         </div>
 
-        <div class="btn-row">
-            <a asp-controller="Catalogue" asp-action="Products" class="btn btn-outline">Keep browsing</a>
+        <div class="request-cta">
+            <div>
+                <p class="request-cta-title">Happy with your selection?</p>
+                <p class="request-cta-text">Send it to us with your event details. We review every request within 24 hours.</p>
+            </div>
+            <div class="btn-row">
+                <a asp-controller="Catalogue" asp-action="Products" class="btn btn-outline-dark">Keep browsing</a>
+                <a asp-controller="Quotes" asp-action="Request" class="btn btn-dark">Request a quotation</a>
+            </div>
         </div>
+        <p class="request-cta-note">You'll be asked to log in first if you aren't already.</p>
     }
 </div>

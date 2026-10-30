@@ -1,0 +1,169 @@
+@model QuoteDetailsViewModel
+@{
+    ViewData["Title"] = "Request " + Model.Reference;
+    var stage = QuoteStatus.StageIndex(Model.Status);
+    var isClosed = Model.Status is "declined" or "cancelled";
+}
+
+<a asp-action="Index" class="back-link">&larr; Back to My Quotes</a>
+
+<div class="quote-head">
+    <div>
+        <p class="eyebrow">Quotation request &middot; @Model.Reference</p>
+        <h1>@(Model.EventType ?? "Event") &middot; @Model.EventDate.ToString("d MMM yyyy")</h1>
+    </div>
+    <span class="chip @(QuoteStatus.NeedsAction(Model.Status) ? "chip-dark" : "")">
+        @QuoteStatus.ListLabel(Model.Status, Model.DecisionDueAt)
+    </span>
+</div>
+
+@if (TempData["QuoteMessage"] is string message)
+{
+    <div class="alert alert-dark py-2" role="status">@message</div>
+}
+
+@if (isClosed)
+{
+    <div class="quote-closed" role="status">
+        <strong>@(Model.Status == "declined" ? "This request was declined." : "This request was cancelled.")</strong>
+        @if (!string.IsNullOrWhiteSpace(Model.DeclineReason))
+        {
+            <p>@Model.DeclineReason</p>
+        }
+    </div>
+}
+else
+{
+    <div class="tracker-wrap">
+        <ol class="tracker" aria-label="Progress">
+            @for (var i = 0; i < QuoteStatus.Stages.Length; i++)
+            {
+                var css = i < stage ? "is-done" : i == stage ? "is-current" : "";
+                <li class="@css" aria-current="@(i == stage ? "step" : null)">@QuoteStatus.Stages[i].Label</li>
+            }
+        </ol>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <section class="quote-card" aria-labelledby="eventTitle">
+            <h2 id="eventTitle">Event details</h2>
+            <dl class="event-facts">
+                <dt>Event date</dt>
+                <dd>@Model.EventDate.ToString("dddd, d MMMM yyyy")</dd>
+                <dt>Venue</dt>
+                <dd>@(Model.Venue ?? "–")</dd>
+                <dt>Guests</dt>
+                <dd>@(Model.Guests?.ToString() ?? "–")</dd>
+            </dl>
+            @if (!string.IsNullOrWhiteSpace(Model.Notes))
+            {
+                <h3 class="quote-subtitle">Your notes</h3>
+                <p class="quote-notes">@Model.Notes</p>
+            }
+        </section>
+
+        <section class="quote-card" aria-labelledby="itemsTitle">
+            <h2 id="itemsTitle">Items</h2>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-end">Qty</th>
+                            <th class="text-end">Price</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in Model.Lines)
+                        {
+                            <tr>
+                                <td>@line.Name @(line.IsPackage ? "(package)" : "")</td>
+                                <td class="text-end">@line.Quantity</td>
+                                <td class="text-end">@Money.Rand(line.UnitPrice)</td>
+                                <td class="text-end">@Money.Rand(line.LineTotal)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        @if (Model.Updates.Any())
+        {
+            <section class="quote-card" aria-labelledby="updatesTitle">
+                <h2 id="updatesTitle">Updates from AkeaEvents</h2>
+                <ol class="quote-updates">
+                    @foreach (var update in Model.Updates)
+                    {
+                        <li>
+                            <time datetime="@update.CreatedAt.ToString("yyyy-MM-dd")">@update.CreatedAt.ToLocalTime().ToString("d MMM yyyy, HH:mm")</time>
+                            <p>@update.Message</p>
+                        </li>
+                    }
+                </ol>
+            </section>
+        }
+    </div>
+
+    <div class="col-lg-5">
+        <aside class="quote-card quote-summary" aria-labelledby="quoteTitle">
+            <h2 id="quoteTitle">
+                Quotation
+                @if (Model.QuoteVersion.HasValue)
+                {
+                    <span class="quote-version">version @Model.QuoteVersion</span>
+                }
+            </h2>
+            <p class="quote-status">@QuoteStatus.QuoteLabel(Model.QuoteStatus)</p>
+
+            <div class="quote-row"><span>Items</span><span>@(Model.ItemsSubtotal.HasValue ? Money.Rand(Model.ItemsSubtotal.Value) : "–")</span></div>
+            <div class="quote-row"><span>Transport fee</span><span>@(Model.TransportationFee > 0 ? Money.Rand(Model.TransportationFee) : "To be confirmed")</span></div>
+            <div class="quote-row"><span>Service fee</span><span>@(Model.ServiceFee > 0 ? Money.Rand(Model.ServiceFee) : "To be confirmed")</span></div>
+            <div class="quote-row quote-total"><span>Total</span><span>@(Model.Total.HasValue ? Money.Rand(Model.Total.Value) : "Pending")</span></div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.NoteToClient))
+            {
+                <div class="quote-note">
+                    <p class="eyebrow">Note from AkeaEvents</p>
+                    <p>@Model.NoteToClient</p>
+                </div>
+            }
+
+            @if (Model.ShowPayment)
+            {
+                <div class="quote-payment">
+                    <h3 class="quote-subtitle">Pay your deposit</h3>
+                    <div class="quote-row quote-total">
+                        <span>Deposit (50%)</span>
+                        <span>@(Model.DepositAmount.HasValue ? Money.Rand(Model.DepositAmount.Value) : "–")</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.BankingDetails))
+                    {
+                        <p class="quote-bank">@Model.BankingDetails</p>
+                    }
+                    else
+                    {
+                        <p class="small text-muted">Banking details will be added to your quotation by AkeaEvents.</p>
+                    }
+                    <p class="small mb-0">Use <strong>@Model.Reference</strong> as your payment reference.</p>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Model.DepositStatus))
+            {
+                <p class="quote-deposit-status">Deposit: <strong>@Model.DepositStatus</strong></p>
+            }
+
+            @if (Model.CanCancel)
+            {
+                <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="mt-3"
+                      onsubmit="return confirm('Cancel this request? This cannot be undone.');">
+                    <button type="submit" class="btn btn-link btn-sm text-danger px-0">Cancel request</button>
+                </form>
+            }
+        </aside>
+    </div>
+</div>

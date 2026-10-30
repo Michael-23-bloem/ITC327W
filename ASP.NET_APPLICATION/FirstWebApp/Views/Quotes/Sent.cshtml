@@ -1,0 +1,34 @@
+@model QuoteSentViewModel
+@{
+    ViewData["Title"] = "Request sent";
+    ViewData["BodyClass"] = "page-request";
+}
+
+<div class="sent-card">
+    <div class="sent-icon" aria-hidden="true">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <p class="eyebrow">Request sent</p>
+    <h1>Thank you! We've received your request</h1>
+    <p class="sent-summary">
+        @(Model.EventType ?? "Event") &middot; @Model.EventDate.ToString("d MMM yyyy")
+        @if (Model.Guests.HasValue) { <text>&middot; @Model.Guests guests</text> }
+        @if (Model.EstimatedTotal.HasValue) { <text>&middot; Estimated total R @Model.EstimatedTotal.Value.ToString("N2")</text> }
+    </p>
+    <p class="sent-reference">Reference: <strong>@Model.Reference</strong></p>
+
+    <div class="sent-next">
+        <h2>What happens next</h2>
+        <ol>
+            <li><span class="request-step" aria-hidden="true">1</span><span>We review your request within 24 hours and may contact you with questions.</span></li>
+            <li><span class="request-step" aria-hidden="true">2</span><span>Your quotation appears in <strong>My Quotes</strong> once it's ready.</span></li>
+            <li><span class="request-step" aria-hidden="true">3</span><span>To confirm your booking, pay the 50% deposit by EFT using the banking details on your quotation.</span></li>
+        </ol>
+    </div>
+
+    <div class="btn-row sent-actions">
+        <a asp-controller="Quotes" asp-action="Index" class="btn btn-dark">View My Quotes</a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-dark">Back to home</a>
+    </div>
+</div>

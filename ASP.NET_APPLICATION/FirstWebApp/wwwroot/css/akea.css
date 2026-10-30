@@ -1079,3 +1079,228 @@ body:has(dialog[open]) {
     font-weight: 700;
     letter-spacing: -.01em;
 }
+
+/* ---------- My Quotes: request details ---------- */
+.quote-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem 1.5rem;
+    margin: .5rem 0 1.5rem;
+}
+
+    .quote-head h1 {
+        margin: 0;
+        font-size: clamp(1.4rem, 3vw, 1.8rem);
+        font-weight: 700;
+        letter-spacing: -.02em;
+    }
+
+.quote-closed {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.25rem;
+    color: var(--error);
+    background: rgba(163, 52, 43, .07);
+    border: 1px solid rgba(163, 52, 43, .35);
+    border-radius: 10px;
+}
+
+    .quote-closed p {
+        margin: .35rem 0 0;
+        color: var(--ink);
+    }
+
+/* Progress tracker: scrolls sideways on small screens */
+.tracker-wrap {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+}
+
+.tracker {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    min-width: 560px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+    .tracker li {
+        position: relative;
+        padding-top: 1.7rem;
+        font-size: .75rem;
+        text-align: center;
+        color: var(--muted);
+    }
+
+        .tracker li::before {
+            content: "";
+            position: absolute;
+            top: .3rem;
+            left: 50%;
+            z-index: 1;
+            width: 16px;
+            height: 16px;
+            margin-left: -8px;
+            background: #fff;
+            border: 2px solid var(--line);
+            border-radius: 50%;
+        }
+
+        .tracker li::after {
+            content: "";
+            position: absolute;
+            top: .75rem;
+            left: -50%;
+            width: 100%;
+            height: 2px;
+            background: var(--line);
+        }
+
+        .tracker li:first-child::after {
+            display: none;
+        }
+
+        .tracker li.is-done,
+        .tracker li.is-current {
+            color: var(--ink);
+        }
+
+            .tracker li.is-done::before {
+                background: var(--ink);
+                border-color: var(--ink);
+            }
+
+            .tracker li.is-done::after,
+            .tracker li.is-current::after {
+                background: var(--ink);
+            }
+
+        .tracker li.is-current {
+            font-weight: 700;
+        }
+
+            .tracker li.is-current::before {
+                background: var(--nude);
+                border-color: var(--ink);
+            }
+
+.quote-card {
+    margin-bottom: 1.5rem;
+    padding: 1.4rem 1.5rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .quote-card h2 {
+        margin: 0 0 1rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
+
+.quote-subtitle {
+    margin: 1rem 0 .4rem;
+    font-size: .9rem;
+    font-weight: 700;
+}
+
+.quote-notes,
+.quote-bank {
+    margin: 0;
+    font-size: .88rem;
+    white-space: pre-line;
+}
+
+.quote-updates {
+    display: grid;
+    gap: .9rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+    .quote-updates time {
+        font-size: .75rem;
+        color: var(--muted);
+    }
+
+    .quote-updates p {
+        margin: .15rem 0 0;
+        font-size: .9rem;
+        white-space: pre-line;
+    }
+
+.quote-summary {
+    position: sticky;
+    top: 1rem;
+}
+
+.quote-version {
+    margin-left: .35rem;
+    font-size: .75rem;
+    font-weight: 400;
+    color: var(--muted);
+}
+
+.quote-status {
+    margin: -.6rem 0 1rem;
+    font-size: .8rem;
+    color: var(--muted);
+}
+
+.quote-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .4rem 0;
+    font-size: .88rem;
+    border-bottom: 1px dashed var(--line);
+}
+
+.quote-total {
+    font-weight: 700;
+    border-bottom: 0;
+}
+
+.quote-note {
+    margin-top: 1rem;
+    padding: .8rem 1rem;
+    background: var(--beige);
+    border-left: 3px solid var(--nude);
+    border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.quote-note p:last-child {
+    margin: 0;
+    font-size: .88rem;
+    white-space: pre-line;
+}
+
+.quote-payment {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+}
+
+.quote-deposit-status {
+    margin: 1rem 0 0;
+    font-size: .85rem;
+}
+
+.chip {
+    display: inline-block;
+    padding: .2rem .65rem;
+    font-size: .72rem;
+    font-weight: 600;
+    color: var(--nude-ink);
+    background: var(--beige-deep);
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.chip-dark {
+    color: #fff;
+    background: var(--ink);
+}

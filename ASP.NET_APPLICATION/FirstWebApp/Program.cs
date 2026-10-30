@@ -41,6 +41,7 @@ namespace FirstWebApp
             });
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<EstimateService>();
+            builder.Services.AddScoped<SupabaseSessionService>();
             
             var app = builder.Build();
 
