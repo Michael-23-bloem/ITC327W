@@ -63,9 +63,9 @@
                 <a asp-controller="Catalogue" asp-action="Products">Start an estimate &rarr;</a>
             </li>
             <li class="about-feature">
-                <h3>Make an enquiry</h3>
-                <p>Tell us about your event and the services you are interested in.</p>
-                <a asp-controller="Enquiries" asp-action="Index">Send an enquiry &rarr;</a>
+                <h3>Ask us anything</h3>
+                <p>Our assistant can answer your questions about décor, packages and bookings.</p>
+                <button type="button" class="link-button" data-assistant-open aria-controls="assistantPanel">Ask our assistant &rarr;</button>
             </li>
             <li class="about-feature">
                 <h3>Plan with confidence</h3>
@@ -96,7 +96,7 @@
         <div class="btn-row">
             <a asp-controller="Portfolio" asp-action="Index" class="btn btn-outline-dark">Explore our portfolio</a>
             <a asp-controller="Catalogue" asp-action="Products" class="btn btn-dark">Get an instant estimate</a>
-            <a asp-controller="Enquiries" asp-action="Index" class="btn btn-outline-dark">Send an enquiry</a>
+            <button type="button" class="btn btn-outline-dark" data-assistant-open aria-controls="assistantPanel">Ask our assistant</button>
         </div>
         <p class="about-tagline">Your vision. Your occasion. Let's make it memorable.</p>
     </section>

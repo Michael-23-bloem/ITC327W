@@ -63,14 +63,14 @@ namespace FirstWebApp.Controllers
         public IActionResult Error() =>
             View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 
-        // The six most recent events from the portfolio table
+        // The three most recent events from the portfolio table
         private async Task<List<PortfolioCardViewModel>> LoadRecentWorkAsync()
         {
             try
             {
                 var entries = (await _supabase.From<PortfolioEntry>()
                     .Order(p => p.CreatedAt, Constants.Ordering.Descending)
-                    .Limit(6)
+                    .Limit(3)
                     .Get()).Models;
 
                 return entries.Select(e => new PortfolioCardViewModel

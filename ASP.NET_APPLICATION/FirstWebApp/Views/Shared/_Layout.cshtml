@@ -57,10 +57,6 @@
                                asp-area="" asp-controller="Quotes" asp-action="Index">My Quotes</a>
                         </li>
                         <li class="nav-item">
-                            <a class="@NavClass(IsCurrent("Enquiries"))" aria-current="@NavCurrent(IsCurrent("Enquiries"))"
-                               asp-area="" asp-controller="Enquiries" asp-action="Index">Enquiries</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="@NavClass(IsCurrent("Home", "About"))" aria-current="@NavCurrent(IsCurrent("Home", "About"))"
                                asp-area="" asp-controller="Home" asp-action="About">About us</a>
                         </li>
@@ -85,6 +81,8 @@
             &copy; 2026 AkeaEvents &middot; <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy (POPIA)</a>
         </div>
     </footer>
+
+    <partial name="_FloatingContact" />
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
