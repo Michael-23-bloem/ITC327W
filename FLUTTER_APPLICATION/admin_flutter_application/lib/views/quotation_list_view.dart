@@ -25,6 +25,67 @@ class QuotationListView extends StatefulWidget {
 }
 
 class _QuotationListViewState extends State<QuotationListView> {
+  String _selectedFilter = 'All Requests';
+  int _statusPriority(String status) {
+    switch (status) {
+      case OrderStatus.requestSent:
+        return 1;
+
+      case OrderStatus.inContact:
+        return 2;
+
+      case OrderStatus.quotationApproved:
+        return 3;
+
+      case OrderStatus.depositReceived:
+        return 4;
+
+      case OrderStatus.preparationsBegin:
+        return 5;
+
+      case OrderStatus.completed:
+      case OrderStatus.declined:
+      case OrderStatus.cancelled:
+        return 6;
+
+      default:
+        return 7;
+    }
+  }
+
+  Widget _buildFilterIcon() {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.filter_list),
+      tooltip: 'Filter requests',
+      initialValue: _selectedFilter,
+      onSelected: (value) {
+        setState(() {
+          _selectedFilter = value;
+        });
+      },
+      itemBuilder: (context) => const [
+        PopupMenuItem(value: 'All Requests', child: Text('All Requests')),
+        PopupMenuItem(value: 'request_sent', child: Text('New')),
+        PopupMenuItem(value: 'in_contact', child: Text('In Contact')),
+        PopupMenuItem(
+          value: 'quotation_approved',
+          child: Text('Awaiting Deposit'),
+        ),
+        PopupMenuItem(
+          value: 'deposit_received',
+          child: Text('Deposit Received'),
+        ),
+        PopupMenuItem(
+          value: 'preparations_begin',
+          child: Text('In Preparation'),
+        ),
+        PopupMenuItem(value: 'completed', child: Text('Completed')),
+        PopupMenuItem(value: 'declined', child: Text('Declined')),
+        PopupMenuItem(value: 'cancelled', child: Text('Cancelled')),
+      ],
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -73,6 +134,28 @@ class _QuotationListViewState extends State<QuotationListView> {
   Widget build(BuildContext context) {
     final vm = context.watch<OrderViewModel>();
     final requests = vm.quotations;
+    // Sort by priority while preserving newest-first order
+    // within each status group.
+    final sortedRequests = requests.asMap().entries.toList()
+      ..sort((a, b) {
+        final priorityA = _statusPriority(a.value.status);
+        final priorityB = _statusPriority(b.value.status);
+
+        if (priorityA != priorityB) {
+          return priorityA.compareTo(priorityB);
+        }
+
+        return a.key.compareTo(b.key);
+      });
+
+    final filteredRequests = sortedRequests
+        .map((entry) => entry.value)
+        .where(
+          (order) =>
+              _selectedFilter == 'All Requests' ||
+              order.status == _selectedFilter,
+        )
+        .toList();
 
     final newCount = _countStatus(OrderStatus.requestSent);
 
@@ -177,24 +260,30 @@ class _QuotationListViewState extends State<QuotationListView> {
                     children: [
                       _sectionTitle('Recent requests'),
                       const Spacer(),
-                      const Icon(
-                        Icons.sort_rounded,
-                        size: 17,
-                        color: _Palette.muted,
-                      ),
-                      const SizedBox(width: 4),
                       const Text(
-                        'Newest first',
+                        'Priority order',
                         style: TextStyle(color: _Palette.muted, fontSize: 12),
                       ),
                     ],
                   ),
                   const SizedBox(height: 14),
 
-                  if (requests.isEmpty)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _sectionTitle('Recent requests'),
+                      _buildFilterIcon(),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
+
+                  if (filteredRequests.isEmpty)
                     _emptyState()
                   else
-                    ...requests.map(_requestCard),
+                    ...filteredRequests.map(_requestCard),
                 ],
               ),
             ),

@@ -180,11 +180,24 @@ class AkeaStatusChip extends StatelessWidget {
     if (s.contains('confirm') || s == 'order_confirmed') {
       return const AkeaStatusChip(label: 'Confirmed', kind: AkeaChipKind.ok);
     }
-    if (s.contains('deposit') ||
+    /*if (s.contains('deposit') ||
         s == 'awaiting' ||
         s == 'quotation_approved') {
       return const AkeaStatusChip(label: 'Awaiting deposit', kind: AkeaChipKind.warn);
-    }
+    }*/
+    if (s == 'deposit_received') {
+  return const AkeaStatusChip(
+    label: 'Deposit Received',
+    kind: AkeaChipKind.ok,
+  );
+}
+
+if (s == 'quotation_approved' || s == 'awaiting') {
+  return const AkeaStatusChip(
+    label: 'Awaiting Deposit',
+    kind: AkeaChipKind.warn,
+  );
+}
     if (s.contains('suspend')) {
       return const AkeaStatusChip(label: 'Suspended', kind: AkeaChipKind.danger);
     }

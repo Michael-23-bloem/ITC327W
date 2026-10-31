@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -29,36 +30,66 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
   @override
   Widget build(BuildContext context) {
     final orderVm = context.watch<OrderViewModel>();
+
     final pending = orderVm.quotations
         .where((o) => o.status == OrderStatus.requestSent)
         .toList();
+
     final deposits = orderVm.quotations
         .where((o) => o.status == OrderStatus.quotationApproved)
         .toList();
+
+    // Requests requiring a decision within the next 6 hours.
     final urgent = pending.where((o) => o.hoursLeft <= 6).toList();
-    final upcoming = [...orderVm.bookings]
-      ..sort((a, b) => a.eventDate.compareTo(b.eventDate));
-    final soon = upcoming
-        .where(
-          (o) => o.eventDate.isAfter(
-            DateTime.now().subtract(const Duration(days: 1)),
-          ),
-        )
-        .take(4)
-        .toList();
+
+    // Upcoming bookings: events happening within the next 14 days.
+    final today = DateTime.now();
+
+    final startDate = DateTime(
+      today.year,
+      today.month,
+      today.day,
+    );
+
+    final endDate = startDate.add(const Duration(days: 14));
+
+    final upcoming = orderVm.bookings.where((order) {
+      final eventDate = DateTime(
+        order.eventDate.year,
+        order.eventDate.month,
+        order.eventDate.day,
+      );
+
+      final isWithinTwoWeeks =
+          !eventDate.isBefore(startDate) &&
+          !eventDate.isAfter(endDate);
+
+      final isActive =
+          order.status != 'cancelled' &&
+          order.status != 'declined';
+
+      return isWithinTwoWeeks && isActive;
+    }).toList();
+
+    // Sort the filtered list: nearest event first.
+    upcoming.sort(
+      (a, b) => a.eventDate.compareTo(b.eventDate),
+    );
+
+    // Display a maximum of four bookings.
+    final soon = upcoming.take(4).toList();
 
     return AkeaPage(
       child: ListView(
         padding: const EdgeInsets.fromLTRB(32, 28, 32, 32),
         children: [
-          const AkeaPageHeader(
-            title: 'AkeaEvents Admin',
-            subtitle: 'Every celebration, thoughtfully managed',
-          ),
           if (urgent.isNotEmpty)
             Container(
               margin: const EdgeInsets.only(bottom: 20),
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 14,
+              ),
               decoration: BoxDecoration(
                 color: AkeaColors.banner,
                 borderRadius: BorderRadius.circular(14),
@@ -83,13 +114,9 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
                 ],
               ),
             ),
+
           LayoutBuilder(
             builder: (context, constraints) {
-              final cols = constraints.maxWidth >= 980
-                  ? 3
-                  : constraints.maxWidth >= 640
-                  ? 2
-                  : 1;
               const tiles = [
                 _DashTileData(
                   title: 'Event products',
@@ -128,6 +155,7 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
                   route: '/accounts',
                 ),
               ];
+
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -136,26 +164,31 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
                   crossAxisCount: constraints.maxWidth >= 980 ? 3 : 2,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
-                  childAspectRatio: constraints.maxWidth < 640 ? 0.95 : 2.15,
-                  /* crossAxisCount: cols,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  childAspectRatio: 0.95,*/
+                  childAspectRatio:
+                      constraints.maxWidth < 640 ? 0.95 : 2.15,
                 ),
                 itemBuilder: (context, i) {
                   final tile = tiles[i];
+
                   final subtitle = tile.title == 'Quotation requests'
                       ? '${pending.length} awaiting a decision'
                       : tile.subtitle;
-                  return _DashCard(data: tile, subtitle: subtitle);
+
+                  return _DashCard(
+                    data: tile,
+                    subtitle: subtitle,
+                  );
                 },
               );
             },
           ),
+
           const SizedBox(height: 16),
+
           LayoutBuilder(
             builder: (context, constraints) {
               final stacked = constraints.maxWidth < 860;
+
               final needs = [
                 ...pending.map(
                   (o) => _NeedItem(
@@ -170,14 +203,12 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
                 ...deposits.map(
                   (o) => _NeedItem(
                     title: '${o.displayName} · EFT deposit',
-                    chip: const AkeaStatusChip(
-                      label: 'Awaiting',
-                      kind: AkeaChipKind.neutral,
-                    ),
+                    chip: AkeaStatusChip.forStatus(o.status),
                     icon: Icons.receipt_long_outlined,
                   ),
                 ),
               ];
+
               final left = AkeaCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,38 +224,37 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
                         style: TextStyle(color: AkeaColors.muted),
                       )
                     else
-                      ...needs
-                          .take(5)
-                          .map(
-                            (n) => Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 12,
+                      ...needs.take(5).map(
+                        (n) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AkeaColors.cream,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  n.icon,
+                                  size: 18,
+                                  color: AkeaColors.muted,
                                 ),
-                                decoration: BoxDecoration(
-                                  color: AkeaColors.cream,
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      n.icon,
-                                      size: 18,
-                                      color: AkeaColors.muted,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(child: Text(n.title)),
-                                    n.chip,
-                                  ],
-                                ),
-                              ),
+                                const SizedBox(width: 10),
+                                Expanded(child: Text(n.title)),
+                                n.chip,
+                              ],
                             ),
                           ),
+                        ),
+                      ),
                   ],
                 ),
               );
+
               final right = AkeaCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,11 +274,17 @@ class _OwnerDashboardViewState extends State<OwnerDashboardView> {
                   ],
                 ),
               );
+
               if (stacked) {
                 return Column(
-                  children: [left, const SizedBox(height: 16), right],
+                  children: [
+                    left,
+                    const SizedBox(height: 16),
+                    right,
+                  ],
                 );
               }
+
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -272,6 +308,7 @@ class _DashTileData {
     required this.icon,
     required this.route,
   });
+
   final String title;
   final String subtitle;
   final IconData icon;
@@ -279,7 +316,11 @@ class _DashTileData {
 }
 
 class _DashCard extends StatelessWidget {
-  const _DashCard({required this.data, required this.subtitle});
+  const _DashCard({
+    required this.data,
+    required this.subtitle,
+  });
+
   final _DashTileData data;
   final String subtitle;
 
@@ -305,7 +346,10 @@ class _DashCard extends StatelessWidget {
                       color: AkeaColors.cream,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(data.icon, color: AkeaColors.purple),
+                    child: Icon(
+                      data.icon,
+                      color: AkeaColors.purple,
+                    ),
                   ),
                   const Spacer(),
                   const Icon(
@@ -326,7 +370,10 @@ class _DashCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                style: const TextStyle(color: AkeaColors.muted, fontSize: 13),
+                style: const TextStyle(
+                  color: AkeaColors.muted,
+                  fontSize: 13,
+                ),
               ),
             ],
           ),
@@ -342,6 +389,7 @@ class _NeedItem {
     required this.chip,
     required this.icon,
   });
+
   final String title;
   final Widget chip;
   final IconData icon;
@@ -349,6 +397,7 @@ class _NeedItem {
 
 class _UpcomingRow extends StatelessWidget {
   const _UpcomingRow({required this.order});
+
   final Order order;
 
   @override
@@ -367,6 +416,7 @@ class _UpcomingRow extends StatelessWidget {
       'NOV',
       'DEC',
     ];
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(
@@ -391,7 +441,9 @@ class _UpcomingRow extends StatelessWidget {
                   children: [
                     Text(
                       '${order.eventDate.day}',
-                      style: const TextStyle(fontWeight: FontWeight.w800),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                     Text(
                       months[order.eventDate.month - 1],
@@ -410,7 +462,9 @@ class _UpcomingRow extends StatelessWidget {
                   children: [
                     Text(
                       order.displayName,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     Text(
                       '${order.eventType} · ${order.venue ?? 'Venue TBC'}',
@@ -422,11 +476,7 @@ class _UpcomingRow extends StatelessWidget {
                   ],
                 ),
               ),
-              if (order.status.toLowerCase().contains('deposit'))
-                const AkeaStatusChip(
-                  label: 'Awaiting deposit',
-                  kind: AkeaChipKind.warn,
-                ),
+              AkeaStatusChip.forStatus(order.status),
             ],
           ),
         ),

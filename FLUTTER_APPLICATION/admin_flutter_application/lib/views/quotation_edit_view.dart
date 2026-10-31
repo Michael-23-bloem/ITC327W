@@ -346,16 +346,25 @@ class _QuotationEditViewState extends State<QuotationEditView> {
     super.dispose();
   }
 
+  
   @override
-  Widget build(BuildContext context) {
-    return AkeaPage(
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
-        children: [
-          const AkeaPageHeader(
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title:  const AkeaPageHeader(
             title: 'Edit quotation',
             subtitle: 'Review the original request and prepare a quotation',
           ),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => Navigator.pop(context),
+      ),
+    ),
+    body: AkeaPage(
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+        children: [
+         
           if (_loading)
             const Padding(
               padding: EdgeInsets.only(top: 80),
@@ -382,11 +391,8 @@ class _QuotationEditViewState extends State<QuotationEditView> {
                         ),
 
                       _buildOriginalItems(vm),
-
                       const SizedBox(height: 16),
-
                       _buildQuotationItems(vm),
-
                       const SizedBox(height: 20),
 
                       AkeaCard(
@@ -474,8 +480,9 @@ class _QuotationEditViewState extends State<QuotationEditView> {
             ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _totalRow(
     String label,

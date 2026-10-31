@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -145,6 +146,7 @@ class AdminShell extends StatelessWidget {
 
     if (wide) {
       final index = _selectedIndex(location, _desktopDestinations);
+
       return Scaffold(
         backgroundColor: AkeaColors.bg,
         body: Row(
@@ -165,9 +167,70 @@ class AdminShell extends StatelessWidget {
     }
 
     final index = _selectedIndex(location, _mobileDestinations);
+
+    // Show the branded AppBar only on the main dashboard.
+    final isDashboard = location == '/dashboard';
+
     return Scaffold(
       backgroundColor: AkeaColors.bg,
+
+      appBar: isDashboard
+          ? AppBar(
+              backgroundColor: AkeaColors.bg,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              toolbarHeight: 78,
+              titleSpacing: 16,
+              title: Row(
+                children: [
+                  const AkeaLogoMark(size: 40),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'AkeaEvents Admin',
+                          style: GoogleFonts.playfairDisplay(
+                            color: AkeaColors.ink,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            height: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Your event management dashboard',
+                          style: GoogleFonts.inter(
+                            color: AkeaColors.muted,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                IconButton(
+                  tooltip: 'Sign out',
+                  icon: const Icon(
+                    Icons.logout_rounded,
+                    color: AkeaColors.plum,
+                    size: 24,
+                  ),
+                  onPressed: () => _signOut(context),
+                ),
+                const SizedBox(width: 8),
+              ],
+            )
+          : null,
+
       body: child,
+
       bottomNavigationBar: _GoldPillTabBar(
         index: index,
         destinations: _mobileDestinations,
@@ -237,8 +300,9 @@ class _GoldPillTabBar extends StatelessWidget {
                             destinations[i].label,
                             style: TextStyle(
                               fontSize: 11,
-                              fontWeight:
-                                  i == index ? FontWeight.w700 : FontWeight.w500,
+                              fontWeight: i == index
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
                               color: i == index
                                   ? AkeaColors.plum
                                   : AkeaColors.muted,

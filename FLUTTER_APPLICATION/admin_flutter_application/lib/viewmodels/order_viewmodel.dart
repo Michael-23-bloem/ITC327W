@@ -254,7 +254,6 @@ Future<void> loadQuotations() async {
           OrderStatus.requestSent,
           OrderStatus.inContact,
           OrderStatus.quotationApproved,
-          OrderStatus.orderConfirmed,
           OrderStatus.depositReceived,
           OrderStatus.preparationsBegin,
           OrderStatus.completed,

@@ -9,12 +9,11 @@ class OrderService {
   // New: from('orders').eq('status','pending') + join profiles for email
   // ------------------------------------------------------------------
   Future<List<dynamic>> getQuotationRequests() async {
-    return await supabase
-        .from('orders')
-        .select('*, profiles(email, first_name, last_name)')
-        .inFilter('status', ['request_sent', 'in_contact', 'quotation_approved'])
-        .order('created_at', ascending: false);
-  }
+  return await supabase
+      .from('orders')
+      .select('*, profiles(email, first_name, last_name)')
+      .order('created_at', ascending: false);
+}
 
   // ------------------------------------------------------------------
   // WIREFRAME 8 - Bookings - Past bookings (all non-pending)
@@ -32,7 +31,7 @@ class OrderService {
   // Old: select User(Username...)
   // New: select profiles + order_items + decor_products
   // ------------------------------------------------------------------
-  Future<dynamic> getOrder(String orderId) async {
+  /*Future<dynamic> getOrder(String orderId) async {
     return await supabase
         .from('orders')
         .select('''
@@ -46,7 +45,26 @@ class OrderService {
         ''')
         .eq('id', orderId)
         .single();
-  }
+  }*/
+  Future<dynamic> getOrder(String orderId) async {
+  return await supabase
+      .from('orders')
+      .select('''
+        *,
+        profiles(email, first_name, last_name, phone_number),
+        order_items(
+          quantity,
+          unit_price,
+          product_id,
+          package_id,
+          decor_products(name, price, image_url),
+          packages(name, price)
+        ),
+        quotations(*)
+      ''')
+      .eq('id', orderId)
+      .single();
+}
   
 
   // ------------------------------------------------------------------
@@ -220,8 +238,51 @@ class OrderService {
 }*/
 
 
-
 Future<void> validateEftAndConvert(String orderId) async {
+
+  // 1. Find the latest quotation.
+  final quotation = await supabase
+      .from('quotations')
+      .select('id')
+      .eq('order_id', orderId)
+      .order('version', ascending: false)
+      .limit(1)
+      .maybeSingle();
+
+  if (quotation == null) {
+    throw Exception('Quotation not found.');
+  }
+
+  // 2. Find the pending deposit.
+  final deposit = await supabase
+      .from('deposits')
+      .select('id')
+      .eq('quotation_id', quotation['id'])
+      .eq('status', 'awaiting')
+      .maybeSingle();
+
+  if (deposit == null) {
+    throw Exception('No pending deposit found.');
+  }
+
+  // 3. Update deposit status.
+  await supabase
+      .from('deposits')
+      .update({
+        'status': 'received',
+        'received_at': DateTime.now().toUtc().toIso8601String(),
+      })
+      .eq('id', deposit['id']);
+
+  // 4. Convert order into a booking.
+  await supabase
+      .from('orders')
+      .update({
+        'status': 'deposit_received',
+      })
+      .eq('id', orderId);
+}
+/*Future<void> validateEftAndConvert(String orderId) async {
   // 1. Get the authenticated owner.
   final owner = supabase.auth.currentUser;
 
@@ -242,11 +303,18 @@ Future<void> validateEftAndConvert(String orderId) async {
     throw Exception('No quotation exists for this order.');
   }
 
-  if (quotation['status'] != 'confirmed') {
-    throw Exception(
-      'Only confirmed quotations can have deposits validated.',
-    );
-  }
+  // Check the order status, not quotation status.
+final order = await supabase
+    .from('orders')
+    .select('status')
+    .eq('id', orderId)
+    .single();
+
+if (order['status'] != 'quotation_approved') {
+  throw Exception(
+    'The quotation must be approved before validating payment.',
+  );
+}
 
   final total =
       (quotation['estimated_total'] as num?)?.toDouble() ?? 0.0;
@@ -260,7 +328,7 @@ Future<void> validateEftAndConvert(String orderId) async {
   final quotationId = quotation['id'];
 
   // 3. Find the deposit awaiting validation.
-  final deposit = await supabase
+ /* final deposit = await supabase
       .from('deposits')
       .select('id, amount, reference, status')
       .eq('quotation_id', quotationId)
@@ -271,7 +339,7 @@ Future<void> validateEftAndConvert(String orderId) async {
     throw Exception(
       'No deposit awaiting validation was found.',
     );
-  }
+  }*/
 
   final amount =
       (deposit['amount'] as num?)?.toDouble() ?? 0.0;
@@ -314,7 +382,7 @@ Future<void> validateEftAndConvert(String orderId) async {
       'Check the database before trying again.',
     );
   }
-}
+}*/
 
 
   /*Future<void> validateEftAndConvert(String orderId) async {
@@ -339,11 +407,49 @@ Future<void> validateEftAndConvert(String orderId) async {
     }).eq('id', orderId);
   }
 
-  Future<void> confirmQuotation(String orderId) async {
-    await supabase.from('orders').update({
-      'status': 'quotation_approved',
-    }).eq('id', orderId);
+ Future<void> confirmQuotation(String orderId) async {
+  // 1. Get the latest quotation.
+  final quotation = await getLatestQuotation(orderId);
+
+  if (quotation == null) {
+    throw Exception('Quotation not found.');
   }
+
+  // 2. Calculate the 50% deposit.
+  final total =
+      (quotation['estimated_total'] as num).toDouble();
+
+  final depositAmount =
+      double.parse((total * 0.5).toStringAsFixed(2));
+
+  // 3. Mark the quotation as confirmed.
+  await supabase
+      .from('quotations')
+      .update({'status': 'quotation_approved'})
+      .eq('id', quotation['id']);
+
+  // 4. Check whether a deposit already exists.
+  final existingDeposit = await supabase
+      .from('deposits')
+      .select('id')
+      .eq('quotation_id', quotation['id'])
+      .maybeSingle();
+
+  // 5. Create the awaiting deposit if it doesn't exist.
+  if (existingDeposit == null) {
+    await supabase.from('deposits').insert({
+      'quotation_id': quotation['id'],
+      'amount': depositAmount,
+      'status': 'awaiting',
+    });
+  }
+
+  // 6. Update the official order status.
+  await supabase
+      .from('orders')
+      .update({'status': 'quotation_approved'})
+      .eq('id', orderId);
+}
 
   Future<void> markInContact(String orderId) async {
     await supabase.from('orders').update({
