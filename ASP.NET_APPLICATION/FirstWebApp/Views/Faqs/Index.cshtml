@@ -1,0 +1,44 @@
+@model List<Faq>
+@{
+    ViewData["Title"] = "FAQs";
+    ViewData["BodyClass"] = "page-faqs";
+}
+
+<header class="page-head">
+    <p class="eyebrow">Help</p>
+    <h1>Frequently asked questions</h1>
+    <p class="page-lead">Quick answers about estimates, quotations, deposits and setup.</p>
+</header>
+
+@if (ViewData["Error"] is string error)
+{
+    <div class="alert alert-warning py-2" role="alert">@error</div>
+}
+
+<div class="faq-page">
+    @if (!Model.Any() && ViewData["Error"] == null)
+    {
+        <p class="text-muted">Our FAQs are being written. In the meantime, ask our assistant or chat to us on WhatsApp.</p>
+    }
+    else
+    {
+        <div class="faq-list">
+            @foreach (var faq in Model)
+            {
+                <details class="faq">
+                    <summary>@faq.Question</summary>
+                    <p class="faq-answer">@faq.Answer</p>
+                </details>
+            }
+        </div>
+    }
+
+    <section class="faq-help" aria-labelledby="faqHelpTitle">
+        <h2 id="faqHelpTitle">Still have a question?</h2>
+        <p>Our assistant and our team are happy to help.</p>
+        <div class="btn-row">
+            <button type="button" class="btn btn-dark" data-assistant-open aria-controls="assistantPanel">Ask our assistant</button>
+            <a href="https://wa.me/27833956705" target="_blank" rel="noopener noreferrer" class="btn btn-outline-dark">Chat on WhatsApp</a>
+        </div>
+    </section>
+</div>

@@ -57,6 +57,10 @@
                                asp-area="" asp-controller="Quotes" asp-action="Index">My Quotes</a>
                         </li>
                         <li class="nav-item">
+                            <a class="@NavClass(IsCurrent("Faqs"))" aria-current="@NavCurrent(IsCurrent("Faqs"))"
+                               asp-area="" asp-controller="Faqs" asp-action="Index">FAQs</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="@NavClass(IsCurrent("Home", "About"))" aria-current="@NavCurrent(IsCurrent("Home", "About"))"
                                asp-area="" asp-controller="Home" asp-action="About">About us</a>
                         </li>

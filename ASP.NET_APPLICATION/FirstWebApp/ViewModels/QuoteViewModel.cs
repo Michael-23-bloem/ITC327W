@@ -80,18 +80,18 @@ namespace FirstWebApp.ViewModels
         public DateTime CreatedAt { get; set; }
     }
 
-    // Customer-friendly wording for the statuses used by the database and Flutter
+        // Customer-friendly wording for the order statuses used by the database and the Flutter admin app
     public static class QuoteStatus
     {
-        // The stages shown in the progress tracker, in order
+        // The progress tracker stages, in order. They match how the admin app moves an order along:
+        // request → owner in contact → quotation approved → deposit validated (becomes a booking) → preparations
         public static readonly (string Key, string Label)[] Stages =
         {
             ("request_sent", "Request sent"),
+            ("in_contact", "In contact"),
             ("quotation_approved", "Quotation approved"),
-            ("order_confirmed", "Order confirmed"),
             ("deposit_received", "Deposit received"),
-            ("preparations_begin", "Preparations begun"),
-            ("completed", "Completed")
+            ("preparations_begin", "Preparations begun")
         };
 
         private static readonly Dictionary<string, string> OrderLabels = new()
@@ -99,7 +99,7 @@ namespace FirstWebApp.ViewModels
             ["request_sent"] = "Awaiting review",
             ["in_contact"] = "In contact with you",
             ["quotation_approved"] = "Quotation approved – pay deposit",
-            ["order_confirmed"] = "Order confirmed",
+            ["order_confirmed"] = "Order confirmed – pay deposit",
             ["deposit_received"] = "Deposit received",
             ["preparations_begin"] = "Preparations begun",
             ["completed"] = "Completed",
@@ -134,14 +134,17 @@ namespace FirstWebApp.ViewModels
             return OrderLabel(status);
         }
 
-        // Highlight requests where the customer needs to act
-        public static bool NeedsAction(string status) => status == "quotation_approved";
+        // Highlight orders where the customer needs to pay the deposit
+        public static bool NeedsAction(string status) =>
+            status is "quotation_approved" or "order_confirmed";
 
-        // Which tracker stage the request has reached (-1 for declined or cancelled)
-        public static int StageIndex(string status)
+        // Which tracker stage the order has reached:
+        //   0–4 = that stage is current, 5 = completed (every stage ticked), -1 = declined or cancelled
+        public static int StageIndex(string status) => status switch
         {
-            if (status == "in_contact") return 0;
-            return Array.FindIndex(Stages, s => s.Key == status);
-        }
+            "order_confirmed" => 2,              // not used by the admin flow; treated as "Quotation approved"
+            "completed" => Stages.Length,        // all five stages done
+            _ => Array.FindIndex(Stages, s => s.Key == status)
+        };
     }
 }
