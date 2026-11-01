@@ -15,7 +15,13 @@ class OrderItemService {
         ''')
         .eq('order_id', orderId);
   }
- 
+    // Get catalogue products for the quotation editor.
+Future<List<dynamic>> getCatalogueProducts() async {
+  return await supabase
+      .from('decor_products')
+      .select('id, name, price, image_url')
+      .order('name');
+}
   // wireframe 6 - Add item in Edit quotation
   Future<void> addItem(String orderId, String productId, int qty) async {
     final product = await supabase

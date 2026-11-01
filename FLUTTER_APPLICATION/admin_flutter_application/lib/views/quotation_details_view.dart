@@ -122,7 +122,8 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
       );
     }
   }
-    Future<void> _confirmPayment(BuildContext context, String orderId) async {
+
+  Future<void> _confirmPayment(BuildContext context, String orderId) async {
     bool paymentReceived = false;
     bool referenceMatches = false;
 
@@ -298,7 +299,7 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
     );
   }
 
-  Widget _buildQuotationCard() {
+  Widget _buildQuotationCard(o) {
     if (_quotationLoading) {
       return const Card(
         child: Padding(
@@ -349,6 +350,9 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
             _quotationRow('Service fee', money(quotation['service_fee'])),
             if (quotation['final_total'] != null)
               _quotationRow('Final total', money(quotation['final_total'])),
+            const Divider(),
+
+            _quotationRow('Order reference', o.referenceLabel),
           ],
         ),
       ),
@@ -510,7 +514,7 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                 const SizedBox(height: 16),
 
                 // Quotation summary
-                _buildQuotationCard(),
+                _buildQuotationCard(o),
 
                 const SizedBox(height: 16),
                 // Requested items
@@ -702,7 +706,7 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                       ),
                     ),
 
-                                        OutlinedButton.icon(
+                    OutlinedButton.icon(
                       onPressed: () => _confirmPayment(context, o.id),
                       icon: const Icon(Icons.payments_outlined),
                       label: const Text('Validate Payment'),

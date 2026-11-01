@@ -13,6 +13,7 @@ class OrderLineItem {
 class Order {
   final String id;
   final String customerId;
+  final String? reference;
   final String status;
   final String eventType;
   final DateTime eventDate;
@@ -33,6 +34,7 @@ class Order {
   Order({
     required this.id,
     required this.customerId,
+     this.reference,
     required this.status,
     required this.eventType,
     required this.eventDate,
@@ -106,6 +108,7 @@ class Order {
 
     return Order(
       id: json['id'] as String,
+      reference: json['reference'] as String?,
       customerId: json['customer_id'] as String,
       status: json['status'] as String? ?? 'request_sent',
       eventType: json['event_type'] as String? ?? 'Event',
@@ -135,6 +138,19 @@ class Order {
   }
 
   String get eventTypeLabel => eventType;
+  
+  String get referenceLabel {
+  if (reference != null && reference!.isNotEmpty) {
+    return reference!;
+  }
+
+  final cleanId = id.replaceAll('-', '').toUpperCase();
+  final shortId = cleanId.length > 8
+      ? cleanId.substring(0, 8)
+      : cleanId;
+
+  return 'REQ-$shortId';
+}
 
   String get displayName =>
       (customerName != null && customerName!.isNotEmpty)
