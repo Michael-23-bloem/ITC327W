@@ -1972,3 +1972,46 @@ body:has(dialog[open]) {
     .faq-help .btn-row {
         justify-content: center;
     }
+
+/* ---------- Sign in: forgot password and social buttons ---------- */
+.auth-label-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.auth-forgot {
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin: 1.5rem 0 1rem;
+    font-size: .75rem;
+    color: var(--muted);
+}
+
+    .auth-divider::before,
+    .auth-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--line);
+    }
+
+.auth-social {
+    display: grid;
+    gap: .6rem;
+}
+
+    .auth-social form {
+        margin: 0;
+    }
+
+    .auth-social .btn {
+        min-height: 44px;
+    }

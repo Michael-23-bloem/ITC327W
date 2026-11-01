@@ -113,6 +113,7 @@ namespace FirstWebApp.ViewModels
             ["in_contact"] = "Being discussed",
             ["sent_back"] = "Revised quotation",
             ["confirmed"] = "Approved",
+            ["quotation_approved"] = "Approved",
             ["declined"] = "Declined",
             ["superseded"] = "Replaced by a newer version"
         };
@@ -120,8 +121,15 @@ namespace FirstWebApp.ViewModels
         public static string OrderLabel(string status) =>
             OrderLabels.TryGetValue(status, out var label) ? label : status;
 
-        public static string QuoteLabel(string? status) =>
-            status != null && QuoteLabels.TryGetValue(status, out var label) ? label : status ?? "";
+        // Friendly label; unknown statuses become e.g. "Quotation approved" instead of "quotation_approved"
+        public static string QuoteLabel(string? status)
+        {
+            if (string.IsNullOrWhiteSpace(status)) return "";
+            if (QuoteLabels.TryGetValue(status, out var label)) return label;
+
+            var words = status.Replace('_', ' ');
+            return char.ToUpper(words[0]) + words[1..];
+        }
 
         // "Awaiting review · 18h left" while the owner's 24-hour decision window is open
         public static string ListLabel(string status, DateTime? decisionDueAt)

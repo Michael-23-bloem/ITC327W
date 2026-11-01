@@ -10,6 +10,11 @@
         <h1 class="auth-title">Sign in</h1>
         <p class="auth-sub">New here? <a asp-action="Register">Create an account</a></p>
 
+        @if (TempData["AuthMessage"] is string authMessage)
+        {
+            <div class="alert alert-dark py-2" role="status">@authMessage</div>
+        }
+
         <form asp-action="Login" method="post" novalidate>
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
             <input type="hidden" asp-for="ReturnUrl" />
@@ -21,13 +26,31 @@
             </div>
 
             <div class="mb-4">
-                <label asp-for="Password" class="form-label"></label>
+                <div class="auth-label-row">
+                    <label asp-for="Password" class="form-label"></label>
+                    <a asp-action="ForgotPassword" class="auth-forgot">Forgot password?</a>
+                </div>
                 <input asp-for="Password" class="form-control" autocomplete="current-password" />
                 <span asp-validation-for="Password" class="text-danger small"></span>
             </div>
 
             <button type="submit" class="btn w-100">Sign in</button>
         </form>
+
+        <p class="auth-divider"><span>or continue with</span></p>
+
+        <div class="auth-social">
+            <form asp-action="ExternalLogin" method="post">
+                <input type="hidden" name="provider" value="google" />
+                <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+                <button type="submit" class="btn btn-outline-dark w-100">Continue with Google</button>
+            </form>
+            <form asp-action="ExternalLogin" method="post">
+                <input type="hidden" name="provider" value="facebook" />
+                <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+                <button type="submit" class="btn btn-outline-dark w-100">Continue with Facebook</button>
+            </form>
+        </div>
     </div>
 </div>
 
