@@ -216,16 +216,15 @@ namespace FirstWebApp.Controllers
                 // The items the customer originally requested
                 var originalLines = await LoadLinesAsync(id);
 
-                // The items now on the quotation: the owner's latest version if it has items
-                var lines = quote?.QuotationItems is { Count: > 0 }
-                    ? ToLines(quote.QuotationItems)
-                    : originalLines;
+                // Versions the owner saved in the admin app (2, 3, …) carry their own item list,
+                // which may be empty if every item was removed. Version 1 is the customer's request.
+                static bool HasSavedItems(Quotation? q) => q != null && q.Version > 1 && q.QuotationItems != null;
+
+                var lines = HasSavedItems(quote) ? ToLines(quote!.QuotationItems!) : originalLines;
 
                 // What changed compared with the version before (or with the original request)
                 var wasEdited = quote != null && quote.Version > 1;
-                var beforeLines = previous?.QuotationItems is { Count: > 0 }
-                    ? ToLines(previous.QuotationItems)
-                    : originalLines;
+                var beforeLines = HasSavedItems(previous) ? ToLines(previous!.QuotationItems!) : originalLines;
                 var changes = wasEdited ? CompareLines(beforeLines, lines) : new List<QuoteChangeViewModel>();
 
                 Deposit? deposit = null;
@@ -433,36 +432,51 @@ namespace FirstWebApp.Controllers
                 UnitPrice = i.UnitPrice
             }).OrderBy(l => l.Name).ToList();
 
-        // Items added, removed, or with a new quantity or price
+                // Items added, removed, renamed, or with a new quantity or price.
+        // Lines with the same key (e.g. two custom items with the same name) are compared together.
         private static List<QuoteChangeViewModel> CompareLines(List<QuoteLineViewModel> before, List<QuoteLineViewModel> after)
         {
-            var beforeByKey = before.GroupBy(l => l.Key).ToDictionary(g => g.Key, g => g.First());
-            var afterByKey = after.GroupBy(l => l.Key).ToDictionary(g => g.Key, g => g.First());
+            static Dictionary<string, (string Name, int Quantity, decimal Total)> Summarise(List<QuoteLineViewModel> lines) =>
+                lines.GroupBy(l => l.Key).ToDictionary(
+                    g => g.Key,
+                    g => (g.First().Name, g.Sum(l => l.Quantity), g.Sum(l => l.LineTotal)));
+
+            static decimal UnitPrice(int quantity, decimal total) => quantity == 0 ? 0 : Math.Round(total / quantity, 2);
+
+            var was = Summarise(before);
+            var now = Summarise(after);
             var changes = new List<QuoteChangeViewModel>();
 
-            foreach (var now in afterByKey.Values)
+            foreach (var (key, n) in now)
             {
-                if (!beforeByKey.TryGetValue(now.Key, out var was))
+                if (!was.TryGetValue(key, out var w))
                 {
-                    changes.Add(new QuoteChangeViewModel { Kind = "added", Name = now.Name, NewQuantity = now.Quantity, NewPrice = now.UnitPrice });
+                    changes.Add(new QuoteChangeViewModel
+                    {
+                        Kind = "added", Name = n.Name, NewQuantity = n.Quantity, NewPrice = UnitPrice(n.Quantity, n.Total)
+                    });
                 }
-                else if (was.Quantity != now.Quantity || was.UnitPrice != now.UnitPrice)
+                else if (w.Quantity != n.Quantity || w.Total != n.Total || w.Name != n.Name)
                 {
                     changes.Add(new QuoteChangeViewModel
                     {
                         Kind = "changed",
-                        Name = now.Name,
-                        OldQuantity = was.Quantity,
-                        NewQuantity = now.Quantity,
-                        OldPrice = was.UnitPrice,
-                        NewPrice = now.UnitPrice
+                        Name = n.Name,
+                        OldName = w.Name != n.Name ? w.Name : null,
+                        OldQuantity = w.Quantity,
+                        NewQuantity = n.Quantity,
+                        OldPrice = UnitPrice(w.Quantity, w.Total),
+                        NewPrice = UnitPrice(n.Quantity, n.Total)
                     });
                 }
             }
 
-            foreach (var was in beforeByKey.Values.Where(b => !afterByKey.ContainsKey(b.Key)))
+            foreach (var (key, w) in was.Where(p => !now.ContainsKey(p.Key)))
             {
-                changes.Add(new QuoteChangeViewModel { Kind = "removed", Name = was.Name, OldQuantity = was.Quantity, OldPrice = was.UnitPrice });
+                changes.Add(new QuoteChangeViewModel
+                {
+                    Kind = "removed", Name = w.Name, OldQuantity = w.Quantity, OldPrice = UnitPrice(w.Quantity, w.Total)
+                });
             }
 
             // Added first, then changed, then removed

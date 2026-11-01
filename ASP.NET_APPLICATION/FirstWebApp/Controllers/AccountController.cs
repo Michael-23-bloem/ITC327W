@@ -157,7 +157,7 @@ namespace FirstWebApp.Controllers
             }
         }
 
-        // From the navbar profile card: Supabase emails a confirmation link to the new address
+                // From the navbar profile card: Supabase emails a confirmation link to the new address
         [Authorize]
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeEmail(string? newEmail, string? returnUrl = null)
@@ -182,6 +182,9 @@ namespace FirstWebApp.Controllers
 
             if (!await _session.UseCustomerSessionAsync())
             {
+                // They're being sent to sign in again, so don't pop the profile card open afterwards
+                TempData.Remove("ProfileOpen");
+
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 TempData["AuthMessage"] = "Please sign in again to change your email.";
                 return RedirectToAction(nameof(Login), new { returnUrl = back });

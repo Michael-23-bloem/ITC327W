@@ -51,6 +51,10 @@
                         else
                         {
                             <strong>Changed:</strong> @c.Name
+                            @if (c.OldName != null)
+                            {
+                                <text> (was "@c.OldName")</text>
+                            }
                             @if (c.OldQuantity != c.NewQuantity)
                             {
                                 <text> · quantity @c.OldQuantity → @c.NewQuantity</text>

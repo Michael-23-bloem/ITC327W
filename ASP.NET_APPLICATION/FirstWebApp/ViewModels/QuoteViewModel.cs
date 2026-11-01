@@ -172,5 +172,6 @@ namespace FirstWebApp.ViewModels
         public int? NewQuantity { get; set; }
         public decimal? OldPrice { get; set; }
         public decimal? NewPrice { get; set; }
+        public string? OldName { get; set; }     // set when the item was renamed
     }
 }
