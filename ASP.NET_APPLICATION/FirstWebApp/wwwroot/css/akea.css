@@ -1,0 +1,2017 @@
+/* =========================================================
+   AkeaEvents design system — loaded on every page.
+   Same palette, type and components everywhere;
+   each page gets its own header treatment (see "Page themes").
+   ========================================================= */
+
+:root {
+    --beige: #efe6da;
+    --beige-deep: #e4d6c5;
+    --nude: #d8b4a0; /* button colour while pressed */
+    --nude-ink: #3b2a22;
+    --ink: #161412;
+    --muted: #6f655c;
+    --line: #cdbfae;
+    --error: #a3342b;
+    --radius: 6px;
+}
+
+/* ---------- Base ---------- */
+body.akea {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin-bottom: 0;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--beige);
+}
+
+.akea a {
+    color: inherit;
+    text-underline-offset: 3px;
+}
+
+.akea a:hover {
+    color: var(--nude-ink);
+}
+
+/* Background option: blurred photo (wwwroot/images/bg.jpg); plain beige until it exists */
+.bg-blur {
+    position: relative;
+    isolation: isolate;
+}
+
+    .bg-blur::before {
+        content: "";
+        position: fixed;
+        inset: -30px; /* hides blurred edges */
+        background: url("/images/bg.jpg") center / cover no-repeat;
+        filter: blur(14px) saturate(.9);
+        z-index: -2;
+    }
+
+    .bg-blur::after { /* warm beige veil for readability */
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: rgba(239, 230, 218, .55);
+        z-index: -1;
+    }
+
+/* ---------- Navbar ---------- */
+.site-nav {
+    padding-block: .55rem;
+    background: rgba(255, 255, 255, .7);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+}
+
+.site-nav .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.logo {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--beige-deep);
+    border: 1px solid var(--line);
+}
+
+.site-nav .navbar-nav .nav-link {
+    color: var(--ink);
+    font-size: .9rem;
+}
+
+.site-nav .navbar-nav .nav-link:hover {
+    color: var(--nude-ink);
+}
+
+.site-nav .navbar-nav .nav-link.active {
+    color: var(--ink);
+    font-weight: 600;
+    border-bottom: 2px solid var(--ink);
+}
+
+.site-nav .btn-link {
+    font-weight: 400;
+    text-decoration: none;
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+    margin-top: auto;
+    padding: 1.25rem 0;
+    font-size: .8rem;
+    color: var(--muted);
+    background: rgba(255, 255, 255, .5);
+    border-top: 1px solid var(--line);
+}
+
+/* ---------- Shared layout pieces ---------- */
+.wrap {
+    width: min(100% - 3rem, 1120px);
+    margin-inline: auto;
+}
+
+.section {
+    padding: 3.5rem 0;
+}
+
+.section-white {
+    background: rgba(255, 255, 255, .75);
+}
+
+.section h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+
+.section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+    margin: 0 0 .35rem;
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.more {
+    font-size: .75rem;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+}
+
+.center {
+    text-align: center;
+}
+
+/* ---------- Buttons ---------- */
+.akea .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    padding: .5rem 1.1rem;
+    font-family: inherit;
+    font-size: .85rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #fff;
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    border-radius: var(--radius);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color .12s, color .12s, border-color .12s, transform .08s;
+}
+
+    .akea .btn:hover {
+        color: #fff;
+        background: #2b2622;
+        border-color: #2b2622;
+    }
+
+    .akea .btn:active,
+    .akea .btn.active {
+        color: var(--nude-ink);
+        background: var(--nude);
+        border-color: var(--nude);
+        transform: translateY(1px);
+    }
+
+    .akea .btn:focus,
+    .akea .btn:active:focus {
+        box-shadow: none;
+    }
+
+    .akea .btn:focus-visible {
+        outline: 3px solid var(--nude);
+        outline-offset: 2px;
+    }
+
+.akea .btn-sm {
+    padding: .35rem .8rem;
+    font-size: .75rem;
+}
+
+.akea .btn-block {
+    width: 100%;
+}
+
+.akea .btn-light {
+    color: var(--ink);
+    background: #fff;
+    border-color: #fff;
+}
+
+    .akea .btn-light:hover {
+        color: var(--ink);
+        background: #f4eee6;
+        border-color: #f4eee6;
+    }
+
+.akea .btn-outline,
+.akea .btn-outline-dark {
+    color: var(--ink);
+    background: transparent;
+    border-color: var(--ink);
+}
+
+    .akea .btn-outline:hover,
+    .akea .btn-outline-dark:hover {
+        color: var(--ink);
+        background: rgba(22, 20, 18, .06);
+        border-color: var(--ink);
+    }
+
+/* Pressed state for the lighter buttons (after their hover rules so it wins) */
+.akea .btn-light:active,
+.akea .btn-outline:active,
+.akea .btn-outline-dark:active {
+    color: var(--nude-ink);
+    background: var(--nude);
+    border-color: var(--nude);
+}
+
+.akea .btn-link {
+    padding-inline: .25rem;
+    color: var(--ink);
+    background: transparent;
+    border-color: transparent;
+    text-decoration: underline;
+}
+
+    .akea .btn-link:hover,
+    .akea .btn-link:active {
+        color: var(--nude-ink);
+        background: transparent;
+        border-color: transparent;
+        transform: none;
+    }
+
+/* ---------- Forms ---------- */
+.akea .form-label {
+    margin-bottom: .35rem;
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.akea .form-control,
+.akea .form-select {
+    min-height: 42px;
+    font-size: .9rem;
+    color: var(--ink);
+    background-color: #fff;
+    border: 1px solid #8f8478;
+    border-radius: var(--radius);
+}
+
+.akea .form-control-sm {
+    min-height: 34px;
+    font-size: .8rem;
+}
+
+.akea .form-control::placeholder {
+    color: var(--muted);
+}
+
+.akea .form-control:focus,
+.akea .form-select:focus,
+.akea .form-check-input:focus {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(216, 180, 160, .55);
+}
+
+.akea .form-control.input-validation-error {
+    border-color: var(--error);
+}
+
+.akea .form-check-input:checked {
+    background-color: var(--ink);
+    border-color: var(--ink);
+}
+
+.akea .form-text {
+    color: var(--muted);
+}
+
+.akea .text-muted {
+    color: var(--muted) !important;
+}
+
+.akea .text-danger {
+    color: var(--error) !important;
+}
+
+/* ---------- Alerts and validation ---------- */
+.akea .alert {
+    border-radius: var(--radius);
+    font-size: .85rem;
+}
+
+.akea .alert-dark {
+    color: var(--ink);
+    background: #fff;
+    border-color: var(--line);
+}
+
+.akea .alert-danger,
+.akea .alert-warning {
+    color: var(--error);
+    background: rgba(163, 52, 43, .07);
+    border-color: rgba(163, 52, 43, .35);
+}
+
+/* Hide the error box when there are no errors */
+.validation-summary-valid {
+    display: none;
+}
+
+.validation-summary-errors ul {
+    margin: 0;
+    padding-left: 1rem;
+}
+
+/* Message shown after a form is submitted */
+.flash {
+    padding: .6rem 1rem;
+    font-size: .85rem;
+    text-align: center;
+    color: var(--nude-ink);
+    background: var(--nude);
+}
+
+/* ---------- Tables ---------- */
+.akea .table {
+    --bs-table-bg: transparent;
+    color: var(--ink);
+    border-color: var(--line);
+}
+
+/* =========================================================
+   Page themes: same parts, a different feel per page
+   ========================================================= */
+
+/* Shared page header shape */
+.page-head {
+    margin: 1.5rem 0 2rem;
+    padding: 2rem clamp(1.25rem, 4vw, 2.5rem);
+    border-radius: 10px;
+}
+
+    .page-head h1 {
+        margin: 0 0 .35rem;
+        font-size: clamp(1.6rem, 3.5vw, 2.1rem);
+        font-weight: 700;
+        letter-spacing: -.02em;
+    }
+
+.page-lead {
+    max-width: 60ch;
+    margin: 0;
+    font-size: .9rem;
+    color: var(--muted);
+}
+
+/* Catalogue and Portfolio: warm band with an ink accent */
+.page-catalogue .page-head,
+.page-portfolio .page-head {
+    background: var(--beige-deep);
+    border: 1px solid var(--line);
+    border-left: 6px solid var(--ink);
+}
+
+.page-catalogue .page-head .eyebrow,
+.page-catalogue .page-lead,
+.page-portfolio .page-head .eyebrow,
+.page-portfolio .page-lead {
+    color: var(--nude-ink);
+}
+
+.page-portfolio .page-head { border-left-color: var(--nude); }
+
+/* Estimate: a paper "receipt" on a deeper beige */
+body.page-estimate {
+    background: var(--beige-deep);
+}
+
+.sheet {
+    max-width: 760px;
+    margin: 2rem auto;
+    padding: 2rem clamp(1.25rem, 4vw, 2.5rem);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(60, 40, 25, .12);
+}
+
+.page-estimate .page-head {
+    margin: 0 0 1.5rem;
+    padding: 0 0 1.25rem;
+    border-radius: 0;
+    border-bottom: 1px dashed var(--line);
+    text-align: center;
+}
+
+.page-estimate .page-lead {
+    margin-inline: auto;
+}
+
+.sheet .table > :not(caption) > * > * {
+    border-bottom-style: dashed;
+}
+
+/* Account pages: a frosted card over the blurred photo (or plain beige) */
+.auth {
+    display: grid;
+    place-items: center;
+    padding: 2.5rem 0 3.5rem;
+}
+
+.auth-card {
+    width: min(100%, 480px);
+    padding: 2.25rem clamp(1.25rem, 5vw, 2.5rem) 2rem;
+    background: rgba(255, 255, 255, .82);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(60, 40, 25, .12);
+}
+
+.auth-title {
+    margin: 0;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+
+.auth-sub {
+    margin: .25rem 0 1.5rem;
+    text-align: center;
+    font-size: .85rem;
+    color: var(--muted);
+}
+
+    .auth-sub a {
+        font-weight: 600;
+    }
+
+/* Info pages (Privacy, Help): dark band like the home page's About section */
+.page-info .page-head {
+    color: #fff;
+    background: var(--ink);
+}
+
+    .page-info .page-head .eyebrow {
+        color: #a79c90;
+    }
+
+.page-info .page-lead {
+    color: #cfc6bb;
+}
+
+.prose {
+    max-width: 68ch;
+    margin-bottom: 3rem;
+    font-size: .95rem;
+    line-height: 1.7;
+}
+
+/* =========================================================
+   Catalogue and estimate components in the palette
+   ========================================================= */
+.akea .catalogue-bar {
+    border-color: var(--line);
+}
+
+.akea .catalogue-tabs a.active {
+    border-bottom-color: var(--ink);
+}
+
+.akea .filter-pills a {
+    background: #fff;
+    border: 1px solid var(--line);
+}
+
+    .akea .filter-pills a:hover {
+        background: var(--beige-deep);
+        color: var(--ink);
+    }
+
+    .akea .filter-pills a.active {
+        color: #fff;
+        background: var(--ink);
+        border-color: var(--ink);
+    }
+
+.akea .item-card {
+    background: #fff;
+    border-color: var(--line);
+    border-radius: 8px;
+}
+
+.akea .item-image--placeholder {
+    color: var(--nude-ink);
+    background: #d9d4cc;
+}
+
+.akea .item-desc {
+    color: var(--muted);
+}
+
+.akea .item-actions .btn {
+    padding: .3rem .6rem;
+    font-size: .72rem;
+}
+
+.akea .qty-stepper {
+    border-color: var(--line);
+    border-radius: var(--radius);
+}
+
+    .akea .qty-stepper button {
+        color: var(--ink);
+        background: #fff;
+    }
+
+        .akea .qty-stepper button:hover {
+            background: var(--beige);
+        }
+
+        .akea .qty-stepper button:active {
+            color: var(--nude-ink);
+            background: var(--nude);
+        }
+
+    .akea .qty-stepper input {
+        border-color: var(--line);
+    }
+
+.akea .estimate-box {
+    background: #fff;
+    border-color: var(--line);
+    border-radius: 10px;
+}
+
+.akea .estimate-total {
+    border-color: var(--line);
+}
+
+/* ---------- Respect "reduce motion" ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .akea *,
+    .akea *::before,
+    .akea *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* ---------- Card: price, View items and Add button sit together at the bottom ---------- */
+.akea .item-price {
+    margin-top: auto;
+    padding-top: .6rem;
+}
+
+.akea .item-actions {
+    margin-top: .5rem;
+}
+
+.akea .view-items {
+    align-self: flex-end;
+    margin-top: .5rem;
+}
+
+/* ---------- Package contents dialog ---------- */
+.package-dialog {
+    width: min(92vw, 560px);
+    max-height: 85vh;
+    padding: 0;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 24px 60px rgba(22, 20, 18, .25);
+}
+
+    .package-dialog[open] {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .package-dialog::backdrop {
+        background: rgba(22, 20, 18, .45);
+        backdrop-filter: blur(2px);
+    }
+
+/* Stop the page behind scrolling while a dialog is open */
+body:has(dialog[open]) {
+    overflow: hidden;
+}
+
+.package-dialog-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--line);
+}
+
+    .package-dialog-head h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+
+.package-dialog-meta {
+    margin: .2rem 0 0;
+    font-size: .8rem;
+    color: var(--muted);
+}
+
+.package-dialog form {
+    margin: 0;
+}
+
+.dialog-close {
+    width: 36px;
+    height: 36px;
+    font-size: 1.3rem;
+    line-height: 1;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+    .dialog-close:hover {
+        background: var(--beige);
+    }
+
+    .dialog-close:focus-visible {
+        outline: 3px solid var(--nude);
+        outline-offset: 2px;
+    }
+
+.package-dialog-list {
+    margin: 0;
+    padding: .5rem 1.5rem;
+    list-style: none;
+    overflow-y: auto;
+}
+
+.package-dialog-list li {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    align-items: center;
+    gap: .9rem;
+    padding: .7rem 0;
+}
+
+.package-dialog-list li + li {
+    border-top: 1px dashed var(--line);
+}
+
+.pd-thumb {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    background: #d9d4cc;
+    border-radius: var(--radius);
+}
+
+.pd-thumb--placeholder {
+    display: grid;
+    place-items: center;
+    font-size: .6rem;
+    text-align: center;
+    color: var(--nude-ink);
+}
+
+.pd-name {
+    display: block;
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.pd-desc {
+    display: block;
+    font-size: .78rem;
+    color: var(--muted);
+}
+
+.pd-qty {
+    font-size: .9rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.package-dialog-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    padding: 1rem 1.5rem 1.25rem;
+    background: var(--beige);
+    border-top: 1px solid var(--line);
+    border-radius: 0 0 12px 12px;
+}
+
+/* ---------- Navbar like the wireframe ---------- */
+.site-nav .navbar-nav {
+    gap: 0 .9rem;
+}
+
+@media (min-width: 992px) {
+    .site-nav .navbar-nav {
+        align-items: center;
+    }
+}
+
+.site-nav .navbar-nav .nav-login {
+    font-weight: 700;
+}
+
+.site-nav .navbar-nav .nav-user {
+    font-size: .85rem;
+    color: var(--muted);
+}
+
+/* ---------- Portfolio: a gallery wall ---------- */
+
+.portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.25rem;
+}
+
+.portfolio-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    transition: transform .15s, box-shadow .15s;
+}
+
+.portfolio-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(60, 40, 25, .12);
+}
+
+.portfolio-thumb {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #d9d4cc;
+}
+
+.portfolio-thumb img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.portfolio-thumb--placeholder {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: .7rem;
+    color: var(--nude-ink);
+}
+
+.portfolio-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: .2rem;
+    padding: .75rem .8rem .8rem;
+}
+
+.portfolio-title {
+    margin: 0;
+    font-size: .9rem;
+    font-weight: 700;
+}
+
+.portfolio-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+    font-size: .75rem;
+    color: var(--muted);
+}
+
+.portfolio-foot {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-top: auto;
+    padding-top: .6rem;
+}
+
+.portfolio-cost {
+    font-size: .8rem;
+    font-weight: 700;
+}
+
+.portfolio-cost small {
+    display: block;
+    font-size: .68rem;
+    font-weight: 400;
+    color: var(--muted);
+}
+
+/* ---------- Portfolio details ---------- */
+.back-link {
+    display: inline-block;
+    margin: 1.25rem 0 .35rem;
+    font-size: .8rem;
+}
+
+.details-title {
+    margin: 0 0 1rem;
+    font-size: clamp(1.5rem, 3vw, 1.9rem);
+    font-weight: 700;
+    letter-spacing: -.02em;
+}
+
+.gallery-main {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: #d9d4cc;
+    border-radius: 10px;
+}
+
+.gallery-main--placeholder {
+    display: grid;
+    place-items: center;
+    font-size: .85rem;
+    color: var(--nude-ink);
+}
+
+.gallery-thumbs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: .6rem;
+    margin-top: .6rem;
+}
+
+.gallery-thumb {
+    padding: 0;
+    overflow: hidden;
+    background: none;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.gallery-thumb img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+.gallery-thumb.active {
+    border-color: var(--ink);
+}
+
+.gallery-thumb:focus-visible {
+    outline: 3px solid var(--nude);
+    outline-offset: 2px;
+}
+
+.event-panel {
+    position: sticky;
+    top: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .event-panel h2 {
+        margin: 0 0 .5rem;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .event-panel p {
+        font-size: .85rem;
+    }
+
+    .event-panel .btn {
+        width: 100%;
+        margin-top: .5rem;
+    }
+
+.event-facts {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: .35rem 1rem;
+    margin: 0 0 1rem;
+    font-size: .85rem;
+}
+
+    .event-facts dt {
+        font-weight: 400;
+        color: var(--muted);
+    }
+
+    .event-facts dd {
+        margin: 0;
+        font-weight: 600;
+    }
+
+.related {
+    margin-top: 3rem;
+}
+
+.related-title {
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+/* ---------- About us ---------- */
+.page-about .page-head {
+    padding-block: 3rem;
+    text-align: center;
+}
+
+.page-about .page-lead {
+    margin-inline: auto;
+}
+
+.about-page {
+    max-width: 760px;
+    margin: 0 auto 3rem;
+    text-align: center;
+}
+
+.about-intro {
+    margin: 0 auto 2.5rem;
+    max-width: 56ch;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.about-block {
+    margin-bottom: 2.75rem;
+}
+
+    .about-block h2 {
+        margin: 0 0 .75rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -.01em;
+    }
+
+    .about-block p {
+        margin: 0 auto .75rem;
+        max-width: 62ch;
+        font-size: .95rem;
+        line-height: 1.7;
+    }
+
+/* The four "making planning easier" points as cards */
+.about-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+}
+
+.about-feature {
+    display: flex;
+    flex-direction: column;
+    padding: 1.1rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .about-feature h3 {
+        margin: 0 0 .35rem;
+        font-size: .95rem;
+        font-weight: 700;
+    }
+
+    .about-feature p {
+        margin: 0 0 .75rem;
+        font-size: .82rem;
+        line-height: 1.5;
+        color: var(--muted);
+    }
+
+    .about-feature a {
+        margin-top: auto;
+        font-size: .8rem;
+        font-weight: 600;
+    }
+
+.about-cta {
+    padding: 2rem clamp(1.25rem, 4vw, 2.5rem);
+    background: var(--beige-deep);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .about-cta h2 {
+        margin: 0 0 .5rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .about-cta p {
+        margin: 0 auto;
+        max-width: 58ch;
+        font-size: .95rem;
+    }
+
+    .about-cta .btn-row {
+        justify-content: center;
+        margin: 1.25rem 0;
+    }
+
+.about-tagline {
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+
+/* ---------- My Quotes: request details ---------- */
+.quote-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem 1.5rem;
+    margin: .5rem 0 1.5rem;
+}
+
+    .quote-head h1 {
+        margin: 0;
+        font-size: clamp(1.4rem, 3vw, 1.8rem);
+        font-weight: 700;
+        letter-spacing: -.02em;
+    }
+
+.quote-closed {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.25rem;
+    color: var(--error);
+    background: rgba(163, 52, 43, .07);
+    border: 1px solid rgba(163, 52, 43, .35);
+    border-radius: 10px;
+}
+
+    .quote-closed p {
+        margin: .35rem 0 0;
+        color: var(--ink);
+    }
+
+/* Progress tracker: scrolls sideways on small screens */
+.tracker-wrap {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+}
+
+.tracker {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    min-width: 560px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+    .tracker li {
+        position: relative;
+        padding-top: 1.7rem;
+        font-size: .75rem;
+        text-align: center;
+        color: var(--muted);
+    }
+
+        .tracker li::before {
+            content: "";
+            position: absolute;
+            top: .3rem;
+            left: 50%;
+            z-index: 1;
+            width: 16px;
+            height: 16px;
+            margin-left: -8px;
+            background: #fff;
+            border: 2px solid var(--line);
+            border-radius: 50%;
+        }
+
+        .tracker li::after {
+            content: "";
+            position: absolute;
+            top: .75rem;
+            left: -50%;
+            width: 100%;
+            height: 2px;
+            background: var(--line);
+        }
+
+        .tracker li:first-child::after {
+            display: none;
+        }
+
+        .tracker li.is-done,
+        .tracker li.is-current {
+            color: var(--ink);
+        }
+
+            .tracker li.is-done::before {
+                background: var(--ink);
+                border-color: var(--ink);
+            }
+
+            .tracker li.is-done::after,
+            .tracker li.is-current::after {
+                background: var(--ink);
+            }
+
+        .tracker li.is-current {
+            font-weight: 700;
+        }
+
+            .tracker li.is-current::before {
+                background: var(--nude);
+                border-color: var(--ink);
+            }
+
+.quote-card {
+    margin-bottom: 1.5rem;
+    padding: 1.4rem 1.5rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .quote-card h2 {
+        margin: 0 0 1rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
+
+.quote-subtitle {
+    margin: 1rem 0 .4rem;
+    font-size: .9rem;
+    font-weight: 700;
+}
+
+.quote-notes,
+.quote-bank {
+    margin: 0;
+    font-size: .88rem;
+    white-space: pre-line;
+}
+
+.quote-updates {
+    display: grid;
+    gap: .9rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+    .quote-updates time {
+        font-size: .75rem;
+        color: var(--muted);
+    }
+
+    .quote-updates p {
+        margin: .15rem 0 0;
+        font-size: .9rem;
+        white-space: pre-line;
+    }
+
+.quote-summary {
+    position: sticky;
+    top: 1rem;
+}
+
+.quote-version {
+    margin-left: .35rem;
+    font-size: .75rem;
+    font-weight: 400;
+    color: var(--muted);
+}
+
+.quote-status {
+    margin: -.6rem 0 1rem;
+    font-size: .8rem;
+    color: var(--muted);
+}
+
+.quote-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .4rem 0;
+    font-size: .88rem;
+    border-bottom: 1px dashed var(--line);
+}
+
+.quote-total {
+    font-weight: 700;
+    border-bottom: 0;
+}
+
+.quote-note {
+    margin-top: 1rem;
+    padding: .8rem 1rem;
+    background: var(--beige);
+    border-left: 3px solid var(--nude);
+    border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.quote-note p:last-child {
+    margin: 0;
+    font-size: .88rem;
+    white-space: pre-line;
+}
+
+.quote-payment {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+}
+
+.quote-deposit-status {
+    margin: 1rem 0 0;
+    font-size: .85rem;
+}
+
+.chip {
+    display: inline-block;
+    padding: .2rem .65rem;
+    font-size: .72rem;
+    font-weight: 600;
+    color: var(--nude-ink);
+    background: var(--beige-deep);
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.chip-dark {
+    color: #fff;
+    background: var(--ink);
+}
+
+/* ---------- Estimate page: request a quotation ---------- */
+.request-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    background: var(--beige);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+    .request-cta > div:first-child {
+        flex: 1 1 260px;
+    }
+
+.request-cta-title {
+    margin: 0 0 .2rem;
+    font-weight: 700;
+}
+
+.request-cta-text {
+    margin: 0;
+    font-size: .85rem;
+    color: var(--muted);
+}
+
+.request-cta-note {
+    margin: .75rem 0 0;
+    font-size: .75rem;
+    text-align: right;
+    color: var(--muted);
+}
+
+/* ---------- Request a quotation form ---------- */
+.page-request .page-head {
+    background: var(--beige-deep);
+    border: 1px solid var(--line);
+    border-left: 6px solid var(--ink);
+}
+
+    .page-request .page-head .eyebrow,
+    .page-request .page-lead {
+        color: var(--nude-ink);
+    }
+
+.request-layout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.request-form {
+    flex: 999 1 560px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.request-card {
+    margin: 0;
+    padding: 1.5rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .request-card > legend {
+        float: left;
+        width: 100%;
+        margin: 0 0 1rem;
+        padding: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
+
+        .request-card > legend + * {
+            clear: both;
+        }
+
+.request-step {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    margin-right: .5rem;
+    font-size: .8rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--ink);
+    border-radius: 50%;
+}
+
+.request-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+    .request-grid .span-all {
+        grid-column: 1 / -1;
+    }
+
+.optional {
+    font-weight: 400;
+    color: var(--muted);
+}
+
+/* Yes / No questions as pill buttons */
+.choice-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem 1rem;
+    margin: 0;
+    padding: .9rem 0;
+    border: 0;
+    border-top: 1px dashed var(--line);
+}
+
+    .choice-row:first-child {
+        padding-top: 0;
+        border-top: 0;
+    }
+
+    .choice-row > legend {
+        float: left;
+        width: auto;
+        margin: 0;
+        font-size: .9rem;
+    }
+
+.choice-pills {
+    display: flex;
+    gap: .5rem;
+}
+
+    .choice-pills label {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        min-height: 44px;
+        padding: 0 1rem;
+        font-size: .85rem;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        cursor: pointer;
+    }
+
+        .choice-pills label:has(input:checked) {
+            color: #fff;
+            background: var(--ink);
+            border-color: var(--ink);
+        }
+
+        .choice-pills label:has(input:focus-visible) {
+            outline: 3px solid var(--nude);
+            outline-offset: 2px;
+        }
+
+    .choice-pills input {
+        accent-color: var(--ink);
+    }
+
+    .choice-pills label:has(input:checked) input {
+        accent-color: #fff;
+    }
+
+.choice-error {
+    width: 100%;
+}
+
+.choice-notes {
+    padding-top: .9rem;
+    border-top: 1px dashed var(--line);
+}
+
+.request-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: .75rem;
+}
+
+    .request-actions .btn {
+        min-height: 44px;
+    }
+
+/* The summary on the right */
+.request-summary {
+    flex: 1 1 300px;
+    position: sticky;
+    top: 1rem;
+    padding: 1.4rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .request-summary h2 {
+        margin: 0 0 .9rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
+
+.summary-list {
+    margin: 0 0 .9rem;
+    padding: 0;
+    list-style: none;
+    font-size: .82rem;
+}
+
+    .summary-list li {
+        display: flex;
+        justify-content: space-between;
+        gap: .75rem;
+        padding: .5rem 0;
+        border-bottom: 1px dashed var(--line);
+    }
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+}
+
+/* ---------- Request sent ---------- */
+.sent-card {
+    max-width: 640px;
+    margin: 3rem auto;
+    padding: 2.5rem clamp(1.25rem, 5vw, 3rem);
+    text-align: center;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(60, 40, 25, .12);
+}
+
+    .sent-card h1 {
+        margin: 0 0 .5rem;
+        font-size: clamp(1.5rem, 3vw, 1.9rem);
+        font-weight: 700;
+        letter-spacing: -.02em;
+    }
+
+.sent-icon {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.1rem;
+    background: var(--ink);
+    border-radius: 50%;
+}
+
+.sent-summary,
+.sent-reference {
+    margin: 0 0 .4rem;
+    font-size: .85rem;
+    color: var(--muted);
+}
+
+    .sent-reference strong {
+        color: var(--ink);
+    }
+
+.sent-next {
+    margin-top: 1.75rem;
+    padding: 1.25rem 1.4rem;
+    text-align: left;
+    background: var(--beige);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .sent-next h2 {
+        margin: 0 0 .75rem;
+        font-size: .95rem;
+        font-weight: 700;
+    }
+
+    .sent-next ol {
+        display: grid;
+        gap: .75rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-size: .88rem;
+    }
+
+    .sent-next li {
+        display: flex;
+        gap: .75rem;
+    }
+
+.sent-actions {
+    justify-content: center;
+    margin-top: 1.75rem;
+}
+
+/* ---------- Portfolio details: items used ---------- */
+.items-used {
+    margin-top: 3rem;
+}
+
+.items-used-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.items-used-count {
+    font-size: .8rem;
+    color: var(--muted);
+}
+
+.items-used-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: .75rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+}
+
+.used-item {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    align-items: center;
+    gap: .75rem;
+    padding: .6rem .75rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+    /* Needed because display:grid would otherwise override the hidden attribute */
+    .used-item[hidden] {
+        display: none;
+    }
+
+.used-thumb {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    background: #d9d4cc;
+    border-radius: var(--radius);
+}
+
+.used-thumb--placeholder {
+    display: grid;
+    place-items: center;
+    font-size: .6rem;
+    color: var(--nude-ink);
+}
+
+.used-name {
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+.used-price {
+    font-size: .78rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.items-used-note {
+    margin: .75rem 0 0;
+    font-size: .85rem;
+}
+
+/* ---------- Floating contact: assistant + WhatsApp ---------- */
+.floating-contact {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .8rem;
+}
+
+/* A label pill and a round button, clickable as one */
+.akea .fab-row {
+    display: inline-flex;
+    align-items: center;
+    gap: .65rem;
+    padding: 0;
+    font: inherit;
+    color: var(--ink);
+    text-decoration: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+    .akea .fab-row:hover {
+        color: var(--ink);
+    }
+
+    .fab-row:focus-visible {
+        outline: none;
+    }
+
+        .fab-row:focus-visible .fab-circle {
+            outline: 3px solid var(--nude);
+            outline-offset: 3px;
+        }
+
+.fab-label {
+    padding: .6rem .95rem;
+    font-size: .88rem;
+    white-space: nowrap;
+    background: #f4f2ef;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(22, 20, 18, .1);
+}
+
+.fab-circle {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 58px;
+    height: 58px;
+    color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 8px 22px rgba(22, 20, 18, .25);
+    transition: transform .12s, background-color .12s;
+}
+
+.fab-row:hover .fab-circle {
+    transform: translateY(-2px);
+}
+
+.fab-assistant {
+    background: var(--ink);
+}
+
+.fab-row[aria-expanded="true"] .fab-assistant {
+    color: var(--nude-ink);
+    background: var(--nude);
+}
+
+/* Green, dark enough for the white icon to stand out */
+.fab-whatsapp {
+    background: #1f9d55;
+}
+
+.fab-row:hover .fab-whatsapp {
+    background: #188247;
+}
+
+/* On small screens show only the round buttons
+   (the labels stay available to screen readers) */
+@media (max-width: 480px) {
+    .fab-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+    }
+}
+
+/* The assistant panel */
+.assistant-panel {
+    width: min(92vw, 340px);
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(22, 20, 18, .2);
+}
+
+.assistant-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .85rem 1rem;
+    color: #fff;
+    background: var(--ink);
+}
+
+    .assistant-head h2 {
+        margin: 0;
+        font-size: .95rem;
+        font-weight: 700;
+    }
+
+.assistant-close {
+    width: 32px;
+    height: 32px;
+    font-size: 1.3rem;
+    line-height: 1;
+    color: #fff;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, .4);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+    .assistant-close:focus-visible {
+        outline: 3px solid var(--nude);
+        outline-offset: 2px;
+    }
+
+.assistant-body {
+    display: grid;
+    gap: .6rem;
+    padding: 1rem;
+    background: var(--beige);
+}
+
+.assistant-bubble {
+    margin: 0;
+    padding: .65rem .8rem;
+    font-size: .85rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px 12px 12px 4px;
+}
+
+/* Keep the footer text clear of the floating buttons */
+.site-footer {
+    padding-bottom: 5.5rem;
+}
+
+@media print {
+    .floating-contact {
+        display: none;
+    }
+}
+
+/* A button that looks like a text link (e.g. "Ask our assistant →") */
+.link-button {
+    padding: 0;
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+    .link-button:hover {
+        color: var(--nude-ink);
+    }
+
+    .link-button:focus-visible {
+        outline: 3px solid var(--nude);
+        outline-offset: 2px;
+    }
+
+.about-feature .link-button {
+    margin-top: auto;
+    font-size: .8rem;
+}
+
+/* ---------- FAQs ---------- */
+.page-faqs .page-head {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 6px solid var(--nude);
+}
+
+.faq-page {
+    max-width: 820px;
+    margin: 0 auto 3rem;
+}
+
+.faq-list {
+    display: grid;
+    gap: .75rem;
+}
+
+.faq {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .faq summary {
+        position: relative;
+        padding: 1rem 3rem 1rem 1.25rem;
+        font-weight: 600;
+        list-style: none;
+        cursor: pointer;
+    }
+
+        .faq summary::-webkit-details-marker {
+            display: none;
+        }
+
+        /* A + that turns into a − when the answer is open */
+        .faq summary::after {
+            content: "+";
+            position: absolute;
+            top: 50%;
+            right: 1.25rem;
+            transform: translateY(-50%);
+            font-size: 1.3rem;
+            font-weight: 400;
+            line-height: 1;
+        }
+
+    .faq[open] summary::after {
+        content: "−";
+    }
+
+    .faq summary:focus-visible {
+        outline: 3px solid var(--nude);
+        outline-offset: 2px;
+        border-radius: 10px;
+    }
+
+    .faq[open] {
+        border-color: var(--ink);
+    }
+
+.faq-answer {
+    margin: 0;
+    padding: 0 1.25rem 1.1rem;
+    font-size: .92rem;
+    line-height: 1.65;
+    color: var(--muted);
+    white-space: pre-line;
+}
+
+.faq-help {
+    margin-top: 2rem;
+    padding: 1.75rem;
+    text-align: center;
+    background: var(--beige-deep);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+    .faq-help h2 {
+        margin: 0 0 .35rem;
+        font-size: 1.15rem;
+        font-weight: 700;
+    }
+
+    .faq-help p {
+        margin: 0 0 1rem;
+        font-size: .92rem;
+    }
+
+    .faq-help .btn-row {
+        justify-content: center;
+    }
+
+/* ---------- Sign in: forgot password and social buttons ---------- */
+.auth-label-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.auth-forgot {
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin: 1.5rem 0 1rem;
+    font-size: .75rem;
+    color: var(--muted);
+}
+
+    .auth-divider::before,
+    .auth-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--line);
+    }
+
+.auth-social {
+    display: grid;
+    gap: .6rem;
+}
+
+    .auth-social form {
+        margin: 0;
+    }
+
+    .auth-social .btn {
+        min-height: 44px;
+    }

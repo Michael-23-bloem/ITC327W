@@ -1,0 +1,78 @@
+@model List<EstimateLine>
+@{
+    ViewData["Title"] = "Your estimate";
+    ViewData["BodyClass"] = "page-estimate";
+    var total = Model.Sum(l => l.LineTotal);
+}
+
+<div class="sheet">
+    <header class="page-head">
+        <p class="eyebrow">Instant estimate</p>
+        <h1>Your estimate</h1>
+        <p class="page-lead">An indicative total at today's prices. Your final price is confirmed in your quotation.</p>
+    </header>
+
+    @if (!Model.Any())
+    {
+        <div class="center">
+            <p>Your estimate is empty.</p>
+            <a asp-controller="Catalogue" asp-action="Products" class="btn">Browse the catalogue</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-end">Qty</th>
+                        <th class="text-end">Total</th>
+                        <th><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var line in Model)
+                    {
+                        <tr>
+                            <td>
+                                @line.Name
+                                <div class="small text-muted">@line.ItemType</div>
+                            </td>
+                            <td class="text-end">R @line.Price.ToString("N2")</td>
+                            <td class="text-end">@line.Quantity</td>
+                            <td class="text-end">R @line.LineTotal.ToString("N2")</td>
+                            <td class="text-end">
+                                <form asp-action="Remove" method="post">
+                                    <input type="hidden" name="itemId" value="@line.ItemId" />
+                                    <input type="hidden" name="itemType" value="@line.ItemType" />
+                                    <button type="submit" class="btn btn-link btn-sm text-danger">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="fw-bold">
+                        <td colspan="3">Estimated total</td>
+                        <td class="text-end">R @total.ToString("N2")</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="request-cta">
+            <div>
+                <p class="request-cta-title">Happy with your selection?</p>
+                <p class="request-cta-text">Send it to us with your event details. We review every request within 24 hours.</p>
+            </div>
+            <div class="btn-row">
+                <a asp-controller="Catalogue" asp-action="Products" class="btn btn-outline-dark">Keep browsing</a>
+                <a asp-controller="Quotes" asp-action="Request" class="btn btn-dark">Request a quotation</a>
+            </div>
+        </div>
+        <p class="request-cta-note">You'll be asked to log in first if you aren't already.</p>
+    }
+</div>

@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\images\about\AkeaEvent Team.png" />
+    <Content Remove="wwwroot\images\about\team.png" />
+  </ItemGroup>
+
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.23" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
     <PackageReference Include="Supabase" Version="8.4.0" />
