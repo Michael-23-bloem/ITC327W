@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
@@ -41,7 +42,22 @@ namespace FirstWebApp.Models
         [Column("decline_reason", ignoreOnInsert: true, ignoreOnUpdate: true)]
         public string? DeclineReason { get; set; }
 
+        // The items in this version, saved by the admin app when it edits a quotation
+        [Column("quotation_items", ignoreOnInsert: true, ignoreOnUpdate: true)]
+        public List<QuotationItemData>? QuotationItems { get; set; }
+
         [Column("created_at", ignoreOnInsert: true, ignoreOnUpdate: true)]
         public DateTime CreatedAt { get; set; }
+    }
+
+    // One item inside quotations.quotation_items (the admin app's format)
+    public class QuotationItemData
+    {
+        [JsonPropertyName("product_id")] public Guid? ProductId { get; set; }
+        [JsonPropertyName("package_id")] public Guid? PackageId { get; set; }
+        [JsonPropertyName("product_name")] public string? ProductName { get; set; }
+        [JsonPropertyName("image_url")] public string? ImageUrl { get; set; }
+        [JsonPropertyName("quantity")] public int Quantity { get; set; }
+        [JsonPropertyName("unit_price")] public decimal UnitPrice { get; set; }
     }
 }

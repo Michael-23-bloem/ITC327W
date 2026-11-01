@@ -22,6 +22,55 @@
     <div class="alert alert-dark py-2" role="status">@message</div>
 }
 
+@if (Model.WasEdited)
+{
+    <section class="quote-edited" aria-labelledby="editedTitle">
+        <h2 id="editedTitle">
+            AkeaEvents updated your quotation
+            @if (Model.EditedAt.HasValue)
+            {
+                <text>on @Model.EditedAt.Value.ToLocalTime().ToString("d MMM yyyy")</text>
+            }
+            <span class="quote-version">(version @Model.QuoteVersion)</span>
+        </h2>
+
+        @if (Model.Changes.Any())
+        {
+            <ul class="quote-changes">
+                @foreach (var c in Model.Changes)
+                {
+                    <li class="change-@c.Kind">
+                        @if (c.Kind == "added")
+                        {
+                            <strong>Added:</strong> @c.Name <text>× @c.NewQuantity (@Money.Rand(c.NewPrice ?? 0) each)</text>
+                        }
+                        else if (c.Kind == "removed")
+                        {
+                            <strong>Removed:</strong> @c.Name <text>× @c.OldQuantity</text>
+                        }
+                        else
+                        {
+                            <strong>Changed:</strong> @c.Name
+                            @if (c.OldQuantity != c.NewQuantity)
+                            {
+                                <text> · quantity @c.OldQuantity → @c.NewQuantity</text>
+                            }
+                            @if (c.OldPrice != c.NewPrice)
+                            {
+                                <text> · price @Money.Rand(c.OldPrice ?? 0) → @Money.Rand(c.NewPrice ?? 0)</text>
+                            }
+                        }
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="mb-0">The items are the same; the fees or total may have changed. See the quotation below.</p>
+        }
+    </section>
+}
+
 @if (isClosed)
 {
     <div class="quote-closed" role="status">
@@ -142,7 +191,9 @@ else
                     <span class="quote-version">version @Model.QuoteVersion</span>
                 }
             </h2>
-            <p class="quote-status">@QuoteStatus.QuoteLabel(Model.QuoteStatus)</p>
+            <p class="quote-status">
+                @(Model.WasEdited && Model.QuoteStatus == "pending" ? "Revised by AkeaEvents" : QuoteStatus.QuoteLabel(Model.QuoteStatus))
+            </p>
 
             <div class="quote-row"><span>Items</span><span>@(Model.ItemsSubtotal.HasValue ? Money.Rand(Model.ItemsSubtotal.Value) : "–")</span></div>
             <div class="quote-row"><span>Transport fee</span><span>@(Model.TransportationFee > 0 ? Money.Rand(Model.TransportationFee) : "To be confirmed")</span></div>

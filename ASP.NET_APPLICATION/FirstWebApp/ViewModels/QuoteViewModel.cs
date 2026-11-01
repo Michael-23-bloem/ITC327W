@@ -10,7 +10,8 @@ namespace FirstWebApp.ViewModels
         DateOnly EventDate,
         decimal? Total,
         string StatusLabel,
-        bool Highlight);
+        bool Highlight,
+        bool Updated = false);
 
     // Formats rand amounts, e.g. R 10 060 or R 7 450,50
     public static class Money
@@ -61,6 +62,11 @@ namespace FirstWebApp.ViewModels
 
         public List<ProgressUpdateViewModel> Updates { get; set; } = new();
 
+        // Set when the owner has edited the quotation (version 2 or later)
+        public bool WasEdited { get; set; }
+        public DateTime? EditedAt { get; set; }
+        public List<QuoteChangeViewModel> Changes { get; set; } = new();
+
         public bool CanCancel => Status == "request_sent";
         public bool ShowPayment => Status is "quotation_approved" or "order_confirmed" && Total.HasValue;
     }
@@ -72,6 +78,7 @@ namespace FirstWebApp.ViewModels
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal LineTotal => UnitPrice * Quantity;
+        public string Key { get; set; } = string.Empty;   // product or package id (or name)
     }
 
     public class ProgressUpdateViewModel
@@ -154,5 +161,16 @@ namespace FirstWebApp.ViewModels
             "completed" => Stages.Length,        // all five stages done
             _ => Array.FindIndex(Stages, s => s.Key == status)
         };
+    }
+
+        // One difference between the previous and the latest quotation
+    public class QuoteChangeViewModel
+    {
+        public string Kind { get; set; } = string.Empty;   // "added", "removed" or "changed"
+        public string Name { get; set; } = string.Empty;
+        public int? OldQuantity { get; set; }
+        public int? NewQuantity { get; set; }
+        public decimal? OldPrice { get; set; }
+        public decimal? NewPrice { get; set; }
     }
 }

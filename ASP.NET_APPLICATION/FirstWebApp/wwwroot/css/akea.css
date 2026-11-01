@@ -2094,3 +2094,51 @@ body:has(dialog[open]) {
     font-size: .8rem;
     font-weight: 600;
 }
+
+/* ---------- My Quotes: edited quotations ---------- */
+.chip-updated {
+    margin-left: .35rem;
+    color: var(--nude-ink);
+    background: var(--nude);
+}
+
+.quote-edited {
+    margin-bottom: 1.5rem;
+    padding: 1.1rem 1.25rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 6px solid var(--nude);
+    border-radius: 10px;
+}
+
+    .quote-edited h2 {
+        margin: 0 0 .6rem;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+.quote-changes {
+    display: grid;
+    gap: .35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: .9rem;
+}
+
+    .quote-changes li {
+        padding-left: .75rem;
+        border-left: 3px solid var(--line);
+    }
+
+    .quote-changes .change-added {
+        border-left-color: #1f9d55;
+    }
+
+    .quote-changes .change-removed {
+        border-left-color: var(--error);
+    }
+
+    .quote-changes .change-changed {
+        border-left-color: var(--nude);
+    }
