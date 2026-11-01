@@ -47,7 +47,13 @@
                             <td>@q.EventType</td>
                             <td>@q.EventDate.ToString("dd MMM yyyy", inv)</td>
                             <td>@(q.Total is null ? "Pending" : Money.Rand(q.Total.Value))</td>
-                            <td><span class="chip @(q.Highlight ? "chip-dark" : "")">@q.StatusLabel</span></td>
+                            <td>
+                                <span class="chip @(q.Highlight ? "chip-dark" : "")">@q.StatusLabel</span>
+                                @if (q.Updated)
+                                {
+                                    <span class="chip chip-updated">Updated</span>
+                                }
+                            </td>
                             <td class="actions">
                                 <a asp-action="Details" asp-route-id="@q.Id" class="btn btn-outline btn-sm">View order</a>
                             </td>

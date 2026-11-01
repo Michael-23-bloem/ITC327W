@@ -6,21 +6,21 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Supabase.Gotrue;
 using Supabase.Gotrue.Exceptions;
+using System.ComponentModel.DataAnnotations;
+using FirstWebApp.Services;
 
 namespace FirstWebApp.Controllers
 {
     public class AccountController : Controller
     {
         private readonly Supabase.Client _supabase;
+        private readonly SupabaseSessionService _session;
         private readonly ILogger<AccountController> _logger;
 
-        // Short-lived cookies that remember the Google/Facebook sign-in while the customer is away
-        private const string VerifierCookie = "akea_oauth_verifier";
-        private const string ReturnUrlCookie = "akea_oauth_return";
-
-        public AccountController(Supabase.Client supabase, ILogger<AccountController> logger)
+        public AccountController(Supabase.Client supabase, SupabaseSessionService session, ILogger<AccountController> logger)
         {
             _supabase = supabase;
+            _session = session;
             _logger = logger;
         }
 
@@ -157,88 +157,52 @@ namespace FirstWebApp.Controllers
             }
         }
 
-        // ---------- Google / Facebook ----------
-
+                // From the navbar profile card: Supabase emails a confirmation link to the new address
+        [Authorize]
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> ExternalLogin(string provider, string? returnUrl = null)
+        public async Task<IActionResult> ChangeEmail(string? newEmail, string? returnUrl = null)
         {
-            Constants.Provider? chosen = provider switch
+            var back = Url.IsLocalUrl(returnUrl) ? returnUrl! : Url.Action("Index", "Home")!;
+            newEmail = (newEmail ?? string.Empty).Trim();
+
+            // Re-open the profile card on the page we return to, to show the result
+            TempData["ProfileOpen"] = "true";
+
+            if (newEmail.Length == 0 || !new EmailAddressAttribute().IsValid(newEmail))
             {
-                "google" => Constants.Provider.Google,
-                "facebook" => Constants.Provider.Facebook,
-                _ => null
-            };
-
-            if (chosen == null) return BadRequest();
-
-            try
-            {
-                var state = await _supabase.Auth.SignIn(chosen.Value, new SignInOptions
-                {
-                    FlowType = Constants.OAuthFlowType.PKCE,
-                    RedirectTo = Url.Action(nameof(ExternalCallback), "Account", null, Request.Scheme)
-                });
-
-                // Remember the sign-in's secret (and where to return) for 10 minutes
-                var cookie = new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Lax,
-                    MaxAge = TimeSpan.FromMinutes(10),
-                    IsEssential = true
-                };
-
-                Response.Cookies.Append(VerifierCookie, state.PKCEVerifier!, cookie);
-                if (Url.IsLocalUrl(returnUrl)) Response.Cookies.Append(ReturnUrlCookie, returnUrl!, cookie);
-
-                // Off to Google / Facebook
-                return Redirect(state.Uri.ToString());
+                TempData["ProfileMessage"] = "Please enter a valid email address.";
+                return LocalRedirect(back);
             }
-            catch (Exception ex) when (ex is GotrueException or HttpRequestException)
+
+            if (string.Equals(newEmail, User.FindFirstValue(ClaimTypes.Email), StringComparison.OrdinalIgnoreCase))
             {
-                _logger.LogWarning(ex, "Starting {Provider} sign-in failed", provider);
-                TempData["AuthMessage"] = "We couldn't connect to that sign-in option. Please try again or use your email and password.";
-                return RedirectToAction(nameof(Login), new { returnUrl });
+                TempData["ProfileMessage"] = "That's already your email address.";
+                return LocalRedirect(back);
             }
-        }
 
-        // Google / Facebook send the customer back here
-        [HttpGet]
-        public async Task<IActionResult> ExternalCallback(string? code, string? error,
-            [FromQuery(Name = "error_description")] string? errorDescription)
-        {
-            var verifier = Request.Cookies[VerifierCookie];
-            var returnUrl = Request.Cookies[ReturnUrlCookie];
-            Response.Cookies.Delete(VerifierCookie);
-            Response.Cookies.Delete(ReturnUrlCookie);
-
-            if (!string.IsNullOrEmpty(error) || string.IsNullOrEmpty(code) || string.IsNullOrEmpty(verifier))
+            if (!await _session.UseCustomerSessionAsync())
             {
-                _logger.LogWarning("External sign-in was not completed: {Error} {Description}", error, errorDescription);
-                TempData["AuthMessage"] = "We couldn't sign you in with that account. Please try again or use your email and password.";
-                return RedirectToAction(nameof(Login));
+                // They're being sent to sign in again, so don't pop the profile card open afterwards
+                TempData.Remove("ProfileOpen");
+
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                TempData["AuthMessage"] = "Please sign in again to change your email.";
+                return RedirectToAction(nameof(Login), new { returnUrl = back });
             }
 
             try
             {
-                var session = await _supabase.Auth.ExchangeCodeForSession(verifier, code);
-                if (session?.User == null)
-                {
-                    TempData["AuthMessage"] = "We couldn't sign you in with that account. Please try again.";
-                    return RedirectToAction(nameof(Login));
-                }
-
-                await SignInCookie(session);
-
-                return Url.IsLocalUrl(returnUrl) ? Redirect(returnUrl!) : RedirectToAction("Index", "Home");
+                await _supabase.Auth.Update(new UserAttributes { Email = newEmail });
+                TempData["ProfileMessage"] =
+                    $"We've sent a confirmation link to {newEmail}. Your email will change once you click it, then please sign in again.";
             }
             catch (Exception ex) when (ex is GotrueException or HttpRequestException)
             {
-                _logger.LogWarning(ex, "Completing external sign-in failed");
-                TempData["AuthMessage"] = "We couldn't sign you in with that account. Please try again or use your email and password.";
-                return RedirectToAction(nameof(Login));
+                _logger.LogWarning(ex, "Changing a customer's email failed");
+                TempData["ProfileMessage"] = "We couldn't change your email. It may already be used by another account.";
             }
+
+            return LocalRedirect(back);
         }
 
         private async Task SignInCookie(Session session)
@@ -249,6 +213,14 @@ namespace FirstWebApp.Controllers
                 new(ClaimTypes.NameIdentifier, user.Id!),   // Supabase user UUID
                 new(ClaimTypes.Email, user.Email ?? "")
             };
+
+            // Name and phone number saved at registration (for the navbar profile card)
+            string? Meta(string key) =>
+                user.UserMetadata != null && user.UserMetadata.TryGetValue(key, out var value) ? value?.ToString() : null;
+
+            if (!string.IsNullOrWhiteSpace(Meta("first_name"))) claims.Add(new(ClaimTypes.GivenName, Meta("first_name")!));
+            if (!string.IsNullOrWhiteSpace(Meta("last_name"))) claims.Add(new(ClaimTypes.Surname, Meta("last_name")!));
+            if (!string.IsNullOrWhiteSpace(Meta("phone_number"))) claims.Add(new(ClaimTypes.MobilePhone, Meta("phone_number")!));
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var properties = new AuthenticationProperties { IsPersistent = true };

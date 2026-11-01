@@ -3,13 +3,76 @@
 <ul class="navbar-nav">
     @if (User.Identity?.IsAuthenticated == true)
     {
-        <li class="nav-item">
-            <span class="nav-link nav-user">@User.FindFirst(ClaimTypes.Email)?.Value</span>
-        </li>
-        <li class="nav-item">
-            <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
-                <button type="submit" class="nav-link btn btn-link">Sign out</button>
-            </form>
+        var email = User.FindFirstValue(ClaimTypes.Email) ?? "";
+        var phone = User.FindFirstValue(ClaimTypes.MobilePhone);
+        var fullName = string.Join(" ", new[] { User.FindFirstValue(ClaimTypes.GivenName), User.FindFirstValue(ClaimTypes.Surname) }
+            .Where(s => !string.IsNullOrWhiteSpace(s)));
+
+        var initials = fullName.Length > 0
+            ? string.Concat(fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => char.ToUpperInvariant(w[0])))
+            : (email.Length > 0 ? char.ToUpperInvariant(email[0]).ToString() : "?");
+
+        var returnUrl = Context.Request.Path + Context.Request.QueryString;
+        var message = TempData["ProfileMessage"] as string;
+        var openOnLoad = TempData["ProfileOpen"] as string == "true";
+
+        <li class="nav-item profile">
+            <button type="button" class="avatar-btn" data-profile-toggle aria-expanded="false" aria-controls="profileCard">
+                <span aria-hidden="true">@initials</span>
+                <span class="visually-hidden">Your account</span>
+            </button>
+
+            <section class="profile-card" id="profileCard" aria-labelledby="profileName" hidden
+                     data-open-on-load="@(openOnLoad ? "true" : null)">
+                <div class="profile-head">
+                    <span class="avatar avatar-lg" aria-hidden="true">@initials</span>
+                    <div>
+                        <p class="profile-name" id="profileName">@(fullName.Length > 0 ? fullName : "Your account")</p>
+                        <p class="profile-role">Customer account</p>
+                    </div>
+                </div>
+
+                @if (message != null)
+                {
+                    <p class="profile-message" role="status">@message</p>
+                }
+
+                <dl class="profile-rows">
+                    <div class="profile-row">
+                        <dt>Email</dt>
+                        <dd>@email</dd>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(phone))
+                    {
+                        <div class="profile-row">
+                            <dt>Phone</dt>
+                            <dd>@phone</dd>
+                        </div>
+                    }
+                </dl>
+
+                <button type="button" class="link-button" data-email-edit aria-expanded="false" aria-controls="emailForm">Change email</button>
+
+                <form id="emailForm" asp-controller="Account" asp-action="ChangeEmail" method="post" class="profile-email-form" hidden>
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <label for="newEmail" class="form-label">New email</label>
+                    <input id="newEmail" name="newEmail" type="email" class="form-control" autocomplete="email" required />
+                    <p class="form-text">We'll send a confirmation link to the new address. Your email changes once you click it.</p>
+                    <div class="profile-actions">
+                        <button type="submit" class="btn btn-dark btn-sm">Save</button>
+                        <button type="button" class="btn btn-outline-dark btn-sm" data-email-cancel>Cancel</button>
+                    </div>
+                </form>
+
+                <div class="profile-links">
+                    <a asp-controller="Quotes" asp-action="Index">My Quotes</a>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        <button type="submit" class="link-button">Sign out</button>
+                    </form>
+                </div>
+
+                <button type="button" class="btn btn-outline-dark w-100" data-profile-close>Close</button>
+            </section>
         </li>
     }
     else

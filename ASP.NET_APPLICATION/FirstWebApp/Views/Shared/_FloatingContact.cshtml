@@ -1,21 +1,35 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Config
+@{
+    var botUrl = Config["Chatbot:EmbedUrl"];
+    var hasBot = !string.IsNullOrWhiteSpace(botUrl) && botUrl.StartsWith("https://");
+}
+
 @* Floating contact buttons, bottom right on every page *@
 <div class="floating-contact">
 
-    @* Placeholder for the AI assistant: the real bot will replace this panel's content *@
-    <section class="assistant-panel" id="assistantPanel" aria-labelledby="assistantTitle" hidden>
+    @* The AI assistant (FastBots), shown inside our own panel *@
+    <section class="assistant-panel @(hasBot ? "has-bot" : "")" id="assistantPanel" aria-labelledby="assistantTitle" hidden>
         <div class="assistant-head">
             <h2 id="assistantTitle">Décor Assistant</h2>
             <button type="button" class="assistant-close" data-assistant-close aria-label="Close the Décor Assistant">&times;</button>
         </div>
-        <div class="assistant-body">
-            <p class="assistant-bubble">Hi! I'm the AkeaEvents assistant. I'm still being set up, but soon I'll be able to answer your questions about décor, packages and bookings.</p>
-            <p class="assistant-bubble">In the meantime, our team is happy to help on WhatsApp.</p>
-            <a class="btn btn-dark btn-sm w-100" href="https://wa.me/27833956705?text=Hi%20AkeaEvents%2C%20I%27d%20like%20to%20ask%20about%20an%20event."
-               target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>
-        </div>
+
+        @if (hasBot)
+        {
+            @* The bot only loads the first time the panel is opened (see site.js) *@
+            <iframe class="assistant-frame" title="AkeaEvents Décor Assistant chat" data-src="@botUrl"></iframe>
+        }
+        else
+        {
+            <div class="assistant-body">
+                <p class="assistant-bubble">Our assistant is taking a short break. Our team is happy to help on WhatsApp.</p>
+                <a class="btn btn-dark btn-sm w-100" href="https://wa.me/27833956705?text=Hi%20AkeaEvents%2C%20I%27d%20like%20to%20ask%20about%20an%20event."
+                   target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>
+            </div>
+        }
     </section>
 
-    @* AI assistant (placeholder) *@
+    @* AI assistant *@
     <button type="button" class="fab-row" data-assistant-toggle aria-controls="assistantPanel" aria-expanded="false">
         <span class="fab-label">Have a question? <strong>Ask our assistant</strong></span>
         <span class="fab-circle fab-assistant" aria-hidden="true">

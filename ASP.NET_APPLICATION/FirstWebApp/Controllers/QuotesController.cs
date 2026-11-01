@@ -60,7 +60,8 @@ namespace FirstWebApp.Controllers
                         DateOnly.FromDateTime(o.EventDate),
                         TotalFor(quote),
                         QuoteStatus.ListLabel(o.Status, o.DecisionDueAt),
-                        QuoteStatus.NeedsAction(o.Status));
+                        QuoteStatus.NeedsAction(o.Status),
+                        Updated: quote != null && quote.Version > 1);
                 }).ToList();
             }
             catch (Exception ex) when (ex is PostgrestException or HttpRequestException)
@@ -203,14 +204,28 @@ namespace FirstWebApp.Controllers
                 var order = await _supabase.From<Order>().Where(o => o.Id == id).Single();
                 if (order == null || order.CustomerId != CurrentCustomerId()) return NotFound();
 
-                // The latest quotation version
-                var quote = (await _supabase.From<Quotation>()
+                // All quotation versions, newest first
+                var versions = (await _supabase.From<Quotation>()
                     .Where(q => q.OrderId == id)
                     .Order(q => q.Version, Constants.Ordering.Descending)
-                    .Limit(1)
-                    .Get()).Models.FirstOrDefault();
+                    .Get()).Models;
 
-                var lines = await LoadLinesAsync(id);
+                var quote = versions.FirstOrDefault();
+                var previous = versions.Skip(1).FirstOrDefault();
+
+                // The items the customer originally requested
+                var originalLines = await LoadLinesAsync(id);
+
+                // Versions the owner saved in the admin app (2, 3, …) carry their own item list,
+                // which may be empty if every item was removed. Version 1 is the customer's request.
+                static bool HasSavedItems(Quotation? q) => q != null && q.Version > 1 && q.QuotationItems != null;
+
+                var lines = HasSavedItems(quote) ? ToLines(quote!.QuotationItems!) : originalLines;
+
+                // What changed compared with the version before (or with the original request)
+                var wasEdited = quote != null && quote.Version > 1;
+                var beforeLines = HasSavedItems(previous) ? ToLines(previous!.QuotationItems!) : originalLines;
+                var changes = wasEdited ? CompareLines(beforeLines, lines) : new List<QuoteChangeViewModel>();
 
                 Deposit? deposit = null;
                 if (quote != null)
@@ -246,9 +261,12 @@ namespace FirstWebApp.Controllers
                     BudgetRange = order.BudgetRange,
                     DecisionDueAt = order.DecisionDueAt,
                     Lines = lines,
+                    WasEdited = wasEdited,
+                    EditedAt = wasEdited ? quote!.CreatedAt : null,
+                    Changes = changes,
                     QuoteVersion = quote?.Version,
                     QuoteStatus = quote?.Status,
-                    ItemsSubtotal = quote?.EstimatedTotal ?? lines.Sum(l => l.LineTotal),
+                    ItemsSubtotal = lines.Sum(l => l.LineTotal),
                     TransportationFee = quote?.TransportationFee ?? 0,
                     ServiceFee = quote?.ServiceFee ?? 0,
                     Total = total,
@@ -393,6 +411,7 @@ namespace FirstWebApp.Controllers
                 var itemId = i.ProductId ?? i.PackageId!.Value;
                 return new QuoteLineViewModel
                 {
+                    Key = itemId.ToString(),
                     Name = names.TryGetValue(itemId, out var name) ? name : "Item no longer listed",
                     IsPackage = i.PackageId.HasValue,
                     Quantity = i.Quantity,
@@ -401,14 +420,77 @@ namespace FirstWebApp.Controllers
             }).OrderBy(l => l.Name).ToList();
         }
 
-        // The owner's final total if set, otherwise the estimate plus fees
-        private static decimal? TotalFor(Quotation? quote)
+        // The admin app's saved items as display lines
+        private static List<QuoteLineViewModel> ToLines(List<QuotationItemData> items) =>
+            items.Select(i => new QuoteLineViewModel
+            {
+                Key = (i.ProductId ?? i.PackageId)?.ToString()
+                      ?? "name:" + (i.ProductName ?? "").Trim().ToLowerInvariant(),
+                Name = string.IsNullOrWhiteSpace(i.ProductName) ? "Custom item" : i.ProductName,
+                IsPackage = i.PackageId.HasValue,
+                Quantity = i.Quantity,
+                UnitPrice = i.UnitPrice
+            }).OrderBy(l => l.Name).ToList();
+
+                // Items added, removed, renamed, or with a new quantity or price.
+        // Lines with the same key (e.g. two custom items with the same name) are compared together.
+        private static List<QuoteChangeViewModel> CompareLines(List<QuoteLineViewModel> before, List<QuoteLineViewModel> after)
         {
-            if (quote == null) return null;
-            if (quote.FinalTotal.HasValue) return quote.FinalTotal;
-            if (!quote.EstimatedTotal.HasValue) return null;
-            return quote.EstimatedTotal.Value + quote.TransportationFee + quote.ServiceFee;
+            static Dictionary<string, (string Name, int Quantity, decimal Total)> Summarise(List<QuoteLineViewModel> lines) =>
+                lines.GroupBy(l => l.Key).ToDictionary(
+                    g => g.Key,
+                    g => (g.First().Name, g.Sum(l => l.Quantity), g.Sum(l => l.LineTotal)));
+
+            static decimal UnitPrice(int quantity, decimal total) => quantity == 0 ? 0 : Math.Round(total / quantity, 2);
+
+            var was = Summarise(before);
+            var now = Summarise(after);
+            var changes = new List<QuoteChangeViewModel>();
+
+            foreach (var (key, n) in now)
+            {
+                if (!was.TryGetValue(key, out var w))
+                {
+                    changes.Add(new QuoteChangeViewModel
+                    {
+                        Kind = "added", Name = n.Name, NewQuantity = n.Quantity, NewPrice = UnitPrice(n.Quantity, n.Total)
+                    });
+                }
+                else if (w.Quantity != n.Quantity || w.Total != n.Total || w.Name != n.Name)
+                {
+                    changes.Add(new QuoteChangeViewModel
+                    {
+                        Kind = "changed",
+                        Name = n.Name,
+                        OldName = w.Name != n.Name ? w.Name : null,
+                        OldQuantity = w.Quantity,
+                        NewQuantity = n.Quantity,
+                        OldPrice = UnitPrice(w.Quantity, w.Total),
+                        NewPrice = UnitPrice(n.Quantity, n.Total)
+                    });
+                }
+            }
+
+            foreach (var (key, w) in was.Where(p => !now.ContainsKey(p.Key)))
+            {
+                changes.Add(new QuoteChangeViewModel
+                {
+                    Kind = "removed", Name = w.Name, OldQuantity = w.Quantity, OldPrice = UnitPrice(w.Quantity, w.Total)
+                });
+            }
+
+            // Added first, then changed, then removed
+            return changes
+                .OrderBy(c => c.Kind == "added" ? 0 : c.Kind == "changed" ? 1 : 2)
+                .ThenBy(c => c.Name)
+                .ToList();
         }
+
+        // The owner's final total if set, otherwise the estimated total.
+        // (Version 1 from the website has no fees yet; the admin app's versions
+        //  already include the fees in estimated_total, so nothing is added here.)
+        private static decimal? TotalFor(Quotation? quote) =>
+            quote == null ? null : quote.FinalTotal ?? quote.EstimatedTotal;
 
         // A short, readable reference such as REQ-3F2A9C1B
         private static string ToReference(Guid id) => "REQ-" + id.ToString("N")[..8].ToUpperInvariant();

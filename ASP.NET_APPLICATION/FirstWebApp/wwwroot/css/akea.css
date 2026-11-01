@@ -107,11 +107,120 @@ body.akea {
 /* ---------- Footer ---------- */
 .site-footer {
     margin-top: auto;
-    padding: 1.25rem 0;
+    padding: 2.5rem 0 5.5rem;   /* extra bottom space so the floating buttons don't cover it */
+    font-size: .85rem;
+    color: var(--ink);
+    background: #f4f2ef;
+    border-top: 1px solid var(--line);
+}
+
+.footer-wrap {
+    width: min(100% - 3rem, 1120px);
+    margin-inline: auto;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr 1.2fr;
+    gap: 2rem;
+}
+
+.footer-name {
+    margin: 0 0 .35rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.footer-tagline {
+    max-width: 26ch;
+    margin: 0;
+    color: var(--muted);
+}
+
+.site-footer h2 {
+    margin: 0 0 .6rem;
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.site-footer ul {
+    display: grid;
+    gap: .45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.site-footer a {
+    color: var(--ink);
+    text-decoration: none;
+}
+
+    .site-footer a:hover {
+        color: var(--nude-ink);
+        text-decoration: underline;
+    }
+
+    .site-footer a:focus-visible {
+        outline: 3px solid var(--nude);
+        outline-offset: 2px;
+    }
+
+/* Facebook / Instagram as small pill buttons */
+.site-footer .footer-social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: 1rem;
+}
+
+    .site-footer .footer-social a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 0 .9rem;
+        font-size: .8rem;
+        font-weight: 600;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+    }
+
+        .site-footer .footer-social a:hover {
+            text-decoration: none;
+            background: var(--beige);
+        }
+
+.footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: .5rem 1rem;
+    margin-top: 2rem;
+    padding-top: 1.25rem;
     font-size: .8rem;
     color: var(--muted);
-    background: rgba(255, 255, 255, .5);
     border-top: 1px solid var(--line);
+}
+
+    .footer-bottom p {
+        margin: 0;
+    }
+
+    .footer-bottom a {
+        color: var(--muted);
+    }
+
+@media (max-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ---------- Shared layout pieces ---------- */
@@ -1986,32 +2095,215 @@ body:has(dialog[open]) {
     font-weight: 600;
 }
 
-.auth-divider {
+/* ---------- My Quotes: edited quotations ---------- */
+.chip-updated {
+    margin-left: .35rem;
+    color: var(--nude-ink);
+    background: var(--nude);
+}
+
+.quote-edited {
+    margin-bottom: 1.5rem;
+    padding: 1.1rem 1.25rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 6px solid var(--nude);
+    border-radius: 10px;
+}
+
+    .quote-edited h2 {
+        margin: 0 0 .6rem;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+.quote-changes {
+    display: grid;
+    gap: .35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: .9rem;
+}
+
+    .quote-changes li {
+        padding-left: .75rem;
+        border-left: 3px solid var(--line);
+    }
+
+    .quote-changes .change-added {
+        border-left-color: #1f9d55;
+    }
+
+    .quote-changes .change-removed {
+        border-left-color: var(--error);
+    }
+
+    .quote-changes .change-changed {
+        border-left-color: var(--nude);
+    }
+
+/* ---------- Navbar profile card ---------- */
+.profile {
+    position: relative;
+}
+
+.avatar-btn,
+.avatar {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    font-size: .85rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: #fff;
+    background: var(--ink);
+    border-radius: 50%;
+}
+
+.avatar-btn {
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+}
+
+    .avatar-btn:hover,
+    .avatar-btn[aria-expanded="true"] {
+        color: var(--nude-ink);
+        background: var(--nude);
+    }
+
+    .avatar-btn:focus-visible {
+        outline: 3px solid var(--nude);
+        outline-offset: 2px;
+    }
+
+.avatar-lg {
+    width: 52px;
+    height: 52px;
+    font-size: 1rem;
+}
+
+.profile-card {
+    position: absolute;
+    top: calc(100% + .6rem);
+    right: 0;
+    z-index: 1050;
+    width: min(92vw, 340px);
+    padding: 1.25rem;
+    text-align: left;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(22, 20, 18, .18);
+}
+
+.profile-head {
     display: flex;
     align-items: center;
-    gap: .75rem;
-    margin: 1.5rem 0 1rem;
-    font-size: .75rem;
+    gap: .9rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.profile-name {
+    margin: 0;
+    font-weight: 700;
+}
+
+.profile-role {
+    margin: 0;
+    font-size: .8rem;
     color: var(--muted);
 }
 
-    .auth-divider::before,
-    .auth-divider::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background: var(--line);
-    }
-
-.auth-social {
-    display: grid;
-    gap: .6rem;
+.profile-message {
+    margin: 0 0 .75rem;
+    padding: .6rem .75rem;
+    font-size: .82rem;
+    background: var(--beige);
+    border-left: 3px solid var(--nude);
+    border-radius: 0 var(--radius) var(--radius) 0;
 }
 
-    .auth-social form {
+.profile-rows {
+    margin: 0 0 .5rem;
+}
+
+.profile-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .35rem 0;
+    font-size: .88rem;
+}
+
+    .profile-row dt {
+        font-weight: 400;
+        color: var(--muted);
+    }
+
+    .profile-row dd {
+        margin: 0;
+        font-weight: 600;
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+
+.profile-email-form {
+    margin: .5rem 0 1rem;
+}
+
+.profile-actions {
+    display: flex;
+    gap: .5rem;
+    margin-top: .5rem;
+}
+
+.profile-links {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1rem 0;
+    padding-top: 1rem;
+    font-size: .88rem;
+    border-top: 1px solid var(--line);
+}
+
+    .profile-links form {
         margin: 0;
     }
 
-    .auth-social .btn {
-        min-height: 44px;
+.profile .link-button {
+    font-size: .85rem;
+}
+
+/* Keep the navbar (and the profile card that opens from it) above page content
+   such as the home page slideshow */
+.akea header:has(.navbar),
+.akea .navbar {
+    position: relative;
+    z-index: 1030;
+}
+
+/* ---------- Assistant panel with the FastBots chat inside ---------- */
+.assistant-panel.has-bot {
+    display: flex;
+    flex-direction: column;
+    width: min(92vw, 380px);
+}
+
+    .assistant-panel.has-bot[hidden] {
+        display: none;
     }
+
+.assistant-frame {
+    display: block;
+    width: 100%;
+    height: min(65vh, 560px);
+    border: 0;
+    background: #fff;
+}

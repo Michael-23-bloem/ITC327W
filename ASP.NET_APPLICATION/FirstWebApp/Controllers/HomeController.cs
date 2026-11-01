@@ -57,6 +57,13 @@ namespace FirstWebApp.Controllers
 
         public IActionResult Privacy() => View();
 
+        public IActionResult Terms()
+        {
+            ViewData["Title"] = "Terms and conditions";
+            ViewData["Lead"] = "Our terms for quotations, deposits, bookings and cancellations.";
+            return View("ComingSoon");
+        }
+
         public IActionResult About() => View();
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
