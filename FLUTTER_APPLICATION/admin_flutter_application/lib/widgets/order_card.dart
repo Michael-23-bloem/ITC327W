@@ -11,7 +11,7 @@ class OrderCard extends StatelessWidget {
     Color statusColor = Colors.grey;
     if (order.status == 'pending') statusColor = Colors.orange;
     if (order.status == 'confirmed') statusColor = Colors.green;
-    if (order.status == 'completed') statusColor = Colors.purple;
+    if (order.status == 'completed') statusColor = Colors.purple;//18h left , Quotation approved, declin
     if (order.status == 'declined') statusColor = Colors.red;
 
     return Card(
