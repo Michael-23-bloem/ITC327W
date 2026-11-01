@@ -1,30 +1,40 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:admin_flutter_application/main.dart';
+import 'package:admin_flutter_application/models/order.dart';
+import 'package:admin_flutter_application/theme/akea_theme.dart';
+import 'package:admin_flutter_application/widgets/akea_ui.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  test('akeaMoney formats rand totals', () {
+    expect(akeaMoney(0), 'R 0');
+    expect(akeaMoney(12500), 'R 12,500');
+    expect(akeaMoney(12.5), 'R 12.50');
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  test('Order hoursLeft uses the 24h created_at window', () {
+    final order = Order(
+      id: '1',
+      customerId: 'c1',
+      status: 'request_sent',
+      eventType: 'Wedding',
+      eventDate: DateTime.now().add(const Duration(days: 30)),
+      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
+    );
+    expect(order.hoursLeft, inInclusiveRange(20, 21));
+    expect(order.displayName, 'Client');
+    expect(order.guests, 0);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('AkeaButton renders a full-width primary action', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: AkeaButton(label: 'Log in', expand: true, onPressed: null),
+        ),
+      ),
+    );
+    expect(find.text('Log in'), findsOneWidget);
+    final box = tester.getSize(find.byType(AkeaButton));
+    expect(box.height, 48);
   });
 }

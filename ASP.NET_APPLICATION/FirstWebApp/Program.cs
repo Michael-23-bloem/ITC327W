@@ -13,11 +13,18 @@ namespace FirstWebApp
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            // Load .env file
+            DotNetEnv.Env.Load();
+
             // Supabase client: scoped, so one user's session is never shared with another
-            builder.Services.AddSupabase(
-                 builder.Configuration["Supabase:Url"]!,
-                 builder.Configuration["Supabase:Key"]!
-            );
+            // Credentials must be in .env (SUPABASE_URL and SUPABASE_KEY)
+            var supabaseUrl = Environment.GetEnvironmentVariable("SUPABASE_URL");
+            var supabaseKey = Environment.GetEnvironmentVariable("SUPABASE_KEY");
+            if (string.IsNullOrEmpty(supabaseUrl) || string.IsNullOrEmpty(supabaseKey))
+            {
+                throw new InvalidOperationException("Supabase credentials are missing. Add SUPABASE_URL and SUPABASE_KEY to .env file.");
+            }
+            builder.Services.AddSupabase(supabaseUrl, supabaseKey);
 
             builder.Services
                 .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

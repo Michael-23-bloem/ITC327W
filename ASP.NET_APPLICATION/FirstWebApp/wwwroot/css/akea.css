@@ -2142,3 +2142,168 @@ body:has(dialog[open]) {
     .quote-changes .change-changed {
         border-left-color: var(--nude);
     }
+
+/* ---------- Navbar profile card ---------- */
+.profile {
+    position: relative;
+}
+
+.avatar-btn,
+.avatar {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    font-size: .85rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: #fff;
+    background: var(--ink);
+    border-radius: 50%;
+}
+
+.avatar-btn {
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+}
+
+    .avatar-btn:hover,
+    .avatar-btn[aria-expanded="true"] {
+        color: var(--nude-ink);
+        background: var(--nude);
+    }
+
+    .avatar-btn:focus-visible {
+        outline: 3px solid var(--nude);
+        outline-offset: 2px;
+    }
+
+.avatar-lg {
+    width: 52px;
+    height: 52px;
+    font-size: 1rem;
+}
+
+.profile-card {
+    position: absolute;
+    top: calc(100% + .6rem);
+    right: 0;
+    z-index: 1050;
+    width: min(92vw, 340px);
+    padding: 1.25rem;
+    text-align: left;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(22, 20, 18, .18);
+}
+
+.profile-head {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.profile-name {
+    margin: 0;
+    font-weight: 700;
+}
+
+.profile-role {
+    margin: 0;
+    font-size: .8rem;
+    color: var(--muted);
+}
+
+.profile-message {
+    margin: 0 0 .75rem;
+    padding: .6rem .75rem;
+    font-size: .82rem;
+    background: var(--beige);
+    border-left: 3px solid var(--nude);
+    border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.profile-rows {
+    margin: 0 0 .5rem;
+}
+
+.profile-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .35rem 0;
+    font-size: .88rem;
+}
+
+    .profile-row dt {
+        font-weight: 400;
+        color: var(--muted);
+    }
+
+    .profile-row dd {
+        margin: 0;
+        font-weight: 600;
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+
+.profile-email-form {
+    margin: .5rem 0 1rem;
+}
+
+.profile-actions {
+    display: flex;
+    gap: .5rem;
+    margin-top: .5rem;
+}
+
+.profile-links {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1rem 0;
+    padding-top: 1rem;
+    font-size: .88rem;
+    border-top: 1px solid var(--line);
+}
+
+    .profile-links form {
+        margin: 0;
+    }
+
+.profile .link-button {
+    font-size: .85rem;
+}
+
+/* Keep the navbar (and the profile card that opens from it) above page content
+   such as the home page slideshow */
+.akea header:has(.navbar),
+.akea .navbar {
+    position: relative;
+    z-index: 1030;
+}
+
+/* ---------- Assistant panel with the FastBots chat inside ---------- */
+.assistant-panel.has-bot {
+    display: flex;
+    flex-direction: column;
+    width: min(92vw, 380px);
+}
+
+    .assistant-panel.has-bot[hidden] {
+        display: none;
+    }
+
+.assistant-frame {
+    display: block;
+    width: 100%;
+    height: min(65vh, 560px);
+    border: 0;
+    background: #fff;
+}

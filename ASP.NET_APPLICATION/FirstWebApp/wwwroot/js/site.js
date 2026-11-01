@@ -73,7 +73,7 @@ document.addEventListener("click", function (e) {
     button.textContent = expand ? "Show fewer" : button.dataset.label;
 });
 
-// Floating Décor Assistant (placeholder): open and close the panel.
+// Floating Décor Assistant: open and close the panel.
 // The floating button toggles it; any element with data-assistant-open opens it.
 (function () {
     const panel = document.getElementById("assistantPanel");
@@ -85,6 +85,11 @@ document.addEventListener("click", function (e) {
 
     function setOpen(open, opener) {
         panel.hidden = !open;
+
+        // Load the chatbot the first time the panel is opened
+        const frame = panel.querySelector("iframe[data-src]");
+        if (open && frame && !frame.getAttribute("src")) frame.setAttribute("src", frame.dataset.src);
+
         toggle.setAttribute("aria-expanded", open ? "true" : "false");
 
         if (open) {
@@ -110,4 +115,48 @@ document.addEventListener("click", function (e) {
     document.addEventListener("keydown", e => {
         if (e.key === "Escape" && !panel.hidden) setOpen(false);
     });
+})();
+
+// Navbar profile card: open/close, and the "Change email" form inside it
+(function () {
+    const toggle = document.querySelector("[data-profile-toggle]");
+    const card = document.getElementById("profileCard");
+    if (!toggle || !card) return;
+
+    const emailForm = document.getElementById("emailForm");
+    const emailEdit = card.querySelector("[data-email-edit]");
+
+    function setOpen(open, returnFocus = true) {
+        card.hidden = !open;
+        toggle.setAttribute("aria-expanded", String(open));
+        if (open) {
+            card.querySelector("[data-email-edit], [data-profile-close]")?.focus();
+        } else if (returnFocus) {
+            toggle.focus();
+        }
+    }
+
+    function setEditing(editing) {
+        if (!emailForm || !emailEdit) return;
+        emailForm.hidden = !editing;
+        emailEdit.hidden = editing;
+        emailEdit.setAttribute("aria-expanded", String(editing));
+        (editing ? emailForm.querySelector("input[type=email]") : emailEdit)?.focus();
+    }
+
+    toggle.addEventListener("click", () => setOpen(card.hidden));
+    card.querySelector("[data-profile-close]")?.addEventListener("click", () => setOpen(false));
+    emailEdit?.addEventListener("click", () => setEditing(true));
+    card.querySelector("[data-email-cancel]")?.addEventListener("click", () => setEditing(false));
+
+    // Esc closes it; so does clicking anywhere else on the page
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && !card.hidden) setOpen(false);
+    });
+    document.addEventListener("click", e => {
+        if (!card.hidden && !card.contains(e.target) && !toggle.contains(e.target)) setOpen(false, false);
+    });
+
+    // After changing the email, the card re-opens to show the result
+    if (card.dataset.openOnLoad === "true") setOpen(true);
 })();

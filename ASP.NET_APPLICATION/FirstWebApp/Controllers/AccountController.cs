@@ -6,17 +6,21 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Supabase.Gotrue;
 using Supabase.Gotrue.Exceptions;
+using System.ComponentModel.DataAnnotations;
+using FirstWebApp.Services;
 
 namespace FirstWebApp.Controllers
 {
     public class AccountController : Controller
     {
         private readonly Supabase.Client _supabase;
+        private readonly SupabaseSessionService _session;
         private readonly ILogger<AccountController> _logger;
 
-        public AccountController(Supabase.Client supabase, ILogger<AccountController> logger)
+        public AccountController(Supabase.Client supabase, SupabaseSessionService session, ILogger<AccountController> logger)
         {
             _supabase = supabase;
+            _session = session;
             _logger = logger;
         }
 
@@ -153,6 +157,51 @@ namespace FirstWebApp.Controllers
             }
         }
 
+        // From the navbar profile card: Supabase emails a confirmation link to the new address
+        [Authorize]
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeEmail(string? newEmail, string? returnUrl = null)
+        {
+            var back = Url.IsLocalUrl(returnUrl) ? returnUrl! : Url.Action("Index", "Home")!;
+            newEmail = (newEmail ?? string.Empty).Trim();
+
+            // Re-open the profile card on the page we return to, to show the result
+            TempData["ProfileOpen"] = "true";
+
+            if (newEmail.Length == 0 || !new EmailAddressAttribute().IsValid(newEmail))
+            {
+                TempData["ProfileMessage"] = "Please enter a valid email address.";
+                return LocalRedirect(back);
+            }
+
+            if (string.Equals(newEmail, User.FindFirstValue(ClaimTypes.Email), StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["ProfileMessage"] = "That's already your email address.";
+                return LocalRedirect(back);
+            }
+
+            if (!await _session.UseCustomerSessionAsync())
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                TempData["AuthMessage"] = "Please sign in again to change your email.";
+                return RedirectToAction(nameof(Login), new { returnUrl = back });
+            }
+
+            try
+            {
+                await _supabase.Auth.Update(new UserAttributes { Email = newEmail });
+                TempData["ProfileMessage"] =
+                    $"We've sent a confirmation link to {newEmail}. Your email will change once you click it, then please sign in again.";
+            }
+            catch (Exception ex) when (ex is GotrueException or HttpRequestException)
+            {
+                _logger.LogWarning(ex, "Changing a customer's email failed");
+                TempData["ProfileMessage"] = "We couldn't change your email. It may already be used by another account.";
+            }
+
+            return LocalRedirect(back);
+        }
+
         private async Task SignInCookie(Session session)
         {
             var user = session.User!;
@@ -161,6 +210,14 @@ namespace FirstWebApp.Controllers
                 new(ClaimTypes.NameIdentifier, user.Id!),   // Supabase user UUID
                 new(ClaimTypes.Email, user.Email ?? "")
             };
+
+            // Name and phone number saved at registration (for the navbar profile card)
+            string? Meta(string key) =>
+                user.UserMetadata != null && user.UserMetadata.TryGetValue(key, out var value) ? value?.ToString() : null;
+
+            if (!string.IsNullOrWhiteSpace(Meta("first_name"))) claims.Add(new(ClaimTypes.GivenName, Meta("first_name")!));
+            if (!string.IsNullOrWhiteSpace(Meta("last_name"))) claims.Add(new(ClaimTypes.Surname, Meta("last_name")!));
+            if (!string.IsNullOrWhiteSpace(Meta("phone_number"))) claims.Add(new(ClaimTypes.MobilePhone, Meta("phone_number")!));
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var properties = new AuthenticationProperties { IsPersistent = true };

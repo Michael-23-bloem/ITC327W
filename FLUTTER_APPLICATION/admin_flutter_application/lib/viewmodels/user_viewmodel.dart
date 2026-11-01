@@ -37,19 +37,65 @@ class UserViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _refreshAfterAction(String id) async {
+  // Refresh the account list.
+  await load();
+
+  // If the selected account still exists, refresh its details.
+  final accountExists = users.any((user) => user.id == id);
+
+  if (accountExists) {
+    await getDetail(id);
+  } else if (selectedUser?.id == id) {
+    // The selected account was deleted.
+    selectedUser = null;
+    notifyListeners();
+  }
+}
+
+
   Future<void> suspend(String id) async {
+  try {
+    debugPrint('========== SUSPEND TEST ==========');
+    debugPrint('CLIENT ID: $id');
+
+    final response = await supabase
+        .from('profiles')
+        .update({'account_status': 'suspended'})
+        .eq('id', id)
+        .select();
+
+    debugPrint('UPDATE RESPONSE: $response');
+
+    if (response.isEmpty) {
+      debugPrint('WARNING: No profile was updated!');
+    } else {
+      debugPrint('SUCCESS: Client account suspended!');
+    }
+
+    await _refreshAfterAction(id);
+    //await load();
+
+  } catch (e, stackTrace) {
+    debugPrint('SUSPEND ERROR: $e');
+    debugPrint('STACK TRACE: $stackTrace');
+  }
+}
+
+  /*Future<void> suspend(String id) async {
     try {
       await supabase.from('profiles').update({'account_status': 'suspended'}).eq('id', id);
       await load();
     } catch (e) {
       debugPrint('suspend error: $e');
     }
-  }
+  }*/
 
   Future<void> reactivate(String id) async {
     try {
       await supabase.from('profiles').update({'account_status': 'active'}).eq('id', id);
-      await load();
+      await _refreshAfterAction(id);
+      //await load();
     } catch (e) {
       debugPrint('reactivate error: $e');
     }
@@ -58,9 +104,29 @@ class UserViewModel extends ChangeNotifier {
   Future<void> delete(String id) async {
     try {
       await supabase.from('profiles').delete().eq('id', id);
-      await load();
+      
+      await _refreshAfterAction(id);
+      //await load();
     } catch (e) {
       debugPrint('delete error: $e');
     }
   }
+
+  Future<void> testOwnerSession() async {
+  final user = supabase.auth.currentUser;
+
+  debugPrint('========== OWNER SESSION TEST ==========');
+  debugPrint('AUTH USER ID: ${user?.id}');
+  debugPrint('AUTH EMAIL: ${user?.email}');
+
+  try {
+    final result = await supabase.rpc('is_owner');
+
+    debugPrint('IS OWNER: $result');
+  } catch (e) {
+    debugPrint('OWNER CHECK ERROR: $e');
+  }
+
+  debugPrint('=========================================');
+}
 }
