@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -42,10 +41,7 @@ class _ClientAnalyticsViewState extends State<ClientAnalyticsView> {
               elevation: 0,
               toolbarHeight: 76,
               leading: IconButton(
-                icon: const Icon(
-                  Icons.arrow_back,
-                  color: AkeaColors.ink,
-                ),
+                icon: const Icon(Icons.arrow_back, color: AkeaColors.ink),
                 tooltip: 'Back to Dashboard',
                 onPressed: () => context.go('/dashboard'),
               ),
@@ -64,10 +60,7 @@ class _ClientAnalyticsViewState extends State<ClientAnalyticsView> {
                   const SizedBox(height: 3),
                   Text(
                     'Deals, clients and confirmed revenue',
-                    style: TextStyle(
-                      color: AkeaColors.muted,
-                      fontSize: 11,
-                    ),
+                    style: TextStyle(color: AkeaColors.muted, fontSize: 11),
                   ),
                 ],
               ),
@@ -144,23 +137,14 @@ class _NarrowLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _StatCard(
-          label: 'Ongoing deals',
-          value: '${vm.ongoingDeals}',
-        ),
+        _StatCard(label: 'Ongoing deals', value: '${vm.ongoingDeals}'),
         const SizedBox(height: 16),
-        _StatCard(
-          label: 'Past Deals',
-          value: '${vm.pastDeals}',
-        ),
+        _StatCard(label: 'Past Deals', value: '${vm.pastDeals}'),
         const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
-              child: _MiniStat(
-                label: 'Clients',
-                value: '${vm.uniqueClients}',
-              ),
+              child: _MiniStat(label: 'Clients', value: '${vm.uniqueClients}'),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -174,7 +158,11 @@ class _NarrowLayout extends StatelessWidget {
         const SizedBox(height: 22),
 
         // Swipe between the two charts on mobile.
-        _SwipeableCharts(counts: vm.monthlyDealCounts),
+        // _SwipeableCharts(counts: vm.monthlyDealCounts),
+        _SwipeableCharts(
+          counts: vm.monthlyDealCounts,
+          yearlyRevenue: vm.yearlyRevenue,
+        ),
 
         const SizedBox(height: 16),
         _EventTypesCard(types: vm.eventTypeCounts),
@@ -206,17 +194,11 @@ class _WideLayout extends StatelessWidget {
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: _StatCard(
-                label: 'Past Deals',
-                value: '${vm.pastDeals}',
-              ),
+              child: _StatCard(label: 'Past Deals', value: '${vm.pastDeals}'),
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: _MiniStat(
-                label: 'Clients',
-                value: '${vm.uniqueClients}',
-              ),
+              child: _MiniStat(label: 'Clients', value: '${vm.uniqueClients}'),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -234,14 +216,11 @@ class _WideLayout extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: _ChartCard(
-                counts: vm.monthlyDealCounts,
-                height: 300,
-              ),
+              child: _ChartCard(counts: vm.monthlyDealCounts, height: 300),
             ),
             const SizedBox(width: 16),
-            const Expanded(
-              child: _AnnualGrowthChart(height: 300),
+            Expanded(
+              child: _AnnualGrowthChart(data: vm.yearlyRevenue, height: 300),
             ),
           ],
         ),
@@ -257,10 +236,10 @@ class _WideLayout extends StatelessWidget {
 // ------------------------------------------------------------
 
 class _SwipeableCharts extends StatefulWidget {
-  const _SwipeableCharts({required this.counts});
+  const _SwipeableCharts({required this.counts, required this.yearlyRevenue});
 
   final List<MonthlyDealCount> counts;
-
+  final List<YearlyRevenue> yearlyRevenue;
   @override
   State<_SwipeableCharts> createState() => _SwipeableChartsState();
 }
@@ -289,11 +268,9 @@ class _SwipeableChartsState extends State<_SwipeableCharts> {
               });
             },
             children: [
-              _ChartCard(
-                counts: widget.counts,
-                height: 290,
-              ),
-              const _AnnualGrowthChart(height: 290),
+              _ChartCard(counts: widget.counts, height: 290),
+              _AnnualGrowthChart(data: widget.yearlyRevenue, height: 290),
+              //const _AnnualGrowthChart(height: 290),
             ],
           ),
         ),
@@ -326,10 +303,7 @@ class _SwipeableChartsState extends State<_SwipeableCharts> {
         const SizedBox(height: 6),
         const Text(
           'Swipe left or right to view charts',
-          style: TextStyle(
-            fontSize: 11,
-            color: Colors.black54,
-          ),
+          style: TextStyle(fontSize: 11, color: Colors.black54),
         ),
       ],
     );
@@ -353,10 +327,7 @@ class _PageIndicator extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 13,
-          vertical: 8,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
         decoration: BoxDecoration(
           color: active ? AkeaColors.plum : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
@@ -385,18 +356,13 @@ class _ChartCard extends StatelessWidget {
   final List<MonthlyDealCount> counts;
   final double height;
 
-  const _ChartCard({
-    required this.counts,
-    this.height = 210,
-  });
+  const _ChartCard({required this.counts, this.height = 210});
 
   @override
   Widget build(BuildContext context) {
     final maxVal = counts.isEmpty
         ? 1
-        : counts
-            .map((c) => c.count)
-            .fold<int>(1, (a, b) => a > b ? a : b);
+        : counts.map((c) => c.count).fold<int>(1, (a, b) => a > b ? a : b);
 
     return Container(
       width: double.infinity,
@@ -425,9 +391,7 @@ class _ChartCard extends StatelessWidget {
                       for (final month in counts)
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 3,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 3),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -437,13 +401,16 @@ class _ChartCard extends StatelessWidget {
                                     child: FractionallySizedBox(
                                       heightFactor: month.count == 0
                                           ? 0
-                                          : (month.count / maxVal)
-                                              .clamp(0.04, 1.0),
+                                          : (month.count / maxVal).clamp(
+                                              0.04,
+                                              1.0,
+                                            ),
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: AkeaColors.plum,
-                                          borderRadius:
-                                              BorderRadius.circular(4),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -476,8 +443,113 @@ class _ChartCard extends StatelessWidget {
 // ------------------------------------------------------------
 
 class _AnnualGrowthChart extends StatelessWidget {
-  const _AnnualGrowthChart({this.height = 290});
+  const _AnnualGrowthChart({required this.data, this.height = 290});
 
+  final List<YearlyRevenue> data;
+  final double height;
+
+  String _formatValue(double value) {
+    if (value >= 1000) {
+      return 'R${(value / 1000).toStringAsFixed(0)}k';
+    }
+    return 'R${value.toStringAsFixed(0)}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final maxRevenue = data.isEmpty
+        ? 1.0
+        : data.map((item) => item.revenue).reduce((a, b) => a > b ? a : b);
+
+    return Container(
+      width: double.infinity,
+      height: height,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+      decoration: _cardDecoration,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Business growth',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 3),
+          const Text(
+            'Confirmed annual booking value',
+            style: TextStyle(fontSize: 10, color: Colors.black54),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: data.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No yearly data yet',
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      for (final item in data)
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 3),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  _formatValue(item.revenue),
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: FractionallySizedBox(
+                                      heightFactor: maxRevenue == 0
+                                          ? 0
+                                          : (item.revenue / maxRevenue).clamp(
+                                              0.04,
+                                              1.0,
+                                            ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF9B789F),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  item.year,
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/*class _AnnualGrowthChart extends StatelessWidget {
+  const _AnnualGrowthChart({this.height = 290});
+   
   final double height;
 
   static const List<_YearRevenue> sampleData = [
@@ -578,16 +650,13 @@ class _AnnualGrowthChart extends StatelessWidget {
       ),
     );
   }
-}
+}*/
 
 class _YearRevenue {
   final String year;
   final double revenue;
 
-  const _YearRevenue({
-    required this.year,
-    required this.revenue,
-  });
+  const _YearRevenue({required this.year, required this.revenue});
 }
 
 // ------------------------------------------------------------
@@ -598,10 +667,7 @@ class _StatCard extends StatelessWidget {
   final String label;
   final String value;
 
-  const _StatCard({
-    required this.label,
-    required this.value,
-  });
+  const _StatCard({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -614,18 +680,14 @@ class _StatCard extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 15,
-              color: Colors.black87,
-            ),
+            style: const TextStyle(fontSize: 15, color: Colors.black87),
           ),
           const SizedBox(height: 6),
           Text(
             value,
-            style: Theme.of(context)
-                .textTheme
-                .headlineMedium
-                ?.copyWith(fontSize: 28),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineMedium?.copyWith(fontSize: 28),
           ),
         ],
       ),
@@ -637,10 +699,7 @@ class _MiniStat extends StatelessWidget {
   final String label;
   final String value;
 
-  const _MiniStat({
-    required this.label,
-    required this.value,
-  });
+  const _MiniStat({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -653,18 +712,12 @@ class _MiniStat extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Colors.black54,
-            ),
+            style: const TextStyle(fontSize: 13, color: Colors.black54),
           ),
           const SizedBox(height: 6),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -709,9 +762,7 @@ class _EventTypesCard extends StatelessWidget {
                     Expanded(child: Text(type.type)),
                     Text(
                       '${type.count}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),

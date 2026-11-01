@@ -31,10 +31,13 @@ class _DecorEditViewState extends State<DecorEditView> {
   final List<String> _categories = const [
     'Chairs',
     'Tables',
-    'Draping',
-    'Lighting',
+    'Plates',
+    'Glasses',
     'Tents',
-    'Crockery',
+    'Candles Holders',
+    'Plinths',
+    'Frames & other decors',
+    'Cutlery & Underplates',
   ];
 
   @override

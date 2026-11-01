@@ -10,6 +10,7 @@ class AnalyticsViewModel extends ChangeNotifier {
   double confirmedRevenue = 0;
   List<MonthlyDealCount> monthlyDealCounts = const [];
   List<EventTypeCount> eventTypeCounts = const [];
+  List<YearlyRevenue> yearlyRevenue = const [];
   bool loading = false;
   String? error;
 
@@ -27,6 +28,7 @@ class AnalyticsViewModel extends ChangeNotifier {
       confirmedRevenue = snapshot.confirmedRevenue;
       monthlyDealCounts = snapshot.monthlyDealCounts;
       eventTypeCounts = snapshot.eventTypeCounts;
+      yearlyRevenue = snapshot.yearlyRevenue;
     } catch (e) {
       debugPrint('Analytics load failed: $e');
       error = 'Could not load analytics. Pull to retry.';
