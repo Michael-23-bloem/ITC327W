@@ -256,7 +256,7 @@ class _QuotationListViewState extends State<QuotationListView> {
 
                   const SizedBox(height: 28),
 
-                  Row(
+                 /* Row(
                     children: [
                       _sectionTitle('Recent requests'),
                       const Spacer(),
@@ -266,7 +266,7 @@ class _QuotationListViewState extends State<QuotationListView> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 14),*/
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
