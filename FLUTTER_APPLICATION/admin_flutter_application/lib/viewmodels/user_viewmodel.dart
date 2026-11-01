@@ -37,6 +37,22 @@ class UserViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _refreshAfterAction(String id) async {
+  // Refresh the account list.
+  await load();
+
+  // If the selected account still exists, refresh its details.
+  final accountExists = users.any((user) => user.id == id);
+
+  if (accountExists) {
+    await getDetail(id);
+  } else if (selectedUser?.id == id) {
+    // The selected account was deleted.
+    selectedUser = null;
+    notifyListeners();
+  }
+}
+
 
   Future<void> suspend(String id) async {
   try {
@@ -57,7 +73,8 @@ class UserViewModel extends ChangeNotifier {
       debugPrint('SUCCESS: Client account suspended!');
     }
 
-    await load();
+    await _refreshAfterAction(id);
+    //await load();
 
   } catch (e, stackTrace) {
     debugPrint('SUSPEND ERROR: $e');
@@ -77,7 +94,8 @@ class UserViewModel extends ChangeNotifier {
   Future<void> reactivate(String id) async {
     try {
       await supabase.from('profiles').update({'account_status': 'active'}).eq('id', id);
-      await load();
+      await _refreshAfterAction(id);
+      //await load();
     } catch (e) {
       debugPrint('reactivate error: $e');
     }
@@ -86,7 +104,9 @@ class UserViewModel extends ChangeNotifier {
   Future<void> delete(String id) async {
     try {
       await supabase.from('profiles').delete().eq('id', id);
-      await load();
+      
+      await _refreshAfterAction(id);
+      //await load();
     } catch (e) {
       debugPrint('delete error: $e');
     }
