@@ -1,0 +1,104 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Config
+@{
+    var business = Config.GetSection("Business");
+    var whatsAppNumber = business["WhatsAppNumber"];
+    var whatsAppDisplay = business["WhatsAppDisplay"];
+    var email = business["Email"];
+    var serviceArea = business["ServiceArea"];
+    var facebookUrl = business["FacebookUrl"];
+    var instagramUrl = business["InstagramUrl"];
+
+    var whatsAppLink = string.IsNullOrWhiteSpace(whatsAppNumber) ? null : $"https://wa.me/{whatsAppNumber}";
+    var hasSocial = !string.IsNullOrWhiteSpace(facebookUrl) || !string.IsNullOrWhiteSpace(instagramUrl);
+}
+
+<footer class="site-footer">
+    <div class="footer-wrap">
+        <div class="footer-grid">
+
+            <div class="footer-brand">
+                <p class="footer-name">AkeaEvents</p>
+                <p class="footer-tagline">Every celebration, thoughtfully managed.</p>
+
+                @if (hasSocial)
+                {
+                    <ul class="footer-social" aria-label="AkeaEvents on social media">
+                        @if (!string.IsNullOrWhiteSpace(facebookUrl))
+                        {
+                            <li>
+                                <a href="@facebookUrl" target="_blank" rel="noopener noreferrer">
+                                    Facebook <span class="visually-hidden">(opens in a new tab)</span>
+                                </a>
+                            </li>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(instagramUrl))
+                        {
+                            <li>
+                                <a href="@instagramUrl" target="_blank" rel="noopener noreferrer">
+                                    Instagram <span class="visually-hidden">(opens in a new tab)</span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+
+            <nav aria-labelledby="footerExplore">
+                <h2 id="footerExplore">Explore</h2>
+                <ul>
+                    <li><a asp-controller="Catalogue" asp-action="Products">Catalogue</a></li>
+                    <li><a asp-controller="Catalogue" asp-action="Packages">Packages</a></li>
+                    <li><a asp-controller="Portfolio" asp-action="Index">Portfolio</a></li>
+                    <li><a asp-controller="Home" asp-action="About">About us</a></li>
+                </ul>
+            </nav>
+
+            <nav aria-labelledby="footerHelp">
+                <h2 id="footerHelp">Help</h2>
+                <ul>
+                    <li><a asp-controller="Quotes" asp-action="Index">My Quotes</a></li>
+                    @if (whatsAppLink != null)
+                    {
+                        <li>
+                            <a href="@whatsAppLink" target="_blank" rel="noopener noreferrer">
+                                Contact us <span class="visually-hidden">on WhatsApp (opens in a new tab)</span>
+                            </a>
+                        </li>
+                    }
+                    <li><a asp-controller="Faqs" asp-action="Index">FAQs</a></li>
+                </ul>
+            </nav>
+
+            <div>
+                <h2 id="footerContact">Contact</h2>
+                <ul aria-labelledby="footerContact">
+                    @if (whatsAppLink != null)
+                    {
+                        <li>
+                            <a href="@whatsAppLink" target="_blank" rel="noopener noreferrer">
+                                WhatsApp @whatsAppDisplay <span class="visually-hidden">(opens in a new tab)</span>
+                            </a>
+                        </li>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(email))
+                    {
+                        <li><a href="mailto:@email">@email</a></li>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(serviceArea))
+                    {
+                        <li>@serviceArea</li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; @DateTime.Now.Year AkeaEvents</p>
+            <p>
+                <a asp-controller="Home" asp-action="Terms">Terms</a>
+                &middot;
+                <a asp-controller="Home" asp-action="Privacy">Privacy Policy (POPIA)</a>
+            </p>
+        </div>
+    </div>
+</footer>

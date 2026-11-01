@@ -107,11 +107,120 @@ body.akea {
 /* ---------- Footer ---------- */
 .site-footer {
     margin-top: auto;
-    padding: 1.25rem 0;
+    padding: 2.5rem 0 5.5rem;   /* extra bottom space so the floating buttons don't cover it */
+    font-size: .85rem;
+    color: var(--ink);
+    background: #f4f2ef;
+    border-top: 1px solid var(--line);
+}
+
+.footer-wrap {
+    width: min(100% - 3rem, 1120px);
+    margin-inline: auto;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr 1.2fr;
+    gap: 2rem;
+}
+
+.footer-name {
+    margin: 0 0 .35rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.footer-tagline {
+    max-width: 26ch;
+    margin: 0;
+    color: var(--muted);
+}
+
+.site-footer h2 {
+    margin: 0 0 .6rem;
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.site-footer ul {
+    display: grid;
+    gap: .45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.site-footer a {
+    color: var(--ink);
+    text-decoration: none;
+}
+
+    .site-footer a:hover {
+        color: var(--nude-ink);
+        text-decoration: underline;
+    }
+
+    .site-footer a:focus-visible {
+        outline: 3px solid var(--nude);
+        outline-offset: 2px;
+    }
+
+/* Facebook / Instagram as small pill buttons */
+.site-footer .footer-social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: 1rem;
+}
+
+    .site-footer .footer-social a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 0 .9rem;
+        font-size: .8rem;
+        font-weight: 600;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+    }
+
+        .site-footer .footer-social a:hover {
+            text-decoration: none;
+            background: var(--beige);
+        }
+
+.footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: .5rem 1rem;
+    margin-top: 2rem;
+    padding-top: 1.25rem;
     font-size: .8rem;
     color: var(--muted);
-    background: rgba(255, 255, 255, .5);
     border-top: 1px solid var(--line);
+}
+
+    .footer-bottom p {
+        margin: 0;
+    }
+
+    .footer-bottom a {
+        color: var(--muted);
+    }
+
+@media (max-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ---------- Shared layout pieces ---------- */
@@ -1985,33 +2094,3 @@ body:has(dialog[open]) {
     font-size: .8rem;
     font-weight: 600;
 }
-
-.auth-divider {
-    display: flex;
-    align-items: center;
-    gap: .75rem;
-    margin: 1.5rem 0 1rem;
-    font-size: .75rem;
-    color: var(--muted);
-}
-
-    .auth-divider::before,
-    .auth-divider::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background: var(--line);
-    }
-
-.auth-social {
-    display: grid;
-    gap: .6rem;
-}
-
-    .auth-social form {
-        margin: 0;
-    }
-
-    .auth-social .btn {
-        min-height: 44px;
-    }

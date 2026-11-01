@@ -36,21 +36,6 @@
 
             <button type="submit" class="btn w-100">Sign in</button>
         </form>
-
-        <p class="auth-divider"><span>or continue with</span></p>
-
-        <div class="auth-social">
-            <form asp-action="ExternalLogin" method="post">
-                <input type="hidden" name="provider" value="google" />
-                <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
-                <button type="submit" class="btn btn-outline-dark w-100">Continue with Google</button>
-            </form>
-            <form asp-action="ExternalLogin" method="post">
-                <input type="hidden" name="provider" value="facebook" />
-                <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
-                <button type="submit" class="btn btn-outline-dark w-100">Continue with Facebook</button>
-            </form>
-        </div>
     </div>
 </div>
 
