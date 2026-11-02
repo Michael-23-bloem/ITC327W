@@ -53,6 +53,12 @@
                 <button type="submit" class="btn btn-dark btn-sm">Add to estimate</button>
             }
         </form>
+
+        @* Products: check availability for an event date (uses the quantity chosen above) *@
+        @if (!isPackage)
+        {
+            <partial name="_AvailabilityCheck" model="(Model.Id, Model.ItemType, Model.Name)" />
+        }
     </div>
 </div>
 
@@ -95,6 +101,11 @@
                 </li>
             }
         </ul>
+
+        @* Packages: check every item in the package for an event date *@
+        <div class="package-dialog-avail">
+            <partial name="_AvailabilityCheck" model="(Model.Id, Model.ItemType, Model.Name)" />
+        </div>
 
         <div class="package-dialog-foot">
             <form method="dialog">

@@ -105,30 +105,42 @@
         </div>
     </section>
 
-    @* Popular packages *@
+    @* Latest packages: the three most recently added *@
     <section class="section">
         <div class="wrap">
             <p class="eyebrow">Packages</p>
             <div class="section-head">
-                <h2>Popular packages</h2>
+                <h2>Our latest packages</h2>
                 <a asp-controller="Catalogue" asp-action="Packages" class="more">See all packages &rarr;</a>
             </div>
-            <div class="grid grid-3">
-                @foreach (var p in Model.Packages)
-                {
-                    <article class="tile">
-                        <div class="media" data-label="Package image">
-                            <img src="@Url.Content("~/" + p.Image)" alt="" loading="lazy" onerror="this.remove()" />
-                        </div>
-                        <div class="tile-body">
-                            <h3>@p.Name</h3>
-                            <p class="tile-text">@p.Description</p>
-                            <p class="price">From @p.FromPrice</p>
-                            <a asp-controller="Catalogue" asp-action="Packages" class="btn btn-block btn-sm">View package</a>
-                        </div>
-                    </article>
-                }
-            </div>
+
+            @if (Model.Packages.Any())
+            {
+                <div class="grid grid-3">
+                    @foreach (var p in Model.Packages)
+                    {
+                        <article class="tile">
+                            <div class="media" data-label="Package image">
+                                @if (!string.IsNullOrEmpty(p.Image))
+                                {
+                                    <img src="@p.Image" alt="" loading="lazy" onerror="this.remove()" />
+                                }
+                            </div>
+                            <div class="tile-body">
+                                <h3>@p.Name</h3>
+                                <p class="tile-text">@p.Description</p>
+                                <p class="price">From @p.FromPrice</p>
+                                <a asp-controller="Catalogue" asp-action="Packages" asp-route-search="@p.Name"
+                                   class="btn btn-block btn-sm">View package</a>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="tile-text">Our packages will appear here soon.</p>
+            }
         </div>
     </section>
 
