@@ -160,3 +160,30 @@ document.addEventListener("click", function (e) {
     // After changing the email, the card re-opens to show the result
     if (card.dataset.openOnLoad === "true") setOpen(true);
 })();
+
+// Catalogue: check availability for a date without leaving the page
+document.addEventListener("submit", async e => {
+    const form = e.target.closest("[data-availability]");
+    if (!form) return;
+    e.preventDefault();
+
+    const result = form.querySelector(".avail-result");
+    const params = new URLSearchParams(new FormData(form));
+
+    // For products, check the quantity chosen on the card
+    const quantity = form.closest(".item-card")?.querySelector('input[name="quantity"]');
+    if (quantity) params.set("quantity", quantity.value || "1");
+
+    result.className = "avail-result is-loading";
+    result.textContent = "Checking…";
+
+    try {
+        const response = await fetch(`${form.action}?${params}`, { headers: { Accept: "application/json" } });
+        const data = await response.json();
+        result.className = `avail-result is-${data.state}`;
+        result.textContent = data.message;
+    } catch {
+        result.className = "avail-result is-error";
+        result.textContent = "We couldn't check availability right now. Please try again.";
+    }
+});

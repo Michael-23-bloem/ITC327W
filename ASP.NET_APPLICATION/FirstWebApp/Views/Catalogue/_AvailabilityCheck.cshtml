@@ -1,0 +1,22 @@
+@model (Guid Id, string Type, string Name)
+@{
+    var id = $"avail-{Model.Id:N}";
+    var earliest = DateTime.Today.AddDays(QuoteRequestViewModel.MinDaysAhead).ToString("yyyy-MM-dd");
+}
+
+<details class="avail">
+    <summary>Check availability</summary>
+
+    <form class="avail-form" data-availability action="@Url.Action("Availability", "Catalogue")" method="get">
+        <input type="hidden" name="itemId" value="@Model.Id" />
+        <input type="hidden" name="itemType" value="@Model.Type" />
+
+        <label for="@id-date" class="avail-label">Event date for @Model.Name</label>
+        <div class="avail-row">
+            <input id="@id-date" name="date" type="date" min="@earliest" required class="form-control form-control-sm" />
+            <button type="submit" class="btn btn-outline-dark btn-sm">Check</button>
+        </div>
+
+        <p class="avail-result" role="status" aria-live="polite"></p>
+    </form>
+</details>

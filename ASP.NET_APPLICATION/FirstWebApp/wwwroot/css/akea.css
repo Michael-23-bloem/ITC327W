@@ -2307,3 +2307,69 @@ body:has(dialog[open]) {
     border: 0;
     background: #fff;
 }
+
+/* ---------- Catalogue: check availability ---------- */
+.avail {
+    margin-top: .75rem;
+    padding-top: .6rem;
+    font-size: .82rem;
+    border-top: 1px dashed var(--line);
+}
+
+    .avail summary {
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .avail summary:focus-visible {
+            outline: 3px solid var(--nude);
+            outline-offset: 2px;
+        }
+
+.avail-form {
+    margin-top: .6rem;
+}
+
+.avail-label {
+    display: block;
+    margin-bottom: .3rem;
+    font-size: .78rem;
+    color: var(--muted);
+}
+
+.avail-row {
+    display: flex;
+    gap: .5rem;
+}
+
+    .avail-row .form-control {
+        min-width: 0;
+    }
+
+.avail-result {
+    margin: .5rem 0 0;
+    min-height: 1.2em;
+    font-weight: 600;
+}
+
+    .avail-result.is-loading {
+        font-weight: 400;
+        color: var(--muted);
+    }
+
+    .avail-result.is-available {
+        color: #1f7a45;
+    }
+
+    .avail-result.is-low {
+        color: #8a5a00;
+    }
+
+    .avail-result.is-unavailable,
+    .avail-result.is-error {
+        color: var(--error);
+    }
+
+.package-dialog-avail {
+    padding: 0 1.25rem;
+}

@@ -42,12 +42,7 @@ namespace FirstWebApp.Controllers
                     new("Baby showers",  "images/occasion/babyshowers.jpg")
                 },
 
-                Packages = new()
-                {
-                    new("[Package name]", "[Short package description]", "R0.000", "images/packages/package-1.jpg"),
-                    new("[Package name]", "[Short package description]", "R0.000", "images/packages/package-2.jpg"),
-                    new("[Package name]", "[Short package description]", "R0.000", "images/packages/package-3.jpg")
-                },
+                Packages = await LoadRecentPackagesAsync(),
 
                 Work = await LoadRecentWorkAsync()
             };
@@ -94,6 +89,29 @@ namespace FirstWebApp.Controllers
             {
                 // The home page should still load if Supabase is unavailable
                 _logger.LogWarning(ex, "Loading recent portfolio work for the home page failed");
+                return new();
+            }
+        }
+        // The three most recently added packages that are shown on the website
+        private async Task<List<HomePackage>> LoadRecentPackagesAsync()
+        {
+            try
+            {
+                var packages = (await _supabase.From<DecorPackage>()
+                    .Where(p => p.IsActive == true)
+                    .Order(p => p.CreatedAt, Constants.Ordering.Descending)
+                    .Limit(3)
+                    .Get()).Models;
+
+                return packages.Select(p => new HomePackage(
+                    p.Name,
+                    p.Description ?? string.Empty,
+                    "R " + p.Price.ToString("N0"),
+                    p.ImageUrl ?? string.Empty)).ToList();
+            }
+            catch (Exception ex) when (ex is PostgrestException or HttpRequestException)
+            {
+                _logger.LogWarning(ex, "Loading packages for the home page failed");
                 return new();
             }
         }

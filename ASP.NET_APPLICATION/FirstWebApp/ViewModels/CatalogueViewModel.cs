@@ -1,5 +1,9 @@
 namespace FirstWebApp.ViewModels
 {
+    // The answer to "Check availability", sent to the page as JSON.
+    // State is "available", "low", "unavailable" or "error".
+    public record AvailabilityResult(string State, string Message);
+    
     // The two kinds of things a customer can add to their estimate
     public static class CatalogueItemTypes
     {
