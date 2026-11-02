@@ -1,5 +1,6 @@
 import 'routes/app_router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'theme/akea_theme.dart';
@@ -14,14 +15,24 @@ import 'viewmodels/user_login_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
+
+  final supabaseUrl = dotenv.env['SUPABASE_URL'];
+  final supabasePublishableKey = dotenv.env['SUPABASE_PUBLISHABLE_KEY'];
+  if (supabaseUrl == null || supabasePublishableKey == null) {
+    throw StateError(
+      'SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY must be set in .env',
+    );
+  }
+
   await Supabase.initialize(
-   url: 'https://rsqagixdvwdgmdtnaiod.supabase.co/',
-   publishableKey: 'sb_publishable_zEHBGl0H_No79HT8f1oQ2w_YT-a8pDG',
- );
+    url: supabaseUrl,
+    publishableKey: supabasePublishableKey,
+  );
   runApp(MyApp());
 }
 
-class   MyApp extends StatelessWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
@@ -29,7 +40,7 @@ class   MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserViewModel()),
-          ChangeNotifierProvider(create: (_) => UserLoginViewModel()),
+        ChangeNotifierProvider(create: (_) => UserLoginViewModel()),
         ChangeNotifierProvider(create: (_) => OrderViewModel()),
         ChangeNotifierProvider(create: (_) => DecorProductViewModel()),
         ChangeNotifierProvider(create: (_) => PortfolioViewModel()),
