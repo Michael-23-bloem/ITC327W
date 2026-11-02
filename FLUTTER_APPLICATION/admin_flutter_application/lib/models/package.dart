@@ -1,9 +1,12 @@
+
 class Package {
   final String packageId;
   final String name;
   final double price;
   final String description;
   final String? imageUrl;
+  final bool isActive;
+  final int itemCount;
 
   Package({
     required this.packageId,
@@ -11,15 +14,21 @@ class Package {
     required this.price,
     required this.description,
     this.imageUrl,
+    this.isActive = true,
+    this.itemCount = 0,
   });
 
   factory Package.fromJson(Map<String, dynamic> json) {
+    final packageItems = json['package_items'] as List?;
+
     return Package(
-      packageId: json['Package_id']?.toString() ?? json['package_id']?.toString() ?? json['id']?.toString() ?? '',
-      name: json['Name']?.toString() ?? json['name']?.toString() ?? '',
-      price: json['Price'] != null ? (json['Price'] as num).toDouble() : json['price'] != null ? (json['price'] as num).toDouble() : 0.0,
-      description: json['Description']?.toString() ?? json['description']?.toString() ?? '',
-      imageUrl: json['Image_url']?.toString() ?? json['image_url']?.toString(),
+      packageId: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      description: json['description']?.toString() ?? '',
+      imageUrl: json['image_url']?.toString(),
+      isActive: json['is_active'] as bool? ?? true,
+      itemCount: packageItems?.length ?? 0,
     );
   }
 }

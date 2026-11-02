@@ -14,7 +14,7 @@ import 'viewmodels/user_login_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Supabase.initialize(
+ await Supabase.initialize(
    url: 'https://rsqagixdvwdgmdtnaiod.supabase.co/',
    publishableKey: 'sb_publishable_zEHBGl0H_No79HT8f1oQ2w_YT-a8pDG',
  );

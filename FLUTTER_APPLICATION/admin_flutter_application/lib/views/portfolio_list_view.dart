@@ -164,11 +164,30 @@ class _PortfolioListViewState extends State<PortfolioListView> {
           ),
         ],
       ),
+      
+floatingActionButton: Wrap(
+  spacing: 12,
+  children: [
+    FloatingActionButton.extended(
+      heroTag: 'addPortfolio',
+      onPressed: () => context.push('/portfolio/upload'),
+      icon: const Icon(Icons.photo_library_outlined),
+      label: const Text('Add Portfolio'),
+    ),
+    FloatingActionButton.extended(
+      heroTag: 'addPackage',
+      onPressed: () => context.push('/portfolio/package-upload'),
+      icon: const Icon(Icons.inventory_2_outlined),
+      label: const Text('Add Package'),
+    ),
+  ],
+),
 
-      floatingActionButton: FloatingActionButton(
+
+     /* floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/portfolio/upload'),
         child: const Icon(Icons.add),
-      ),
+      ),*/
 
       body: vm.loading
           ? const Center(child: CircularProgressIndicator())

@@ -95,6 +95,8 @@ const _desktopDestinations = [
     location: '/decor',
     matchPrefixes: ['/decor'],
   ),
+  
+
   _Destination(
     label: 'Portfolio',
     icon: Icons.photo_library_outlined,

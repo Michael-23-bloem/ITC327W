@@ -359,6 +359,150 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
     );
   }
 
+  Widget _buildQuotationItemsCard() {
+    if (_quotationLoading) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Center(child: CircularProgressIndicator(color: kGold)),
+        ),
+      );
+    }
+
+    final rawItems = _quotation?['quotation_items'];
+
+    final List<Map<String, dynamic>> items = rawItems is List
+        ? rawItems
+              .whereType<Map>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList()
+        : [];
+
+    String money(dynamic value) {
+      final amount = (value as num?)?.toDouble() ?? 0;
+      return 'R ${amount.toStringAsFixed(2)}';
+    }
+
+    return _sectionCard(
+      title: ' Edited Quotation Items',
+      icon: Icons.receipt_long_outlined,
+      children: [
+        if (_quotation == null)
+          const Text(
+            'No quotation has been created yet.',
+            style: TextStyle(color: Colors.black54),
+          )
+        else if (items.isEmpty)
+          const Text(
+            'No items have been saved in this quotation version.',
+            style: TextStyle(color: Colors.black54),
+          )
+        else ...[
+          ...items.map((item) {
+            final name = item['product_name']?.toString() ?? 'Custom item';
+
+            final quantity = (item['quantity'] as num?)?.toInt() ?? 1;
+
+            final unitPrice = (item['unit_price'] as num?)?.toDouble() ?? 0;
+
+            final total = quantity * unitPrice;
+
+            final imageUrl = item['image_url']?.toString();
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: kPageBg,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: imageUrl != null && imageUrl.isNotEmpty
+                        ? Image.network(
+                            imageUrl,
+                            width: 55,
+                            height: 55,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const SizedBox(
+                              width: 55,
+                              height: 55,
+                              child: Icon(
+                                Icons.celebration_outlined,
+                                color: kDarkGold,
+                              ),
+                            ),
+                          )
+                        : const SizedBox(
+                            width: 55,
+                            height: 55,
+                            child: Icon(
+                              Icons.celebration_outlined,
+                              color: kDarkGold,
+                            ),
+                          ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            color: kDarkText,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Qty: $quantity × ${money(unitPrice)}',
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  Text(
+                    money(total),
+                    style: const TextStyle(
+                      color: kDarkText,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+
+          const Divider(),
+
+          _quotationRow(
+            'Items subtotal',
+            money(
+              items.fold<double>(0, (total, item) {
+                final quantity = (item['quantity'] as num?)?.toInt() ?? 1;
+
+                final unitPrice = (item['unit_price'] as num?)?.toDouble() ?? 0;
+
+                return total + (quantity * unitPrice);
+              }),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _quotationRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
@@ -517,7 +661,13 @@ class _QuotationDetailViewState extends State<QuotationDetailView> {
                 _buildQuotationCard(o),
 
                 const SizedBox(height: 16),
-                // Requested items
+
+                // Owner's quotation items
+                _buildQuotationItemsCard(),
+
+                const SizedBox(height: 16),
+
+                // Original custmer_requested items
                 _sectionCard(
                   title: 'Requested Items',
                   icon: Icons.inventory_2_outlined,

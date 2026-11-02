@@ -17,6 +17,8 @@ import '../views/accounts_details_view.dart';
 import '../views/decor_list_view.dart';
 import '../widgets/admin_shell.dart';
 import '../views/splash_view.dart';
+//import '../views/package_list_view.dart';
+import '../views/package _create_view.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
@@ -27,48 +29,86 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state, child) =>
           AdminShell(location: state.uri.path, child: child),
       routes: [
-        GoRoute(path: '/dashboard', builder: (c, s) => const OwnerDashboardView()),
-        GoRoute(path: '/analytics', builder: (c, s) => const ClientAnalyticsView()),
         GoRoute(
-  path: '/decor',
-  builder: (c, s) => const DecorListView(),
-),
-GoRoute(
-  path: '/decor/upload',
-  builder: (c, s) => const DecorUploadItemView(),
-),
-       // GoRoute(path: '/decor/upload', builder: (c, s) => const DecorUploadItemView()),
+          path: '/dashboard',
+          builder: (c, s) => const OwnerDashboardView(),
+        ),
+        GoRoute(
+          path: '/analytics',
+          builder: (c, s) => const ClientAnalyticsView(),
+        ),
+        GoRoute(path: '/decor', builder: (c, s) => const DecorListView()),
+        GoRoute(
+          path: '/decor/upload',
+          builder: (c, s) => const DecorUploadItemView(),
+        ),
+
+        GoRoute(
+          path: '/portfolio/package-upload',
+          builder: (context, state) => const PackageCreateView(),
+        ),
+
+        GoRoute(
+          path: '/packages/:packageId/edit',
+          builder: (context, state) =>
+              PackageCreateView(packageId: state.pathParameters['packageId']!),
+        ),
+
+        // GoRoute(path: '/decor/upload', builder: (c, s) => const DecorUploadItemView()),
         GoRoute(
           path: '/quotations',
           builder: (c, s) => const QuotationListView(),
           routes: [
             GoRoute(
               path: ':orderId',
-              builder: (c, s) => QuotationDetailView(orderId: s.pathParameters['orderId']!),
+              builder: (c, s) =>
+                  QuotationDetailView(orderId: s.pathParameters['orderId']!),
               routes: [
                 GoRoute(
                   path: 'edit',
-                  builder: (c, s) => QuotationEditView(orderId: s.pathParameters['orderId']!),
+                  builder: (c, s) =>
+                      QuotationEditView(orderId: s.pathParameters['orderId']!),
                 ),
                 GoRoute(
                   path: 'validate',
-                  builder: (c, s) => ValidatePaymentView(orderId: s.pathParameters['orderId']!),
+                  builder: (c, s) => ValidatePaymentView(
+                    orderId: s.pathParameters['orderId']!,
+                  ),
                 ),
               ],
             ),
           ],
         ),
+
+        // Packages
+        /*GoRoute(
+          path: '/packages',
+          builder: (context, state) => const PackageListView(),
+        ),
+
+        GoRoute(
+          path: '/packages/new',
+          builder: (context, state) => const PackageCreateView(),
+        ),
+
+        GoRoute(
+          path: '/packages/:packageId/edit',
+          builder: (context, state) =>
+              PackageCreateView(packageId: state.pathParameters['packageId']!),
+        ),*/
         GoRoute(
           path: '/bookings',
           builder: (c, s) => const BookingsView(),
           routes: [
             GoRoute(
               path: ':orderId',
-              builder: (c, s) => BookingDetailView(orderId: s.pathParameters['orderId']!),
+              builder: (c, s) =>
+                  BookingDetailView(orderId: s.pathParameters['orderId']!),
               routes: [
                 GoRoute(
                   path: 'progress',
-                  builder: (c, s) => UpdateProgressView(orderId: s.pathParameters['orderId']!),
+                  builder: (c, s) =>
+                      UpdateProgressView(orderId: s.pathParameters['orderId']!),
                 ),
               ],
             ),
@@ -78,7 +118,19 @@ GoRoute(
           path: '/portfolio',
           builder: (c, s) => const PortfolioListView(),
           routes: [
-            GoRoute(path: 'upload', builder: (c, s) => const PortfolioUploadEventView()),
+            GoRoute(
+              path: 'upload',
+              builder: (c, s) => const PortfolioUploadEventView(),
+            ),
+            GoRoute(
+              path: 'package-upload',
+              builder: (c, s) => const PackageCreateView(),
+            ),
+            GoRoute(
+              path: 'package/:packageId/edit',
+              builder: (c, s) =>
+                  PackageCreateView(packageId: s.pathParameters['packageId']!),
+            ),
           ],
         ),
         GoRoute(
@@ -87,7 +139,8 @@ GoRoute(
           routes: [
             GoRoute(
               path: ':userId',
-              builder: (c, s) => AccountDetailView(userId: s.pathParameters['userId']!),
+              builder: (c, s) =>
+                  AccountDetailView(userId: s.pathParameters['userId']!),
             ),
           ],
         ),
