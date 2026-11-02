@@ -1,6 +1,6 @@
 {
-    "name": "admin_flutter_application",
-    "short_name": "admin_flutter_application",
+    "name": "AKEA Admin",
+    "short_name": "AKEA Admin",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
